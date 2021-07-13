@@ -172,18 +172,18 @@ bool Profile::is_imf_compliant(grk_cparameters* parameters, GrkImage* image)
 				 "-> Non-IMF code stream will be generated",
 				 mainlevel);
 		ret = false;
-	}
-
-	/* Validate sublevel */
-	assert(sizeof(tabMaxSubLevelFromMainLevel) ==
-		   (GRK_LEVEL_MAX + 1) * sizeof(tabMaxSubLevelFromMainLevel[0]));
-	if(sublevel > tabMaxSubLevelFromMainLevel[mainlevel])
-	{
-		GRK_WARN("IMF profile requires sublevel <= %u for mainlevel = %u.\n"
-				 "-> %u is thus not compliant\n"
-				 "-> Non-IMF code stream will be generated",
-				 tabMaxSubLevelFromMainLevel[mainlevel], mainlevel, sublevel);
-		ret = false;
+	} else {
+		/* Validate sublevel */
+		assert(sizeof(tabMaxSubLevelFromMainLevel) ==
+			   (GRK_LEVEL_MAX + 1) * sizeof(tabMaxSubLevelFromMainLevel[0]));
+		if(sublevel > tabMaxSubLevelFromMainLevel[mainlevel])
+		{
+			GRK_WARN("IMF profile requires sublevel <= %u for mainlevel = %u.\n"
+					 "-> %u is thus not compliant\n"
+					 "-> Non-IMF code stream will be generated",
+					 tabMaxSubLevelFromMainLevel[mainlevel], mainlevel, sublevel);
+			ret = false;
+		}
 	}
 	int m = max((int)mainlevel - 2, 1);
 	if((int)sublevel > m)
@@ -314,7 +314,7 @@ bool Profile::is_imf_compliant(grk_cparameters* parameters, GrkImage* image)
 		if(image->comps[i].dy != 1)
 		{
 			GRK_WARN("IMF profiles require YRsiz == 1. "
-					 "Here it is set to %u for component i.\n"
+					 "Here it is set to %u for component %d.\n"
 					 "-> Non-IMF code stream will be generated",
 					 image->comps[i].dy, i);
 			ret = false;
