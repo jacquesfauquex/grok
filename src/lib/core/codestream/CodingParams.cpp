@@ -34,7 +34,7 @@ CodingParams::~CodingParams()
 {
 	delete[] tcps;
 	for(uint32_t i = 0; i < num_comments; ++i)
-		delete[]((uint8_t*)comment[i]);
+		delete[] comment[i];
 	num_comments = 0;
 	delete plm_markers;
 	delete tlm_markers;

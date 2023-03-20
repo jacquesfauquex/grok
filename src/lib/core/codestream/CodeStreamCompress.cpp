@@ -333,32 +333,20 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 						 cp_.comment_len[i], GRK_MAX_COMMENT_LENGTH);
 				continue;
 			}
-			cp_.comment[i] = (char*)new uint8_t[cp_.comment_len[i]];
-			if(!cp_.comment[i])
-			{
-				GRK_ERROR("Not enough memory to allocate copy of comment string");
-				return false;
-			}
-			memcpy(cp_.comment[i], parameters->comment[i], cp_.comment_len[i]);
 			cp_.isBinaryComment[i] = parameters->is_binary_comment[i];
+			cp_.comment[i] = new char[cp_.comment_len[i]];
+			memcpy(cp_.comment[i], parameters->comment[i], cp_.comment_len[i]);
 			cp_.num_comments++;
 		}
 	}
 	else
 	{
 		/* Create default comment for code stream */
-		const char comment[] = "Created by Grok version ";
-		const size_t clen = strlen(comment);
-		const char* version = grk_version();
-
-		cp_.comment[0] = (char*)new uint8_t[clen + strlen(version) + 1];
-		if(!cp_.comment[0])
-		{
-			GRK_ERROR("Not enough memory to allocate comment string");
-			return false;
-		}
-		sprintf(cp_.comment[0], "%s%s", comment, version);
-		cp_.comment_len[0] = (uint16_t)strlen(cp_.comment[0]);
+		auto comment = std::string("Created by Grok version ") + grk_version();
+		auto comment_len = comment.size();
+		cp_.comment[0] = new char[comment_len];
+		memcpy(cp_.comment[0], comment.c_str(), comment_len);
+		cp_.comment_len[0] = (uint16_t)comment_len;
 		cp_.num_comments = 1;
 		cp_.isBinaryComment[0] = false;
 	}
