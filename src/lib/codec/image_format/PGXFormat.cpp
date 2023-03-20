@@ -207,39 +207,26 @@ bool PGXFormat::encodeHeader(void)
 }
 bool PGXFormat::encodePixels(void)
 {
-	const char* outfile = fileName_.c_str();
 	bool success = false;
 	for(uint16_t compno = 0; compno < image_->numcomps; compno++)
 	{
 		auto comp = &image_->comps[compno];
-		char bname[4096]; /* buffer for name */
-		bname[4095] = '\0';
 		int nbytes = 0;
-		const size_t olen = strlen(outfile);
-		if(olen > 4096)
-		{
-			spdlog::error(" imagetopgx: output file name size larger than 4096.");
-			goto beach;
-		}
-		if(olen < 4)
+		if(fileName_.size() < 4)
 		{
 			spdlog::error(" imagetopgx: output file name size less than 4.");
 			goto beach;
 		}
-		const size_t dotpos = olen - 4;
-		if(outfile[dotpos] != '.')
-		{
+		auto pos = fileName_.rfind(".");
+		if(pos == std::string::npos) {
 			spdlog::error(" pgx was recognized but there was no dot at expected position .");
 			goto beach;
 		}
-		// copy root outfile name to "name"
-		memcpy(bname, outfile, dotpos);
-		// add new tag
-		sprintf(bname + dotpos, "_%u.pgx", compno);
-		fileStream_ = fopen(bname, "wb");
+		std::string fileOut = fileName_.substr(0, pos) + std::string("_") + std::to_string(compno) + ".pgx";
+		fileStream_ = fopen(fileOut.c_str(), "wb");
 		if(!fileStream_)
 		{
-			spdlog::error("failed to open {} for writing", bname);
+			spdlog::error("failed to open {} for writing", fileOut);
 			goto beach;
 		}
 
@@ -269,7 +256,7 @@ bool PGXFormat::encodePixels(void)
 					if(!grk::writeBytes<uint8_t>((uint8_t)val, buf, &outPtr, &outCount, bufSize,
 												 true, fileStream_))
 					{
-						spdlog::error("failed to write bytes for {}", bname);
+						spdlog::error("failed to write bytes for {}", fileOut);
 						goto beach;
 					}
 				}
@@ -280,7 +267,7 @@ bool PGXFormat::encodePixels(void)
 				size_t res = fwrite(buf, sizeof(uint8_t), outCount, fileStream_);
 				if(res != outCount)
 				{
-					spdlog::error("failed to write bytes for {}", bname);
+					spdlog::error("failed to write bytes for {}", fileOut);
 					goto beach;
 				}
 			}
@@ -297,7 +284,7 @@ bool PGXFormat::encodePixels(void)
 					if(!grk::writeBytes<uint16_t>((uint16_t)val, buf, &outPtr, &outCount, bufSize,
 												  true, fileStream_))
 					{
-						spdlog::error("failed to write bytes for {}", bname);
+						spdlog::error("failed to write bytes for {}", fileOut);
 						goto beach;
 					}
 				}
@@ -308,7 +295,7 @@ bool PGXFormat::encodePixels(void)
 				size_t res = fwrite(buf, sizeof(uint16_t), outCount, fileStream_);
 				if(res != outCount)
 				{
-					spdlog::error("failed to write bytes for {}", bname);
+					spdlog::error("failed to write bytes for {}", fileOut);
 					goto beach;
 				}
 			}
