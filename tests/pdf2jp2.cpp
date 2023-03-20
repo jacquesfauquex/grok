@@ -35,10 +35,11 @@
  * 8/ColorSpace/DeviceRGB/Width 712/Height 1052>>stream
  */
 #define _GNU_SOURCE
-#include <assert.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
+#include <cassert>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <string>
 
 #ifdef _WIN32
 
@@ -161,9 +162,8 @@ int main(int argc, char *argv[]) {
 
         // now read len bytes into file - this is the jp2 image
         FILE *jp2;
-        char jp2fn[512];
-        sprintf(jp2fn, "%s.%u.jp2", filename, i);
-        jp2 = fopen(jp2fn, "wb");
+        std::string jp2fn = filename + std::string(".") + std::to_string(i) + ".jp2";
+        jp2 = fopen(jp2fn.c_str(), "wb");
         for (int j = 0; j < len; ++j) {
           char v = fgetc(f);
           int ret2 = fputc(v, jp2);
