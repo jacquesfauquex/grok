@@ -976,9 +976,6 @@ int GrkCompareImages::main(int argc, char** argv)
 		{ /* Non regression-test */
 			if(nbPixelDiff != 0)
 			{
-				char it_compc[255];
-				it_compc[0] = 0;
-
 				spdlog::info("<DartMeasurement name=\"NumberOfPixelsWithDifferences_{}\" "
 							 "type=\"numeric/int\"> {} </DartMeasurement>",
 							 compno, nbPixelDiff);
@@ -993,59 +990,28 @@ int GrkCompareImages::main(int argc, char** argv)
 							 compno, MSE);
 #ifdef GROK_HAVE_LIBPNG
 				{
-					char* filenamePNGbase_it_comp = nullptr;
-					char* filenamePNGtest_it_comp = nullptr;
-					char* filenamePNGdiff_it_comp = nullptr;
-
-					filenamePNGbase_it_comp = (char*)malloc(memsizebasefilename);
-					if(!filenamePNGbase_it_comp)
-					{
-						goto cleanup;
-					}
-					strcpy(filenamePNGbase_it_comp, baseFileName);
-
-					filenamePNGtest_it_comp = (char*)malloc(memsizetestfilename);
-					if(!filenamePNGtest_it_comp)
-					{
-						free(filenamePNGbase_it_comp);
-						goto cleanup;
-					}
-					strcpy(filenamePNGtest_it_comp, testFileName);
-
-					filenamePNGdiff_it_comp = (char*)malloc(memsizedifffilename);
-					if(!filenamePNGdiff_it_comp)
-					{
-						free(filenamePNGbase_it_comp);
-						free(filenamePNGtest_it_comp);
-						goto cleanup;
-					}
-					strcpy(filenamePNGdiff_it_comp, filenamePNGdiff);
-					sprintf(it_compc, "_%i", compno);
-					strcat(it_compc, ".png");
-					strcat(filenamePNGbase_it_comp, it_compc);
-					strcat(filenamePNGtest_it_comp, it_compc);
-					strcat(filenamePNGdiff_it_comp, it_compc);
-					if(imageToPNG(imageBase, filenamePNGbase_it_comp, compno) == EXIT_SUCCESS)
+					std::string it_compc = std::string("_") + std::to_string(compno) + ".png";
+					std::string filenamePNGbase_it_comp = baseFileName + it_compc;
+					std::string filenamePNGtest_it_comp = testFileName + it_compc;
+					std::string filenamePNGdiff_it_comp = filenamePNGdiff + it_compc;
+					if(imageToPNG(imageBase, filenamePNGbase_it_comp.c_str(), compno) == EXIT_SUCCESS)
 					{
 						spdlog::info("<DartMeasurementFile name=\"BaselineImage_{}\" "
 									 "type=\"image/png\"> {} </DartMeasurementFile>",
 									 compno, filenamePNGbase_it_comp);
 					}
-					if(imageToPNG(imageTest, filenamePNGtest_it_comp, compno) == EXIT_SUCCESS)
+					if(imageToPNG(imageTest, filenamePNGtest_it_comp.c_str(), compno) == EXIT_SUCCESS)
 					{
 						spdlog::info("<DartMeasurementFile name=\"TestImage_{}\" "
 									 "type=\"image/png\"> {} </DartMeasurementFile>",
 									 compno, filenamePNGtest_it_comp);
 					}
-					if(imageToPNG(imageDiff, filenamePNGdiff_it_comp, compno) == EXIT_SUCCESS)
+					if(imageToPNG(imageDiff, filenamePNGdiff_it_comp.c_str(), compno) == EXIT_SUCCESS)
 					{
 						spdlog::info("<DartMeasurementFile name=\"DiffferenceImage_{}\" "
 									 "type=\"image/png\"> {} </DartMeasurementFile>",
 									 compno, filenamePNGdiff_it_comp);
 					}
-					free(filenamePNGbase_it_comp);
-					free(filenamePNGtest_it_comp);
-					free(filenamePNGdiff_it_comp);
 				}
 #endif
 			}
