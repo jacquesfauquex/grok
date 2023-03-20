@@ -1855,30 +1855,27 @@ static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* i
 	uint64_t compressedBytes = 0;
 	grk_codec* codec = nullptr;
 	grk_image* image = info->image;
-	char outfile[3 * GRK_PATH_LEN];
-	char temp_ofname[GRK_PATH_LEN];
 	bool createdImage = false;
+	std::string outfile;
+	std::string temp_ofname;
 
 	// get output file
-	outfile[0] = 0;
 	if(!info->out_buffer)
 	{
 		if(info->output_file_name && info->output_file_name[0])
 		{
 			if(info->outputFileNameIsRelative)
 			{
-				strcpy(temp_ofname, get_file_name((char*)info->output_file_name));
+				temp_ofname = get_file_name((char*)info->output_file_name);
 				if(img_fol_plugin.set_out_format)
 				{
-					sprintf(outfile, "%s%s%s.%s",
-							out_fol_plugin.imgdirpath ? out_fol_plugin.imgdirpath
-													  : img_fol_plugin.imgdirpath,
-							grk::pathSeparator(), temp_ofname, img_fol_plugin.out_format);
+					outfile = (out_fol_plugin.imgdirpath ? out_fol_plugin.imgdirpath : img_fol_plugin.imgdirpath);
+					outfile += grk::pathSeparator() + temp_ofname + "." + img_fol_plugin.out_format;
 				}
 			}
 			else
 			{
-				strcpy(outfile, info->output_file_name);
+				outfile = info->output_file_name;
 			}
 		}
 		else
@@ -2145,7 +2142,7 @@ static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* i
 	}
 
 	if(!info->stream_params.buf)
-		info->stream_params.file = outfile;
+		info->stream_params.file = outfile.c_str();
 
 	grk_set_msg_handlers(parameters->verbose ? infoCallback : nullptr, nullptr,
 						 parameters->verbose ? warningCallback : nullptr, nullptr, errorCallback,
