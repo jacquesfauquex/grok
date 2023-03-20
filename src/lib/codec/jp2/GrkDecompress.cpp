@@ -542,11 +542,9 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		}
 		if(outForArg.isSet())
 		{
-			char outformat[50];
-			const char* of = outForArg.getValue().c_str();
-			sprintf(outformat, ".%s", of);
+			std::string outformat = std::string(".") + outForArg.getValue();
 			inputFolder->set_out_format = true;
-			parameters->cod_format = (GRK_SUPPORTED_FILE_FMT)grk_get_file_format(outformat);
+			parameters->cod_format = (GRK_SUPPORTED_FILE_FMT)grk_get_file_format(outformat.c_str());
 			switch(parameters->cod_format)
 			{
 				case GRK_FMT_PGX:
