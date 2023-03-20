@@ -120,35 +120,25 @@ static int loadImages(dircnt* dirptr, char* imgdirpath)
 static char nextFile(size_t imageno, dircnt* dirptr, inputFolder* inputFolder,
 					 grk_decompress_parameters* parameters)
 {
-	char inputFile[GRK_PATH_LEN], infilename[3 * GRK_PATH_LEN], temp_ofname[GRK_PATH_LEN];
-	char *temp_p, temp1[GRK_PATH_LEN] = "";
-
-	strcpy(inputFile, dirptr->filename[imageno]);
+	std::string inputFile = dirptr->filename[imageno];
 	spdlog::info("File Number {} \"{}\"", imageno, inputFile);
-	if(!grk_decompress_detect_format(inputFile, &parameters->decod_format))
+	if(!grk_decompress_detect_format(inputFile.c_str(), &parameters->decod_format))
 		return 1;
-	sprintf(infilename, "%s/%s", inputFolder->imgdirpath, inputFile);
-	if(grk::strcpy_s(parameters->infile, sizeof(parameters->infile), infilename) != 0)
-	{
+	std::string inputFileFullPath = inputFolder->imgdirpath +  inputFile;
+	if(grk::strcpy_s(parameters->infile, sizeof(parameters->infile), inputFileFullPath.c_str()) != 0)
 		return 1;
-	}
 
-	/*Set output file*/
-	strcpy(temp_ofname, strtok(inputFile, "."));
-	while((temp_p = strtok(nullptr, ".")) != nullptr)
-	{
-		strcat(temp_ofname, temp1);
-		sprintf(temp1, ".%s", temp_p);
-	}
+	std::string baseFile;
+	auto pos = inputFile.rfind(".");
+	if(pos == std::string::npos)
+		baseFile = inputFile;
+	else
+		baseFile = inputFile.substr(0, pos);
 	if(inputFolder->set_out_format)
 	{
-		char outfilename[3 * GRK_PATH_LEN];
-		sprintf(outfilename, "%s/%s.%s", inputFolder->imgdirpath, temp_ofname,
-				inputFolder->out_format);
-		if(grk::strcpy_s(parameters->outfile, sizeof(parameters->outfile), outfilename) != 0)
-		{
+		std::string outfilename = inputFolder->imgdirpath + baseFile + "." + inputFolder->out_format;
+		if(grk::strcpy_s(parameters->outfile, sizeof(parameters->outfile), outfilename.c_str()) != 0)
 			return 1;
-		}
 	}
 	return 0;
 }
