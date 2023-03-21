@@ -416,7 +416,8 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 	}
 	try
 	{
-		while(read_box_hdr(&box, &bytesRead, stream))
+		bool codeStreamBoxWasRead = false;
+		while(read_box_hdr(&box, &bytesRead, codeStreamBoxWasRead, stream))
 		{
 			/* is it the code stream box ? */
 			if(box.type == JP2_JP2C)
@@ -429,16 +430,17 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 				}
 				else
 				{
-					GRK_ERROR("bad placed jpeg code stream");
+					GRK_ERROR("corrupt JPEG 2000 code stream");
 					goto cleanup;
 				}
+				codeStreamBoxWasRead = true;
 			}
 			auto current_handler = find_handler(box.type);
 			auto current_handler_misplaced = img_find_handler(box.type);
 			current_data_size = (uint32_t)(box.length - bytesRead);
 			if(current_handler || current_handler_misplaced)
 			{
-				if(current_handler == nullptr)
+				if(!current_handler)
 				{
 					GRK_WARN("Found a misplaced '%c%c%c%c' box outside jp2h box",
 							 (uint8_t)(box.type >> 24), (uint8_t)(box.type >> 16),
@@ -546,11 +548,11 @@ cleanup:
  *
  */
 bool FileFormatDecompress::read_box_hdr(FileFormatBox* box, uint32_t* p_number_bytes_read,
-										BufferedStream* stream)
+										bool codeStreamBoxWasRead, BufferedStream* stream)
 {
-	assert(stream != nullptr);
-	assert(box != nullptr);
-	assert(p_number_bytes_read != nullptr);
+	assert(stream);
+	assert(box);
+	assert(p_number_bytes_read);
 
 	uint8_t data_header[8];
 	*p_number_bytes_read = (uint32_t)stream->read(data_header, 8);
@@ -564,8 +566,19 @@ bool FileFormatDecompress::read_box_hdr(FileFormatBox* box, uint32_t* p_number_b
 	box->length = L;
 	grk_read<uint32_t>(data_header + 4, &(box->type));
 	if(box->length == 0)
-	{ /* last box */
-		box->length = stream->numBytesLeft() + 8U;
+	{
+		// treat this as final box if it is the code stream box,
+		// or if the code stream box has already been read. Otherwise,
+		// treat this as a corrupt box, since we reject a code stream without
+		// any code stream box
+		if (box->type == JP2_JP2C || codeStreamBoxWasRead) {
+			box->length = stream->numBytesLeft() + 8U;
+		}
+		else
+		{
+			GRK_ERROR("box 0x%x is signaled as final box, but code stream box has not been read.", box->type);
+			throw CorruptJP2BoxException();
+		}
 		return true;
 	}
 	/* read XL  */
