@@ -50,9 +50,10 @@ set(GROK_CODEC_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/spdlog.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/color_sinks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/stdout_sinks.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/fmt.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/async.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/file_sinks.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/bundled_fmtlib_format.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/spdlog/cfg.cpp  
   ${CMAKE_CURRENT_SOURCE_DIR}/jp2/GrkCompress.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/jp2/GrkDecompress.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/jp2/GrkDump.cpp
