@@ -135,15 +135,15 @@ static int16_t getnmsedec_sig(uint32_t x, uint32_t bitpos);
 static int16_t getnmsedec_ref(uint32_t x, uint32_t bitpos);
 // DECODE
 static INLINE uint8_t getctxno_zc(mqcoder* mqc, uint32_t f);
-static INLINE uint32_t getctxno_mag(uint32_t f);
-static INLINE uint32_t getctxtno_sc_or_spb_index(uint32_t fX, uint32_t pfX, uint32_t nfX,
+static INLINE uint8_t getctxno_mag(uint32_t f);
+static INLINE uint8_t getctxtno_sc_or_spb_index(uint32_t fX, uint32_t pfX, uint32_t nfX,
 												 uint32_t ci);
 static INLINE uint8_t getspb(uint32_t lu);
 static INLINE uint8_t getctxno_zc(mqcoder* mqc, uint32_t f)
 {
 	return mqc->lut_ctxno_zc_orient[(f & T1_SIGMA_NEIGHBOURS)];
 }
-static INLINE uint32_t getctxtno_sc_or_spb_index(uint32_t fX, uint32_t pfX, uint32_t nfX,
+static INLINE uint8_t getctxtno_sc_or_spb_index(uint32_t fX, uint32_t pfX, uint32_t nfX,
 												 uint32_t ci)
 {
 	/*
@@ -169,18 +169,19 @@ static INLINE uint32_t getctxtno_sc_or_spb_index(uint32_t fX, uint32_t pfX, uint
 		lu |= (fX >> (T1_CHI_1_I - 4U + ((ci - 3U)))) & (1U << 4);
 	}
 	lu |= (fX >> (T1_CHI_2_I - 6U + (ci))) & (1U << 6);
-	return lu;
+
+	return (uint8_t)lu;
 }
 static INLINE uint8_t getctxno_sc(uint32_t lu)
 {
 	return lut_ctxno_sc[lu];
 }
-static INLINE uint32_t getctxno_mag(uint32_t f)
+static INLINE uint8_t getctxno_mag(uint32_t f)
 {
 	uint32_t tmp = (f & T1_SIGMA_NEIGHBOURS) ? T1_CTXNO_MAG + 1 : T1_CTXNO_MAG;
 	uint32_t tmp2 = (f & T1_MU_0) ? T1_CTXNO_MAG + 2 : tmp;
 
-	return tmp2;
+	return (uint8_t)tmp2;
 }
 static INLINE uint8_t getspb(uint32_t lu)
 {
@@ -458,9 +459,9 @@ int T1::enc_is_term_pass(cblk_enc* cblk, uint32_t cblksty, int32_t bpno, uint32_
 		if((flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))) == 0U &&                             \
 		   (flags & (T1_SIGMA_NEIGHBOURS << (ci))) != 0U)                                        \
 		{                                                                                        \
-			uint32_t ctxt1 = getctxno_zc(mqc, flags >> (ci));                                    \
+			uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));                                    \
 			v = !!(smr_abs(*(datap)) & (uint32_t)one);                                           \
-			curctx = mqc->ctxs + ctxt1;                                                          \
+			curctx = mqc->ctxs + ctxno;                                                          \
 			if(type == T1_TYPE_RAW)                                                              \
 				mqc_bypass_enc_macro(mqc, c, ct, v) else mqc_encode_macro(mqc, curctx, a, c, ct, \
 																		  v) if(v)               \
@@ -537,11 +538,11 @@ void T1::enc_sigpass(int32_t bpno, int32_t* nmsedec, uint8_t type, uint32_t cblk
 		uint32_t const shift_flags = (*flagsp >> (ci));                                  \
 		if((shift_flags & (T1_SIGMA_THIS | T1_PI_THIS)) == T1_SIGMA_THIS)                \
 		{                                                                                \
-			uint32_t ctxt = getctxno_mag(shift_flags);                                   \
+			uint8_t ctxno = getctxno_mag(shift_flags);                                   \
 			if(nmsedec)                                                                  \
 				*nmsedec += getnmsedec_ref((uint32_t)smr_abs(*(datap)), (uint32_t)bpno); \
 			v = !!(smr_abs(*(datap)) & (uint32_t)one);                                   \
-			curctx = mqc->ctxs + ctxt;                                                   \
+			curctx = mqc->ctxs + ctxno;                                                   \
 			if(type == T1_TYPE_RAW)                                                      \
 				mqc_bypass_enc_macro(mqc, c, ct, v) else mqc_encode_macro(               \
 					mqc, curctx, a, c, ct, v)* flagsp |= T1_MU_THIS << (ci);             \
@@ -621,11 +622,13 @@ void T1::enc_clnpass(int32_t bpno, int32_t* nmsedec, uint32_t cblksty)
 					   (uint32_t)one)
 						break;
 				}
-				curctx = mqc->ctxs + T1_CTXNO_AGG;
+				uint8_t ctxno = T1_CTXNO_AGG;
+				curctx = mqc->ctxs + ctxno;
 				mqc_encode_macro(mqc, curctx, a, c, ct, runlen != 4);
 				if(runlen == 4)
 					continue;
-				curctx = mqc->ctxs + T1_CTXNO_UNI;
+				ctxno = T1_CTXNO_UNI;
+				curctx = mqc->ctxs + ctxno;
 				mqc_encode_macro(mqc, curctx, a, c, ct, runlen >> 1);
 				mqc_encode_macro(mqc, curctx, a, c, ct, runlen & 1);
 			}
@@ -662,8 +665,8 @@ void T1::enc_clnpass(int32_t bpno, int32_t* nmsedec, uint32_t cblksty)
 					goto_PARTIAL = true;
 				else if(!(flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))))
 				{
-					uint32_t ctxt1 = getctxno_zc(mqc, flags >> (ci));
-					curctx = mqc->ctxs + ctxt1;
+					uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));
+					curctx = mqc->ctxs + ctxno;
 					uint32_t v = !!(smr_abs(*datap) & (uint32_t)one);
 					mqc_encode_macro(mqc, curctx, a, c, ct, v);
 					goto_PARTIAL = v;
@@ -674,8 +677,8 @@ void T1::enc_clnpass(int32_t bpno, int32_t* nmsedec, uint32_t cblksty)
 						getctxtno_sc_or_spb_index(*flagsp, *(flagsp - 1), *(flagsp + 1), ci);
 					if(nmsedec)
 						*nmsedec += getnmsedec_sig((uint32_t)smr_abs(*datap), (uint32_t)bpno);
-					uint32_t ctxt2 = getctxno_sc(lu);
-					curctx = mqc->ctxs + ctxt2;
+					uint8_t ctxno = getctxno_sc(lu);
+					curctx = mqc->ctxs + ctxno;
 					uint32_t v = smr_sign(*datap);
 					uint32_t spb = getspb(lu);
 					mqc_encode_macro(mqc, curctx, a, c, ct, v ^ spb);
@@ -724,8 +727,8 @@ void T1::enc_clnpass(int32_t bpno, int32_t* nmsedec, uint32_t cblksty)
 				auto flags = *flagsp;
 				if(!(flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))))
 				{
-					uint32_t ctxt1 = getctxno_zc(mqc, flags >> (ci));
-					curctx = mqc->ctxs + ctxt1;
+					uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));
+					curctx = mqc->ctxs + ctxno;
 					uint32_t v = !!(smr_abs(*datap) & (uint32_t)one);
 					mqc_encode_macro(mqc, curctx, a, c, ct, v);
 					goto_PARTIAL = v;
@@ -736,8 +739,8 @@ void T1::enc_clnpass(int32_t bpno, int32_t* nmsedec, uint32_t cblksty)
 						getctxtno_sc_or_spb_index(*flagsp, *(flagsp - 1), *(flagsp + 1), ci);
 					if(nmsedec)
 						*nmsedec += getnmsedec_sig((uint32_t)smr_abs(*datap), (uint32_t)bpno);
-					uint32_t ctxt2 = getctxno_sc(lu);
-					curctx = mqc->ctxs + ctxt2;
+					uint8_t ctxno = getctxno_sc(lu);
+					curctx = mqc->ctxs + ctxno;
 					uint32_t v = smr_sign(*datap);
 					uint32_t spb = getspb(lu);
 					mqc_encode_macro(mqc, curctx, a, c, ct, v ^ spb);
@@ -784,6 +787,15 @@ double T1::compress_cblk(cblk_enc* cblk, uint32_t max, uint8_t orientation, uint
 	uint32_t passtype = 2;
 	mqc_resetstates(mqc);
 	mqc_init_enc(mqc, cblk->data);
+#ifdef PLUGIN_DEBUG_ENCODE
+	//uint32_t state = Plugin::getDebugState();
+	//if (state & GROK_PLUGIN_STATE_DEBUG) {
+		mqc->debug_mqc.contextStream = cblk->contextStream;
+		mqc->debug_mqc.orientation = orientation;
+		mqc->debug_mqc.compno = compno;
+		mqc->debug_mqc.level =  level;
+	//}
+#endif
 
 	double cumwmsedec = 0.0;
 	uint32_t passno;
@@ -816,6 +828,11 @@ double T1::compress_cblk(cblk_enc* cblk, uint32_t max, uint8_t orientation, uint
 				enc_clnpass(bpno, p_nmsdedec, cblksty);
 				if(cblksty & GRK_CBLKSTY_SEGSYM)
 					mqc_segmark_enc(mqc);
+#ifdef PLUGIN_DEBUG_ENCODE
+			//if (state & GROK_PLUGIN_STATE_DEBUG) {
+				mqc_next_plane(&mqc->debug_mqc);
+			//}
+#endif
 				break;
 		}
 		if(doRateControl)

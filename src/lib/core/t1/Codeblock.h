@@ -142,7 +142,10 @@ struct CompressCodeblock : public Codeblock
 {
 	CompressCodeblock(uint16_t numLayers)
 		: Codeblock(numLayers), paddedCompressedStream(nullptr), layers(nullptr), passes(nullptr),
-		  numPassesInPreviousPackets(0), numPassesTotal(0), contextStream(nullptr)
+		  numPassesInPreviousPackets(0), numPassesTotal(0)
+#ifdef PLUGIN_DEBUG_ENCODE
+	, contextStream(nullptr)
+#endif
 	{}
 	virtual ~CompressCodeblock()
 	{
@@ -194,7 +197,9 @@ struct CompressCodeblock : public Codeblock
 	CodePass* passes;
 	uint32_t numPassesInPreviousPackets; /* number of passes in previous packets */
 	uint32_t numPassesTotal; /* total number of passes in all layers */
+#ifdef PLUGIN_DEBUG_ENCODE
 	uint32_t* contextStream;
+#endif
 };
 
 struct DecompressCodeblock : public Codeblock

@@ -109,6 +109,9 @@ namespace t1_part1
 		assert(cblk->height() > 0);
 
 		cblkexp.data = cblk->paddedCompressedStream;
+#ifdef PLUGIN_DEBUG_ENCODE
+		cblkexp.contextStream = cblk->contextStream;
+#endif
 
 		auto distortion = t1->compress_cblk(
 			&cblkexp, max, block->bandOrientation, block->compno,

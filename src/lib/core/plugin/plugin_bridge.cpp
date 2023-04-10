@@ -272,6 +272,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 }
 
 // set context stream for debugging purposes
+#ifdef PLUGIN_DEBUG_ENCODE
 void set_context_stream(TileProcessor* p_tileProcessor)
 {
 	auto tile = p_tileProcessor->getTile();
@@ -335,5 +336,6 @@ void nextCXD(grk_plugin_debug_mqc* mqc, uint32_t d)
 			func(mqc, d);
 	}
 }
+#endif
 
 } // namespace grk

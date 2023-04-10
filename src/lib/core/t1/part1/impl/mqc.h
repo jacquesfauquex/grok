@@ -22,8 +22,15 @@
 #pragma once
 
 #include <t1_common.h>
+#include "plugin_interface.h"
 namespace grk
 {
+
+
+// the next line must be uncommented in order to support debugging
+// for plugin encode
+//#define PLUGIN_DEBUG_ENCODE
+
 struct mqc_state;
 struct mqcoder;
 
@@ -64,6 +71,9 @@ struct mqcoder
 	const uint8_t* lut_ctxno_zc_orient;
 	/** Original value of the 2 bytes at end[0] and end[1] */
 	uint8_t backup[grk_cblk_dec_compressed_data_pad_right];
+#ifdef PLUGIN_DEBUG_ENCODE
+	grk_plugin_debug_mqc debug_mqc;
+#endif
 };
 
 const uint32_t A_MIN = 0x8000;

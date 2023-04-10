@@ -42,11 +42,14 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 
 bool tile_equals(grk_plugin_tile* plugin_tile, Tile* tilePtr);
 
+#ifdef PLUGIN_DEBUG_ENCODE
 // set context stream for debugging purposes
 void set_context_stream(TileProcessor* p_tileProcessor);
 
 void nextCXD(grk_plugin_debug_mqc* mqc, uint32_t d);
 
 void mqc_next_plane(grk_plugin_debug_mqc* mqc);
+
+#endif
 
 } // namespace grk

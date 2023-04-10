@@ -310,8 +310,10 @@ void TileProcessor::deallocBuffers()
 bool TileProcessor::doCompress(void)
 {
 	uint32_t state = grk_plugin_get_debug_state();
+#ifdef PLUGIN_DEBUG_ENCODE
 	if(state & GRK_PLUGIN_STATE_DEBUG)
 		set_context_stream(this);
+#endif
 
 	tcp_ = &cp_->tcps[tileIndex_];
 

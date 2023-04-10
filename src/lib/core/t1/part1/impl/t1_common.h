@@ -75,6 +75,9 @@ struct cblk_enc
 	uint32_t x0, y0, x1, y1;
 	uint8_t numbps;
 	uint32_t numPassesTotal;
+#ifdef PLUGIN_DEBUG_ENCODE
+	uint32_t* contextStream;
+#endif
 };
 
 /* Macros to deal with signed integer with just MSB bit set for

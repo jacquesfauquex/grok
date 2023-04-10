@@ -35,4 +35,12 @@
 	mqc->a = a;           \
 	mqc->ct = ct;
 
+#ifdef PLUGIN_DEBUG_ENCODE
+#define mqc_setcurctx(mqc, ctxno) \
+	(mqc)->debug_mqc.context_number = ctxno; \
+	(mqc)->curctx = (mqc)->ctxs + (uint32_t)(ctxno)
+#else
+
 #define mqc_setcurctx(mqc, ctxno) (mqc)->curctx = (mqc)->ctxs + (uint32_t)(ctxno)
+
+#endif
