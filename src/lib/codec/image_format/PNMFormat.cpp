@@ -597,7 +597,7 @@ bool PNMFormat::decodeHeader(struct pnm_header* ph)
 		{
 			spdlog::warn("Tuple colour space {} does not match depth {}. "
 						 "Will use depth colour space",
-						 ph->colour_space, depth_colour_space);
+						 (size_t)ph->colour_space, (size_t)depth_colour_space);
 		}
 		ph->colour_space = depth_colour_space;
 	}
