@@ -467,11 +467,11 @@ int T1::enc_is_term_pass(cblk_enc* cblk, uint32_t cblksty, int32_t bpno, uint32_
 																		  v) if(v)               \
 				{                                                                                \
 					uint32_t lu = getctxtno_sc_or_spb_index(*flagsp, flagsp[-1], flagsp[1], ci); \
-					uint32_t ctxt2 = getctxno_sc(lu);                                            \
+					ctxno = getctxno_sc(lu);                                            \
 					v = smr_sign(*(datap));                                                      \
 					if(nmsedec)                                                                  \
 						*nmsedec += getnmsedec_sig((uint32_t)smr_abs(*(datap)), (uint32_t)bpno); \
-					curctx = mqc->ctxs + ctxt2;                                                  \
+					curctx = mqc->ctxs + ctxno;                                                  \
 					if(type == T1_TYPE_RAW)                                                      \
 						mqc_bypass_enc_macro(mqc, c, ct, v) else mqc_encode_macro(               \
 							mqc, curctx, a, c, ct, v ^ getspb(lu))                               \
