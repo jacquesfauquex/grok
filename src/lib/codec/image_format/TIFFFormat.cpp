@@ -26,6 +26,7 @@
 #endif
 
 #include "grok.h"
+#include "spdlog/spdlog.h"
 #include "TIFFFormat.h"
 #include "convert.h"
 #include "common.h"

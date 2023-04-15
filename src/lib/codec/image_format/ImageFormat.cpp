@@ -17,6 +17,7 @@
 #include "ImageFormat.h"
 #include "convert.h"
 #include <algorithm>
+#include "spdlog/spdlog.h"
 #include "common.h"
 #include "FileStreamIO.h"
 

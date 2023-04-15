@@ -37,7 +37,6 @@
 #include <algorithm>
 #include <chrono>
 
-#include "spdlog/spdlog.h"
 #include "grok.h"
 #include "Serializer.h"
 
@@ -86,16 +85,9 @@ const size_t maxICCProfileBufferLen = 10000000;
 
 class ChronoTimer {
 public:
-	ChronoTimer(std::string msg) : message(msg){
-	}
-	void start(void){
-		startTime = std::chrono::high_resolution_clock::now();
-	}
-	void finish(void){
-		auto finish = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double> elapsed = finish - startTime;
-		spdlog::info("{} : {} ms",message, elapsed.count() * 1000);
-	}
+	ChronoTimer(std::string msg);
+	void start(void);
+	void finish(void);
 private:
 	std::string message;
 	std::chrono::high_resolution_clock::time_point startTime;

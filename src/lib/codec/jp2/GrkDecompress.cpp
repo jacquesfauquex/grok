@@ -40,6 +40,7 @@
 #include "common.h"
 #include "codec_common.h"
 #include "grok.h"
+#include "spdlog/spdlog.h"
 #include "RAWFormat.h"
 #include "PNMFormat.h"
 #include "PGXFormat.h"

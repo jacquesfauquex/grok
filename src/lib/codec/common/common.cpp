@@ -27,10 +27,23 @@
 #define strcasecmp _stricmp
 #endif
 
+#include "spdlog/spdlog.h"
 #include "common.h"
 
 namespace grk
 {
+
+ChronoTimer::ChronoTimer(std::string msg) : message(msg){
+}
+void ChronoTimer::start(void){
+	startTime = std::chrono::high_resolution_clock::now();
+}
+void ChronoTimer::finish(void){
+	auto finish = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = finish - startTime;
+	spdlog::info("{} : {} ms",message, elapsed.count() * 1000);
+}
+
 std::string convertFileFmtToString(GRK_SUPPORTED_FILE_FMT fmt)
 {
 	switch(fmt)

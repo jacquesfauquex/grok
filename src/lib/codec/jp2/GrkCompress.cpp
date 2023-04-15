@@ -45,6 +45,7 @@
 using namespace grk;
 #include "grk_apps_config.h"
 #include "grok.h"
+#include "spdlog/spdlog.h"
 #include "RAWFormat.h"
 #include "PNMFormat.h"
 #include "PGXFormat.h"

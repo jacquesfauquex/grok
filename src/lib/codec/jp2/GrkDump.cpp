@@ -29,6 +29,7 @@
 #endif /* _WIN32 */
 
 #include "grk_config.h"
+#include "spdlog/spdlog.h"
 #include "common.h"
 #define TCLAP_NAMESTARTSTRING "-"
 #include "tclap/CmdLine.h"
