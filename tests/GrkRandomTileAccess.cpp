@@ -76,7 +76,7 @@ int GrkRandomTileAccess::main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	grk_initialize(nullptr, 0);
+	grk_initialize(nullptr, 0, true);
 	grk_set_msg_handlers(infoCallback, nullptr, warningCallback, nullptr,
 						 errorCallback, nullptr);
 

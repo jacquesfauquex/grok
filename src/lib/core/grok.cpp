@@ -110,13 +110,14 @@ grk_codec* grk_decompress_create(grk_stream* stream)
 }
 
 static bool is_plugin_initialized = false;
-void GRK_CALLCONV grk_initialize(const char* pluginPath, uint32_t numthreads)
+void GRK_CALLCONV grk_initialize(const char* pluginPath,uint32_t numthreads,  bool verbose)
 {
 	ExecSingleton::instance(numthreads);
 	if(!is_plugin_initialized)
 	{
 		grk_plugin_load_info info;
 		info.pluginPath = pluginPath;
+		info.verbose = verbose;
 		is_plugin_initialized = grk_plugin_load(info);
 	}
 }
@@ -670,13 +671,13 @@ bool GRK_CALLCONV grk_plugin_load(grk_plugin_load_info info)
 
 	// form absolute plugin path
 	auto pluginPath = std::string(info.pluginPath) + pathSeparator() + pluginName;
-	int32_t rc = minpf_load_from_path(pluginPath.c_str(), nullptr);
+	int32_t rc = minpf_load_from_path(pluginPath.c_str(), info.verbose, nullptr);
 
 	// if fails, try local path
 	if(rc)
 	{
 		std::string localPlugin = std::string(".") + pathSeparator() + pluginName;
-		rc = minpf_load_from_path(localPlugin.c_str(), nullptr);
+		rc = minpf_load_from_path(localPlugin.c_str(), info.verbose, nullptr);
 	}
 	pluginLoaded = !rc;
 	if(!pluginLoaded)

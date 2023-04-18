@@ -260,7 +260,7 @@ int GrkDump::main(int argc, char* argv[])
 	dircnt* dirptr = nullptr;
 	int rc = EXIT_SUCCESS;
 
-	grk_initialize(nullptr, 0);
+	grk_initialize(nullptr, 0, true);
 	grk_set_msg_handlers(infoCallback, nullptr, warningCallback, nullptr, errorCallback, nullptr);
 
 	/* Set decoding parameters to default values */
