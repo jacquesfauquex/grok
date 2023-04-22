@@ -23,7 +23,7 @@ extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv);
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *buf, size_t len);
 struct Initializer {
   Initializer() {
-      grk_initialize(nullptr, 0);
+      grk_initialize(nullptr, 0, false);
   }
 };
 int LLVMFuzzerInitialize(int *argc, char ***argv) {

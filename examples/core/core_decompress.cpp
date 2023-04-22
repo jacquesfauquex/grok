@@ -124,7 +124,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	bool decompressWindow = false;
 
 	// initialize library
-	grk_initialize(nullptr, 0);
+	grk_initialize(nullptr, 0, false);
 
 	// create j2k file stream
     inputFileStr = inputFilePath.c_str();

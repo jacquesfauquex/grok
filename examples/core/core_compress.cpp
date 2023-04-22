@@ -60,7 +60,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	bool outputToBuffer = true;
 
 	// initialize library
-	grk_initialize(nullptr, 0);
+	grk_initialize(nullptr, 0, false);
 
 	grk_stream_params stream_params;
 	memset(&stream_params,0,sizeof(stream_params));
