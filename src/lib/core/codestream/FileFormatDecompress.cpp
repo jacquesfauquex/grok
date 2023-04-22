@@ -571,12 +571,14 @@ bool FileFormatDecompress::read_box_hdr(FileFormatBox* box, uint32_t* p_number_b
 		// or if the code stream box has already been read. Otherwise,
 		// treat this as a corrupt box, since we reject a code stream without
 		// any code stream box
-		if (box->type == JP2_JP2C || codeStreamBoxWasRead) {
+		if(box->type == JP2_JP2C || codeStreamBoxWasRead)
+		{
 			box->length = stream->numBytesLeft() + 8U;
 		}
 		else
 		{
-			GRK_ERROR("box 0x%x is signaled as final box, but code stream box has not been read.", box->type);
+			GRK_ERROR("box 0x%x is signaled as final box, but code stream box has not been read.",
+					  box->type);
 			throw CorruptJP2BoxException();
 		}
 		return true;

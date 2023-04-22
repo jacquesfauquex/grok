@@ -26,10 +26,9 @@
 namespace grk
 {
 
-
 // the next line must be uncommented in order to support debugging
 // for plugin encode
-//#define PLUGIN_DEBUG_ENCODE
+// #define PLUGIN_DEBUG_ENCODE
 
 struct mqc_state;
 struct mqcoder;

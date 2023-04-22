@@ -55,8 +55,7 @@ typedef struct minpf_platform_services
 
 typedef int32_t (*minpf_exit_func)();
 
-typedef minpf_exit_func (*minpf_post_load_func)(const char* pluginPath,
-												bool verbose,
+typedef minpf_exit_func (*minpf_post_load_func)(const char* pluginPath, bool verbose,
 												const minpf_platform_services*);
 
 #if defined(GRK_STATIC) || !defined(_WIN32)

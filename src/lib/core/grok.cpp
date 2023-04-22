@@ -110,7 +110,7 @@ grk_codec* grk_decompress_create(grk_stream* stream)
 }
 
 static bool is_plugin_initialized = false;
-void GRK_CALLCONV grk_initialize(const char* pluginPath,uint32_t numthreads,  bool verbose)
+void GRK_CALLCONV grk_initialize(const char* pluginPath, uint32_t numthreads, bool verbose)
 {
 	ExecSingleton::instance(numthreads);
 	if(!is_plugin_initialized)

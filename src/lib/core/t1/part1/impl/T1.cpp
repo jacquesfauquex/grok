@@ -137,14 +137,14 @@ static int16_t getnmsedec_ref(uint32_t x, uint32_t bitpos);
 static INLINE uint8_t getctxno_zc(mqcoder* mqc, uint32_t f);
 static INLINE uint8_t getctxno_mag(uint32_t f);
 static INLINE uint8_t getctxtno_sc_or_spb_index(uint32_t fX, uint32_t pfX, uint32_t nfX,
-												 uint32_t ci);
+												uint32_t ci);
 static INLINE uint8_t getspb(uint32_t lu);
 static INLINE uint8_t getctxno_zc(mqcoder* mqc, uint32_t f)
 {
 	return mqc->lut_ctxno_zc_orient[(f & T1_SIGMA_NEIGHBOURS)];
 }
 static INLINE uint8_t getctxtno_sc_or_spb_index(uint32_t fX, uint32_t pfX, uint32_t nfX,
-												 uint32_t ci)
+												uint32_t ci)
 {
 	/*
 	 0 pfX T1_CHI_THIS           T1_LUT_SGN_W
@@ -459,7 +459,7 @@ int T1::enc_is_term_pass(cblk_enc* cblk, uint32_t cblksty, int32_t bpno, uint32_
 		if((flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))) == 0U &&                             \
 		   (flags & (T1_SIGMA_NEIGHBOURS << (ci))) != 0U)                                        \
 		{                                                                                        \
-			uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));                                    \
+			uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));                                     \
 			v = !!(smr_abs(*(datap)) & (uint32_t)one);                                           \
 			curctx = mqc->ctxs + ctxno;                                                          \
 			if(type == T1_TYPE_RAW)                                                              \
@@ -467,7 +467,7 @@ int T1::enc_is_term_pass(cblk_enc* cblk, uint32_t cblksty, int32_t bpno, uint32_
 																		  v) if(v)               \
 				{                                                                                \
 					uint32_t lu = getctxtno_sc_or_spb_index(*flagsp, flagsp[-1], flagsp[1], ci); \
-					ctxno = getctxno_sc(lu);                                            \
+					ctxno = getctxno_sc(lu);                                                     \
 					v = smr_sign(*(datap));                                                      \
 					if(nmsedec)                                                                  \
 						*nmsedec += getnmsedec_sig((uint32_t)smr_abs(*(datap)), (uint32_t)bpno); \
@@ -542,7 +542,7 @@ void T1::enc_sigpass(int32_t bpno, int32_t* nmsedec, uint8_t type, uint32_t cblk
 			if(nmsedec)                                                                  \
 				*nmsedec += getnmsedec_ref((uint32_t)smr_abs(*(datap)), (uint32_t)bpno); \
 			v = !!(smr_abs(*(datap)) & (uint32_t)one);                                   \
-			curctx = mqc->ctxs + ctxno;                                                   \
+			curctx = mqc->ctxs + ctxno;                                                  \
 			if(type == T1_TYPE_RAW)                                                      \
 				mqc_bypass_enc_macro(mqc, c, ct, v) else mqc_encode_macro(               \
 					mqc, curctx, a, c, ct, v)* flagsp |= T1_MU_THIS << (ci);             \
@@ -788,12 +788,12 @@ double T1::compress_cblk(cblk_enc* cblk, uint32_t max, uint8_t orientation, uint
 	mqc_resetstates(mqc);
 	mqc_init_enc(mqc, cblk->data);
 #ifdef PLUGIN_DEBUG_ENCODE
-	//uint32_t state = Plugin::getDebugState();
-	//if (state & GROK_PLUGIN_STATE_DEBUG) {
-		mqc->debug_mqc.contextStream = cblk->contextStream;
-		mqc->debug_mqc.orientation = orientation;
-		mqc->debug_mqc.compno = compno;
-		mqc->debug_mqc.level =  level;
+	// uint32_t state = Plugin::getDebugState();
+	// if (state & GROK_PLUGIN_STATE_DEBUG) {
+	mqc->debug_mqc.contextStream = cblk->contextStream;
+	mqc->debug_mqc.orientation = orientation;
+	mqc->debug_mqc.compno = compno;
+	mqc->debug_mqc.level = level;
 	//}
 #endif
 
@@ -829,9 +829,9 @@ double T1::compress_cblk(cblk_enc* cblk, uint32_t max, uint8_t orientation, uint
 				if(cblksty & GRK_CBLKSTY_SEGSYM)
 					mqc_segmark_enc(mqc);
 #ifdef PLUGIN_DEBUG_ENCODE
-			//if (state & GROK_PLUGIN_STATE_DEBUG) {
+				// if (state & GROK_PLUGIN_STATE_DEBUG) {
 				mqc_next_plane(&mqc->debug_mqc);
-			//}
+				//}
 #endif
 				break;
 		}

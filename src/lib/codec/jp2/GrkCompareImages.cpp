@@ -995,19 +995,22 @@ int GrkCompareImages::main(int argc, char** argv)
 					std::string filenamePNGbase_it_comp = baseFileName + it_compc;
 					std::string filenamePNGtest_it_comp = testFileName + it_compc;
 					std::string filenamePNGdiff_it_comp = filenamePNGdiff + it_compc;
-					if(imageToPNG(imageBase, filenamePNGbase_it_comp.c_str(), compno) == EXIT_SUCCESS)
+					if(imageToPNG(imageBase, filenamePNGbase_it_comp.c_str(), compno) ==
+					   EXIT_SUCCESS)
 					{
 						spdlog::info("<DartMeasurementFile name=\"BaselineImage_{}\" "
 									 "type=\"image/png\"> {} </DartMeasurementFile>",
 									 compno, filenamePNGbase_it_comp);
 					}
-					if(imageToPNG(imageTest, filenamePNGtest_it_comp.c_str(), compno) == EXIT_SUCCESS)
+					if(imageToPNG(imageTest, filenamePNGtest_it_comp.c_str(), compno) ==
+					   EXIT_SUCCESS)
 					{
 						spdlog::info("<DartMeasurementFile name=\"TestImage_{}\" "
 									 "type=\"image/png\"> {} </DartMeasurementFile>",
 									 compno, filenamePNGtest_it_comp);
 					}
-					if(imageToPNG(imageDiff, filenamePNGdiff_it_comp.c_str(), compno) == EXIT_SUCCESS)
+					if(imageToPNG(imageDiff, filenamePNGdiff_it_comp.c_str(), compno) ==
+					   EXIT_SUCCESS)
 					{
 						spdlog::info("<DartMeasurementFile name=\"DiffferenceImage_{}\" "
 									 "type=\"image/png\"> {} </DartMeasurementFile>",

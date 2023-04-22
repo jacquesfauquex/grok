@@ -219,11 +219,13 @@ bool PGXFormat::encodePixels(void)
 			goto beach;
 		}
 		auto pos = fileName_.rfind(".");
-		if(pos == std::string::npos) {
+		if(pos == std::string::npos)
+		{
 			spdlog::error(" pgx was recognized but there was no dot at expected position .");
 			goto beach;
 		}
-		std::string fileOut = fileName_.substr(0, pos) + std::string("_") + std::to_string(compno) + ".pgx";
+		std::string fileOut =
+			fileName_.substr(0, pos) + std::string("_") + std::to_string(compno) + ".pgx";
 		fileStream_ = fopen(fileOut.c_str(), "wb");
 		if(!fileStream_)
 		{

@@ -24,7 +24,8 @@ namespace grk
 {
 minpf_plugin_manager* managerInstance;
 
-static int32_t minpf_post_load_plugin(const char* pluginPath, bool verbose, minpf_post_load_func initFunc);
+static int32_t minpf_post_load_plugin(const char* pluginPath, bool verbose,
+									  minpf_post_load_func initFunc);
 static const char* get_filename_ext(const char* filename);
 static int32_t minpf_load(const char* path, bool verbose);
 
@@ -177,10 +178,11 @@ int32_t minpf_load_from_path(const char* path, bool verbose, minpf_invoke_servic
 
 	mgr->platformServices.invokeService = func;
 
-	return minpf_load(path,verbose);
+	return minpf_load(path, verbose);
 }
 
-int32_t minpf_load_from_dir(const char* directory_path, bool verbose, minpf_invoke_service_func func)
+int32_t minpf_load_from_dir(const char* directory_path, bool verbose,
+							minpf_invoke_service_func func)
 {
 	char libraryPath[MINPF_MAX_PATH_LEN];
 	minpf_plugin_manager* mgr = minpf_get_plugin_manager();
@@ -208,11 +210,12 @@ int32_t minpf_load_from_dir(const char* directory_path, bool verbose, minpf_invo
 	return rc;
 }
 
-static int32_t minpf_post_load_plugin(const char* pluginPath, bool verbose, minpf_post_load_func postLoadFunc)
+static int32_t minpf_post_load_plugin(const char* pluginPath, bool verbose,
+									  minpf_post_load_func postLoadFunc)
 {
 	minpf_plugin_manager* mgr = minpf_get_plugin_manager();
 
-	minpf_exit_func exitFunc = postLoadFunc(pluginPath,verbose, &mgr->platformServices);
+	minpf_exit_func exitFunc = postLoadFunc(pluginPath, verbose, &mgr->platformServices);
 	if(!exitFunc)
 		return -1;
 

@@ -489,7 +489,8 @@ bool PNMFormat::decodeHeader(struct pnm_header* ph)
 				continue;
 
 			std::istringstream iss(line);
-			std::vector<std::string> tokens{std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
+			std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
+											std::istream_iterator<std::string>{}};
 			if(tokens.size() == 0)
 				continue;
 			std::string idf = tokens[0];

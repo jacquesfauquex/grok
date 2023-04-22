@@ -574,7 +574,8 @@ int GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initParam
 #endif
 	initParams->initialized = true;
 	// load plugin but do not actually create codec
-	grk_initialize(initParams->pluginPath, initParams->parameters.numThreads,initParams->parameters.verbose);
+	grk_initialize(initParams->pluginPath, initParams->parameters.numThreads,
+				   initParams->parameters.verbose);
 	img_fol_plugin = initParams->inputFolder;
 	out_fol_plugin = initParams->outFolder;
 
@@ -848,7 +849,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 
 		if(outForArg.isSet())
 		{
-			std::string outformat = std::string(".") +  outForArg.getValue();
+			std::string outformat = std::string(".") + outForArg.getValue();
 			inputFolder->set_out_format = true;
 			parameters->cod_format = grk_get_file_format(outformat.c_str());
 			switch(parameters->cod_format)
@@ -1870,7 +1871,8 @@ static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* i
 				temp_ofname = get_file_name((char*)info->output_file_name);
 				if(img_fol_plugin.set_out_format)
 				{
-					outfile = (out_fol_plugin.imgdirpath ? out_fol_plugin.imgdirpath : img_fol_plugin.imgdirpath);
+					outfile = (out_fol_plugin.imgdirpath ? out_fol_plugin.imgdirpath
+														 : img_fol_plugin.imgdirpath);
 					outfile += grk::pathSeparator() + temp_ofname + "." + img_fol_plugin.out_format;
 				}
 			}

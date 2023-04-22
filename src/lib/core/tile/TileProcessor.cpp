@@ -349,7 +349,7 @@ bool TileProcessor::doCompress(void)
 	bool rc = rateAllocate(&allPacketBytes, false);
 	if(!rc)
 	{
-		GRK_WARN("Unable to perform rate control on tile %d",tileIndex_);
+		GRK_WARN("Unable to perform rate control on tile %d", tileIndex_);
 		GRK_WARN("Rate control will be disabled for this tile");
 		allPacketBytes = 0;
 		rc = rateAllocate(&allPacketBytes, true);
@@ -1325,8 +1325,9 @@ bool TileProcessor::pcrdBisectFeasible(uint32_t* allPacketBytes, bool disableRat
 	for(uint16_t layno = 0; layno < tcp->max_layers_; layno++)
 	{
 		uint32_t lowerBound = min_slope;
-		maxLayerLength = (!disableRateControl && tcp->rates[layno] > 0.0f) ?
-		                    ((uint32_t)ceil(tcp->rates[layno])) : UINT_MAX;
+		maxLayerLength = (!disableRateControl && tcp->rates[layno] > 0.0f)
+							 ? ((uint32_t)ceil(tcp->rates[layno]))
+							 : UINT_MAX;
 		if(layerNeedsRateControl(layno))
 		{
 			// thresh from previous iteration - starts off uninitialized
@@ -1390,8 +1391,8 @@ bool TileProcessor::pcrdBisectFeasible(uint32_t* allPacketBytes, bool disableRat
 
 	// final simulation will generate correct PLT lengths
 	// and correct tile length
-	bool rc = t2.compressPacketsSimulate(tileIndex_, tcp->max_layers_, allPacketBytes, maxLayerLength,
-										 newTilePartProgressionPosition,
+	bool rc = t2.compressPacketsSimulate(tileIndex_, tcp->max_layers_, allPacketBytes,
+										 maxLayerLength, newTilePartProgressionPosition,
 										 packetLengthCache.getMarkers(), true, debug);
 
 	// assert(!disableRateControl || rc);
@@ -1489,8 +1490,9 @@ bool TileProcessor::pcrdBisectSimple(uint32_t* allPacketBytes, bool disableRateC
 	uint32_t maxLayerLength = UINT_MAX;
 	for(uint16_t layno = 0; layno < tcp_->max_layers_; layno++)
 	{
-        maxLayerLength = (!disableRateControl && tcp->rates[layno] > 0.0f) ?
-                            ((uint32_t)ceil(tcp->rates[layno])) : UINT_MAX;
+		maxLayerLength = (!disableRateControl && tcp->rates[layno] > 0.0f)
+							 ? ((uint32_t)ceil(tcp->rates[layno]))
+							 : UINT_MAX;
 		if(layerNeedsRateControl(layno))
 		{
 			double lowerBound = min_slope;

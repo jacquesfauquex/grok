@@ -82,14 +82,16 @@ Renormalize mqc->a and mqc->c while compressing, so that mqc->a stays between 0x
 	}
 
 #ifdef PLUGIN_DEBUG_ENCODE
-#define mqc_encode_macro(mqc, curctx, a, c, ct, d)  {                                              \
-		(mqc)->debug_mqc.context_number = ctxno; 												   \
-		nextCXD(&(mqc)->debug_mqc, d); 															   \
+#define mqc_encode_macro(mqc, curctx, a, c, ct, d)                                                 \
+	{                                                                                              \
+		(mqc)->debug_mqc.context_number = ctxno;                                                   \
+		nextCXD(&(mqc)->debug_mqc, d);                                                             \
 		if((*curctx)->mps == (d))                                                                  \
 			mqc_codemps_macro(mqc, curctx, a, c, ct) else mqc_codelps_macro(mqc, curctx, a, c, ct) \
 	}
 #else
-#define mqc_encode_macro(mqc, curctx, a, c, ct, d) 	{                                              \
+#define mqc_encode_macro(mqc, curctx, a, c, ct, d)                                                 \
+	{                                                                                              \
 		if((*curctx)->mps == (d))                                                                  \
 			mqc_codemps_macro(mqc, curctx, a, c, ct) else mqc_codelps_macro(mqc, curctx, a, c, ct) \
 	}

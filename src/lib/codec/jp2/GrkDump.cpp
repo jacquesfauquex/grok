@@ -125,8 +125,9 @@ static char nextFile(size_t imageno, dircnt* dirptr, inputFolder* inputFolder,
 	spdlog::info("File Number {} \"{}\"", imageno, inputFile);
 	if(!grk_decompress_detect_format(inputFile.c_str(), &parameters->decod_format))
 		return 1;
-	std::string inputFileFullPath = inputFolder->imgdirpath +  inputFile;
-	if(grk::strcpy_s(parameters->infile, sizeof(parameters->infile), inputFileFullPath.c_str()) != 0)
+	std::string inputFileFullPath = inputFolder->imgdirpath + inputFile;
+	if(grk::strcpy_s(parameters->infile, sizeof(parameters->infile), inputFileFullPath.c_str()) !=
+	   0)
 		return 1;
 
 	std::string baseFile;
@@ -137,8 +138,10 @@ static char nextFile(size_t imageno, dircnt* dirptr, inputFolder* inputFolder,
 		baseFile = inputFile.substr(0, pos);
 	if(inputFolder->set_out_format)
 	{
-		std::string outfilename = inputFolder->imgdirpath + baseFile + "." + inputFolder->out_format;
-		if(grk::strcpy_s(parameters->outfile, sizeof(parameters->outfile), outfilename.c_str()) != 0)
+		std::string outfilename =
+			inputFolder->imgdirpath + baseFile + "." + inputFolder->out_format;
+		if(grk::strcpy_s(parameters->outfile, sizeof(parameters->outfile), outfilename.c_str()) !=
+		   0)
 			return 1;
 	}
 	return 0;

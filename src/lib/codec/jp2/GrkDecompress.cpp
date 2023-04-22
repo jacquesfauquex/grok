@@ -820,7 +820,8 @@ int GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initP
 #endif
 	initParams->initialized = true;
 	// loads plugin but does not actually create codec
-	grk_initialize(initParams->pluginPath, initParams->parameters.numThreads, initParams->parameters.verbose_);
+	grk_initialize(initParams->pluginPath, initParams->parameters.numThreads,
+				   initParams->parameters.verbose_);
 
 	// create codec
 	grk_plugin_init_info initInfo;

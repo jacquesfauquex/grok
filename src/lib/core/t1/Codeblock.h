@@ -144,7 +144,8 @@ struct CompressCodeblock : public Codeblock
 		: Codeblock(numLayers), paddedCompressedStream(nullptr), layers(nullptr), passes(nullptr),
 		  numPassesInPreviousPackets(0), numPassesTotal(0)
 #ifdef PLUGIN_DEBUG_ENCODE
-	, contextStream(nullptr)
+		  ,
+		  contextStream(nullptr)
 #endif
 	{}
 	virtual ~CompressCodeblock()
