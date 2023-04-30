@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <cstring>
+#include <cstdarg>
+
 namespace grk
 {
 struct logger
@@ -30,6 +33,21 @@ struct logger
 
 	static logger logger_;
 };
+
+template<typename... Args>
+void log_message(grk_msg_callback msg_handler, void* l_data, char const* const format,
+		 Args&... args) noexcept
+{
+	const int message_size = 512;
+	if((format != nullptr))
+	{
+		char message[message_size];
+		memset(message, 0, message_size);
+		vsnprintf(message, message_size, format, args...);
+		msg_handler(message, l_data);
+	}
+}
+
 
 void GRK_INFO(const char* fmt, ...);
 void GRK_WARN(const char* fmt, ...);

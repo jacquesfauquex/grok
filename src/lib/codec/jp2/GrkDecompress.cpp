@@ -460,7 +460,13 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 											  "unsigned integer", cmd);
 
 		cmd.parse(argc, argv);
-		parameters->verbose_ = verboseArg.isSet();
+		if(verboseArg.isSet())
+			parameters->verbose_ = true;
+		else
+			spdlog::set_level(spdlog::level::level_enum::err);
+		grk_set_msg_handlers(parameters->verbose_ ? infoCallback : nullptr, nullptr,
+				parameters->verbose_ ? warningCallback : nullptr, nullptr, errorCallback,
+							 nullptr);
 		bool useStdio = inputFileArg.isSet() && outForArg.isSet() && !outputFileArg.isSet();
 		// disable verbose mode so we don't write info or warnings to stdout
 		if(useStdio)
@@ -1079,10 +1085,6 @@ int GrkDecompress::preProcess(grk_plugin_decompress_callback_info* info)
 	// 1. initialize
 	if(!info->codec)
 	{
-		grk_set_msg_handlers(parameters->verbose_ ? infoCallback : nullptr, nullptr,
-							 parameters->verbose_ ? warningCallback : nullptr, nullptr,
-							 errorCallback, nullptr);
-
 		grk_stream_params stream_params;
 		memset(&stream_params, 0, sizeof(stream_params));
 		stream_params.file = infile;

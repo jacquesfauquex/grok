@@ -770,6 +770,9 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			parameters->verbose = true;
 		else
 			spdlog::set_level(spdlog::level::level_enum::err);
+		grk_set_msg_handlers(parameters->verbose ? infoCallback : nullptr, nullptr,
+				parameters->verbose ? warningCallback : nullptr, nullptr, errorCallback,
+							 nullptr);
 
 		if(repetitionsArg.isSet())
 			parameters->repeats = repetitionsArg.getValue();
@@ -2146,10 +2149,6 @@ static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* i
 
 	if(!info->stream_params.buf)
 		info->stream_params.file = outfile.c_str();
-
-	grk_set_msg_handlers(parameters->verbose ? infoCallback : nullptr, nullptr,
-						 parameters->verbose ? warningCallback : nullptr, nullptr, errorCallback,
-						 nullptr);
 	codec = grk_compress_init(&info->stream_params, parameters, image);
 	if(!codec)
 	{

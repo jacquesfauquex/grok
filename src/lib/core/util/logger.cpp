@@ -23,19 +23,6 @@ logger::logger()
 	  warning_handler(nullptr), info_handler(nullptr)
 {}
 
-template<typename... Args>
-void log(grk_msg_callback msg_handler, void* l_data, char const* const format,
-		 Args&... args) noexcept
-{
-	const int message_size = 512;
-	if((format != nullptr))
-	{
-		char message[message_size];
-		memset(message, 0, message_size);
-		vsnprintf(message, message_size, format, args...);
-		msg_handler(message, l_data);
-	}
-}
 
 void GRK_INFO(const char* fmt, ...)
 {
@@ -43,7 +30,7 @@ void GRK_INFO(const char* fmt, ...)
 		return;
 	va_list arg;
 	va_start(arg, fmt);
-	log(logger::logger_.info_handler, logger::logger_.info_data_, fmt, arg);
+	log_message(logger::logger_.info_handler, logger::logger_.info_data_, fmt, arg);
 	va_end(arg);
 }
 void GRK_WARN(const char* fmt, ...)
@@ -52,7 +39,7 @@ void GRK_WARN(const char* fmt, ...)
 		return;
 	va_list arg;
 	va_start(arg, fmt);
-	log(logger::logger_.warning_handler, logger::logger_.warning_data_, fmt, arg);
+	log_message(logger::logger_.warning_handler, logger::logger_.warning_data_, fmt, arg);
 	va_end(arg);
 }
 void GRK_ERROR(const char* fmt, ...)
@@ -61,7 +48,7 @@ void GRK_ERROR(const char* fmt, ...)
 		return;
 	va_list arg;
 	va_start(arg, fmt);
-	log(logger::logger_.error_handler, logger::logger_.error_data_, fmt, arg);
+	log_message(logger::logger_.error_handler, logger::logger_.error_data_, fmt, arg);
 	va_end(arg);
 }
 

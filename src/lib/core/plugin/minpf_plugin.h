@@ -16,6 +16,8 @@
  */
 #pragma once
 #include <stdint.h>
+#include "grok.h"
+#include "logger.h"
 
 namespace grk
 {
@@ -51,12 +53,15 @@ typedef struct minpf_platform_services
 	minpf_plugin_api_version version;
 	minpf_register_func registerObject;
 	minpf_invoke_service_func invokeService;
+
+	const char* pluginPath;
+	bool verbose;
+	grk::logger *logger;
 } minpf_platform_services;
 
 typedef int32_t (*minpf_exit_func)();
 
-typedef minpf_exit_func (*minpf_post_load_func)(const char* pluginPath, bool verbose,
-												const minpf_platform_services*);
+typedef minpf_exit_func (*minpf_post_load_func)(const minpf_platform_services*);
 
 #if defined(GRK_STATIC) || !defined(_WIN32)
 /* http://gcc.gnu.org/wiki/Visibility */
