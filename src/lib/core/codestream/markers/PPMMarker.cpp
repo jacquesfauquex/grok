@@ -49,7 +49,7 @@ bool PPMMarker::read(uint8_t* headerData, uint16_t header_size)
 	/* We need to have the i_ppm element + 1 byte of Nppm/Ippm at minimum */
 	if(header_size < 2)
 	{
-		GRK_ERROR("Error reading PPM marker");
+		Logger::logger_.error("Error reading PPM marker");
 		return false;
 	}
 
@@ -66,7 +66,7 @@ bool PPMMarker::read(uint8_t* headerData, uint16_t header_size)
 		markers = (grk_ppx*)grk_calloc(newCount, sizeof(grk_ppx));
 		if(markers == nullptr)
 		{
-			GRK_ERROR("Not enough memory to read PPM marker");
+			Logger::logger_.error("Not enough memory to read PPM marker");
 			return false;
 		}
 		markers_count = newCount;
@@ -78,7 +78,7 @@ bool PPMMarker::read(uint8_t* headerData, uint16_t header_size)
 		if(new_ppm_markers == nullptr)
 		{
 			/* clean up to be done on cp destruction */
-			GRK_ERROR("Not enough memory to read PPM marker");
+			Logger::logger_.error("Not enough memory to read PPM marker");
 			return false;
 		}
 		markers = new_ppm_markers;
@@ -89,7 +89,7 @@ bool PPMMarker::read(uint8_t* headerData, uint16_t header_size)
 	if(markers[i_ppm].data_ != nullptr)
 	{
 		/* clean up to be done on cp destruction */
-		GRK_ERROR("ippm %u already read", i_ppm);
+		Logger::logger_.error("ippm %u already read", i_ppm);
 		return false;
 	}
 
@@ -97,7 +97,7 @@ bool PPMMarker::read(uint8_t* headerData, uint16_t header_size)
 	if(markers[i_ppm].data_ == nullptr)
 	{
 		/* clean up to be done on cp destruction */
-		GRK_ERROR("Not enough memory to read PPM marker");
+		Logger::logger_.error("Not enough memory to read PPM marker");
 		return false;
 	}
 	markers[i_ppm].data_size_ = header_size;
@@ -139,7 +139,7 @@ bool PPMMarker::merge()
 					if(data_size < 4U)
 					{
 						/* clean up to be done on cp destruction */
-						GRK_ERROR("Not enough bytes to read Nppm");
+						Logger::logger_.error("Not enough bytes to read Nppm");
 						return false;
 					}
 					uint32_t N_ppm;
@@ -167,7 +167,7 @@ bool PPMMarker::merge()
 	if(N_ppm_remaining != 0U)
 	{
 		/* clean up to be done on cp destruction */
-		GRK_ERROR("Corrupted PPM markers");
+		Logger::logger_.error("Corrupted PPM markers");
 		return false;
 	}
 	buffer = new uint8_t[total_data_size];
@@ -210,7 +210,7 @@ bool PPMMarker::merge()
 					if(data_size < 4U)
 					{
 						/* clean up to be done on cp destruction */
-						GRK_ERROR("Not enough bytes to read Nppm");
+						Logger::logger_.error("Not enough bytes to read Nppm");
 						return false;
 					}
 					uint32_t N_ppm;

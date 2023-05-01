@@ -397,7 +397,7 @@ bool WaveletFwdImpl::encode_procedure(TileComponent* tilec)
 	/* overflow check */
 	if(dataSize > (SIZE_MAX / (NB_ELTS_V8 * sizeof(int32_t))))
 	{
-		GRK_ERROR("Forward wavelet overflow");
+		Logger::logger_.error("Forward wavelet overflow");
 		return false;
 	}
 	dataSize *= NB_ELTS_V8 * sizeof(int32_t);

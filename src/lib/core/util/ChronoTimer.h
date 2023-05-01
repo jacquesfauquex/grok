@@ -18,7 +18,7 @@ class ChronoTimer
 	{
 		auto finish = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double> elapsed = finish - startTime;
-		GRK_INFO("%s : %f ms", message.c_str(), elapsed.count() * 1000);
+		Logger::logger_.info("%s : %f ms", message.c_str(), elapsed.count() * 1000);
 	}
 
   private:

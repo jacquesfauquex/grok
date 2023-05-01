@@ -163,7 +163,7 @@ bool T1OJPH::decompress(grk::DecompressBlockExec* block)
 		}
 		if(!rc)
 		{
-			grk::GRK_ERROR("Error in HT block coder");
+			grk::Logger::logger_.error("Error in HT block coder");
 			return false;
 		}
 	}

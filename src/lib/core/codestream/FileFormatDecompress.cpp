@@ -54,7 +54,7 @@ bool FileFormatDecompress::read_asoc(uint8_t* header_data, uint32_t header_data_
 	// 12 == sizeof(asoc tag) + sizeof(child size) + sizeof(child tag)
 	if(header_data_size <= 12)
 	{
-		GRK_ERROR("ASOC super box can't be empty");
+		Logger::logger_.error("ASOC super box can't be empty");
 		return false;
 	}
 	try
@@ -73,7 +73,7 @@ void FileFormatDecompress::serializeAsoc(AsocBox* asoc, grk_asoc* serial_asocs, 
 {
 	if(*num_asocs == GRK_NUM_ASOC_BOXES_SUPPORTED)
 	{
-		GRK_WARN("Image contains more than maximum supported number of ASOC boxes (%u). Ignoring "
+		Logger::logger_.warn("Image contains more than maximum supported number of ASOC boxes (%u). Ignoring "
 				 "the rest",
 				 GRK_NUM_ASOC_BOXES_SUPPORTED);
 		return;
@@ -86,9 +86,9 @@ void FileFormatDecompress::serializeAsoc(AsocBox* asoc, grk_asoc* serial_asocs, 
 	(*num_asocs)++;
 	/*
 	if (as_c->level > 0) {
-		GRK_INFO("%s", as_c->label);
+		Logger::logger_.info("%s", as_c->label);
 		if (as_c->xml)
-			GRK_INFO("%s", std::string((char*)as_c->xml, as_c->xml_len).c_str());
+			Logger::logger_.info("%s", std::string((char*)as_c->xml, as_c->xml_len).c_str());
 	}
 	*/
 	for(auto& child : asoc->children)
@@ -183,7 +183,7 @@ bool FileFormatDecompress::readHeader(grk_header_info* header_info)
 				}
 				else
 				{
-					GRK_ERROR("CIE Lab image: ICC profile buffer not present");
+					Logger::logger_.error("CIE Lab image: ICC profile buffer not present");
 					headerError_ = true;
 					return false;
 				}
@@ -214,7 +214,7 @@ bool FileFormatDecompress::readHeader(grk_header_info* header_info)
 				auto comp = image->comps + i;
 				if(comp->dx != image->comps->dx || comp->dy != image->comps->dy)
 				{
-					GRK_ERROR(
+					Logger::logger_.error(
 						"sRGB colour space mandates uniform sampling in all three components");
 					headerError_ = true;
 					return false;
@@ -234,7 +234,7 @@ bool FileFormatDecompress::readHeader(grk_header_info* header_info)
 			{
 				if(image->meta->iptc_buf)
 				{
-					GRK_WARN("Attempt to set a second IPTC buffer. Ignoring");
+					Logger::logger_.warn("Attempt to set a second IPTC buffer. Ignoring");
 				}
 				else if(uuid->len)
 				{
@@ -247,7 +247,7 @@ bool FileFormatDecompress::readHeader(grk_header_info* header_info)
 			{
 				if(image->meta->xmp_buf)
 				{
-					GRK_WARN("Attempt to set a second XMP buffer. Ignoring");
+					Logger::logger_.warn("Attempt to set a second XMP buffer. Ignoring");
 				}
 				else if(uuid->len)
 				{
@@ -275,7 +275,7 @@ bool FileFormatDecompress::decompress(grk_plugin_tile* tile)
 {
 	if(!codeStream->decompress(tile))
 	{
-		GRK_ERROR("Failed to decompress JP2 file");
+		Logger::logger_.error("Failed to decompress JP2 file");
 		return false;
 	}
 
@@ -296,7 +296,7 @@ bool FileFormatDecompress::preProcess(void)
 			auto img = codeStream->getCompositeImage();
 			if(channel >= img->numcomps)
 			{
-				GRK_WARN("channel definition: channel=%u should be strictly less than numcomps=%u",
+				Logger::logger_.warn("channel definition: channel=%u should be strictly less than numcomps=%u",
 						 channel, img->numcomps);
 				continue;
 			}
@@ -313,7 +313,7 @@ bool FileFormatDecompress::decompressTile(uint16_t tileIndex)
 {
 	if(!codeStream->decompressTile(tileIndex))
 	{
-		GRK_ERROR("Failed to decompress JP2 file");
+		Logger::logger_.error("Failed to decompress JP2 file");
 		return false;
 	}
 
@@ -325,7 +325,7 @@ uint32_t FileFormatDecompress::read_asoc(AsocBox* parent, uint8_t** header_data,
 	assert(*header_data);
 	if(asocSize < 8)
 	{
-		GRK_ERROR("ASOC box must be at least 8 bytes in size");
+		Logger::logger_.error("ASOC box must be at least 8 bytes in size");
 		throw BadAsocException();
 	}
 	// create asoc
@@ -340,7 +340,7 @@ uint32_t FileFormatDecompress::read_asoc(AsocBox* parent, uint8_t** header_data,
 		grk_read<uint32_t>(*header_data, &childSize);
 		if(childSize < 8)
 		{
-			GRK_ERROR("JP2 box must be at least 8 bytes in size");
+			Logger::logger_.error("JP2 box must be at least 8 bytes in size");
 			throw BadAsocException();
 		}
 
@@ -358,7 +358,7 @@ uint32_t FileFormatDecompress::read_asoc(AsocBox* parent, uint8_t** header_data,
 
 		if(childSize > *header_data_size)
 		{
-			GRK_ERROR("Not enough space in ASOC box for child box");
+			Logger::logger_.error("Not enough space in ASOC box for child box");
 			throw BadAsocException();
 		}
 
@@ -381,14 +381,14 @@ uint32_t FileFormatDecompress::read_asoc(AsocBox* parent, uint8_t** header_data,
 				asocBytesUsed += childSize;
 				break;
 			default:
-				GRK_ERROR("ASOC box has unknown tag 0x%x", childTag);
+				Logger::logger_.error("ASOC box has unknown tag 0x%x", childTag);
 				throw BadAsocException();
 				break;
 		}
 	}
 	if(asocBytesUsed < asocSize)
 	{
-		GRK_ERROR("ASOC box has extra bytes");
+		Logger::logger_.error("ASOC box has extra bytes");
 		throw BadAsocException();
 	}
 
@@ -411,7 +411,7 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 	auto current_data = (uint8_t*)grk_calloc(1, last_data_size);
 	if(!current_data)
 	{
-		GRK_ERROR("Not enough memory to handle JPEG 2000 file header");
+		Logger::logger_.error("Not enough memory to handle JPEG 2000 file header");
 		return false;
 	}
 	try
@@ -430,7 +430,7 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 				}
 				else
 				{
-					GRK_ERROR("corrupt JPEG 2000 code stream");
+					Logger::logger_.error("corrupt JPEG 2000 code stream");
 					goto cleanup;
 				}
 				codeStreamBoxWasRead = true;
@@ -442,7 +442,7 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 			{
 				if(!current_handler)
 				{
-					GRK_WARN("Found a misplaced '%c%c%c%c' box outside jp2h box",
+					Logger::logger_.warn("Found a misplaced '%c%c%c%c' box outside jp2h box",
 							 (uint8_t)(box.type >> 24), (uint8_t)(box.type >> 16),
 							 (uint8_t)(box.type >> 8), (uint8_t)(box.type >> 0));
 					if(jp2_state & JP2_STATE_HEADER)
@@ -452,13 +452,13 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 					}
 					else
 					{
-						GRK_WARN("JPEG2000 Header box not read yet, '%c%c%c%c' box will be ignored",
+						Logger::logger_.warn("JPEG2000 Header box not read yet, '%c%c%c%c' box will be ignored",
 								 (uint8_t)(box.type >> 24), (uint8_t)(box.type >> 16),
 								 (uint8_t)(box.type >> 8), (uint8_t)(box.type >> 0));
 						jp2_state |= JP2_STATE_UNKNOWN;
 						if(!stream->skip(current_data_size))
 						{
-							GRK_WARN("Problem with skipping JPEG2000 box, stream error");
+							Logger::logger_.warn("Problem with skipping JPEG2000 box, stream error");
 							// ignore error and return true if code stream box has already been read
 							// (we don't worry about any boxes after code stream)
 							rc = (jp2_state & JP2_STATE_CODESTREAM) ? true : false;
@@ -470,7 +470,7 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 				if(current_data_size > stream->numBytesLeft())
 				{
 					/* do not even try to malloc if we can't read */
-					GRK_ERROR("Invalid box size %" PRIu64
+					Logger::logger_.error("Invalid box size %" PRIu64
 							  " for box '%c%c%c%c'. Need %u bytes, %" PRIu64 " bytes remaining ",
 							  box.length, (uint8_t)(box.type >> 24), (uint8_t)(box.type >> 16),
 							  (uint8_t)(box.type >> 8), (uint8_t)(box.type >> 0), current_data_size,
@@ -483,7 +483,7 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 						(uint8_t*)grk_realloc(current_data, current_data_size);
 					if(!new_current_data)
 					{
-						GRK_ERROR("Not enough memory to handle JPEG 2000 box");
+						Logger::logger_.error("Not enough memory to handle JPEG 2000 box");
 						goto cleanup;
 					}
 					current_data = new_current_data;
@@ -491,13 +491,13 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 				}
 				if(current_data_size == 0)
 				{
-					GRK_ERROR("Problem with reading JPEG2000 box, stream error");
+					Logger::logger_.error("Problem with reading JPEG2000 box, stream error");
 					goto cleanup;
 				}
 				bytesRead = (uint32_t)stream->read(current_data, current_data_size);
 				if(bytesRead != current_data_size)
 				{
-					GRK_ERROR("Problem with reading JPEG2000 box, stream error");
+					Logger::logger_.error("Problem with reading JPEG2000 box, stream error");
 					goto cleanup;
 				}
 				if(!current_handler(current_data, current_data_size))
@@ -507,19 +507,19 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 			{
 				if(!(jp2_state & JP2_STATE_SIGNATURE))
 				{
-					GRK_ERROR(
+					Logger::logger_.error(
 						"Malformed JP2 file format: first box must be JPEG 2000 signature box");
 					goto cleanup;
 				}
 				if(!(jp2_state & JP2_STATE_FILE_TYPE))
 				{
-					GRK_ERROR("Malformed JP2 file format: second box must be file type box");
+					Logger::logger_.error("Malformed JP2 file format: second box must be file type box");
 					goto cleanup;
 				}
 				jp2_state |= JP2_STATE_UNKNOWN;
 				if(!stream->skip(current_data_size))
 				{
-					GRK_WARN("Problem with skipping JPEG2000 box, stream error");
+					Logger::logger_.warn("Problem with skipping JPEG2000 box, stream error");
 					// ignore error and return true if code stream box has already been read
 					// (we don't worry about any boxes after code stream)
 					rc = (jp2_state & JP2_STATE_CODESTREAM) ? true : false;
@@ -577,7 +577,7 @@ bool FileFormatDecompress::read_box_hdr(FileFormatBox* box, uint32_t* p_number_b
 		}
 		else
 		{
-			GRK_ERROR("box 0x%x is signaled as final box, but code stream box has not been read.",
+			Logger::logger_.error("box 0x%x is signaled as final box, but code stream box has not been read.",
 					  box->type);
 			throw CorruptJP2BoxException();
 		}
@@ -595,7 +595,7 @@ bool FileFormatDecompress::read_box_hdr(FileFormatBox* box, uint32_t* p_number_b
 	}
 	if(box->length < *p_number_bytes_read)
 	{
-		GRK_ERROR("invalid box size %" PRIu64 " (%x)", box->length, box->type);
+		Logger::logger_.error("invalid box size %" PRIu64 " (%x)", box->length, box->type);
 		throw CorruptJP2BoxException();
 	}
 
@@ -606,12 +606,12 @@ bool FileFormatDecompress::read_ihdr(uint8_t* p_image_header_data, uint32_t imag
 	assert(p_image_header_data != nullptr);
 	if(comps != nullptr)
 	{
-		GRK_WARN("Ignoring ihdr box. First ihdr box already read");
+		Logger::logger_.warn("Ignoring ihdr box. First ihdr box already read");
 		return true;
 	}
 	if(image_header_size != GRK_ENUM_CLRSPC_CIE)
 	{
-		GRK_ERROR("Bad image header box (bad size)");
+		Logger::logger_.error("Bad image header box (bad size)");
 		return false;
 	}
 	grk_read<uint32_t>(p_image_header_data, &(h)); /* HEIGHT */
@@ -620,14 +620,14 @@ bool FileFormatDecompress::read_ihdr(uint8_t* p_image_header_data, uint32_t imag
 	p_image_header_data += 4;
 	if(w == 0 || h == 0)
 	{
-		GRK_ERROR("JP2 IHDR box: invalid dimensions: (%u,%u)", w, h);
+		Logger::logger_.error("JP2 IHDR box: invalid dimensions: (%u,%u)", w, h);
 		return false;
 	}
 	grk_read<uint16_t>(p_image_header_data, &numcomps); /* NC */
 	p_image_header_data += 2;
 	if((numcomps == 0) || (numcomps > maxNumComponentsJ2K))
 	{
-		GRK_ERROR("JP2 IHDR box: num components=%u does not conform to standard", numcomps);
+		Logger::logger_.error("JP2 IHDR box: num components=%u does not conform to standard", numcomps);
 		return false;
 	}
 	/* allocate memory for components */
@@ -643,14 +643,14 @@ bool FileFormatDecompress::read_ihdr(uint8_t* p_image_header_data, uint32_t imag
 	// unset indicates unsigned data
 	if(((bpc != 0xFF) && ((bpc & 0x7F) > (GRK_MAX_SUPPORTED_IMAGE_PRECISION - 1))))
 	{
-		GRK_ERROR("JP2 IHDR box: bpc=%u not supported.", bpc);
+		Logger::logger_.error("JP2 IHDR box: bpc=%u not supported.", bpc);
 		return false;
 	}
 	grk_read<uint8_t>(p_image_header_data++, &C); /* C */
 	/* Should be equal to 7 cf. chapter about image header box */
 	if(C != 7)
 	{
-		GRK_ERROR("JP2 IHDR box: compression type: %u indicates"
+		Logger::logger_.error("JP2 IHDR box: compression type: %u indicates"
 				  " a non-conformant JP2 file.",
 				  C);
 		return false;
@@ -659,14 +659,14 @@ bool FileFormatDecompress::read_ihdr(uint8_t* p_image_header_data, uint32_t imag
 	// UnkC must be binary : {0,1}
 	if((UnkC > 1))
 	{
-		GRK_ERROR("JP2 IHDR box: UnkC=%u does not conform to standard", UnkC);
+		Logger::logger_.error("JP2 IHDR box: UnkC=%u does not conform to standard", UnkC);
 		return false;
 	}
 	grk_read<uint8_t>(p_image_header_data++, &IPR); /* IPR */
 	// IPR must be binary : {0,1}
 	if((IPR > 1))
 	{
-		GRK_ERROR("JP2 IHDR box: IPR=%u does not conform to standard", IPR);
+		Logger::logger_.error("JP2 IHDR box: IPR=%u does not conform to standard", IPR);
 		return false;
 	}
 
@@ -694,12 +694,12 @@ bool FileFormatDecompress::read_uuid(uint8_t* headerData, uint32_t header_size)
 
 	if(header_size == 16)
 	{
-		GRK_WARN("Read UUID box with no data - ignoring");
+		Logger::logger_.warn("Read UUID box with no data - ignoring");
 		return false;
 	}
 	if(numUuids == JP2_MAX_NUM_UUIDS)
 	{
-		GRK_WARN("Reached maximum (%u) number of UUID boxes read - ignoring UUID box",
+		Logger::logger_.warn("Reached maximum (%u) number of UUID boxes read - ignoring UUID box",
 				 JP2_MAX_NUM_UUIDS);
 		return false;
 	}
@@ -749,7 +749,7 @@ bool FileFormatDecompress::read_res(uint8_t* p_resolution_data, uint32_t resolut
 	uint32_t num_boxes = resolution_size / GRK_RESOLUTION_BOX_SIZE;
 	if(num_boxes == 0 || num_boxes > 2 || (resolution_size % GRK_RESOLUTION_BOX_SIZE))
 	{
-		GRK_ERROR("Bad resolution box (bad size)");
+		Logger::logger_.error("Bad resolution box (bad size)");
 		return false;
 	}
 	while(resolution_size > 0)
@@ -788,13 +788,13 @@ bool FileFormatDecompress::read_bpc(uint8_t* p_bpc_header_data, uint32_t bpc_hea
 
 	if(bpc != 0xFF)
 	{
-		GRK_WARN("A BPC header box is available although BPC given by the IHDR box"
+		Logger::logger_.warn("A BPC header box is available although BPC given by the IHDR box"
 				 " (%u) indicate components bit depth is constant",
 				 bpc);
 	}
 	if(bpc_header_size != numcomps)
 	{
-		GRK_ERROR("Bad BPC header box (bad size)");
+		Logger::logger_.error("Bad BPC header box (bad size)");
 		return false;
 	}
 
@@ -821,7 +821,7 @@ bool FileFormatDecompress::read_channel_definition([[maybe_unused]] uint8_t* p_c
 
 	if(cdef_header_size < 2)
 	{
-		GRK_ERROR("CDEF box: Insufficient data.");
+		Logger::logger_.error("CDEF box: Insufficient data.");
 		return false;
 	}
 	uint16_t num_channel_descriptions;
@@ -830,12 +830,12 @@ bool FileFormatDecompress::read_channel_definition([[maybe_unused]] uint8_t* p_c
 
 	if(num_channel_descriptions == 0U)
 	{
-		GRK_ERROR("CDEF box: Number of channel definitions is equal to zero.");
+		Logger::logger_.error("CDEF box: Number of channel definitions is equal to zero.");
 		return false;
 	}
 	if(cdef_header_size < 2 + (uint32_t)(uint16_t)num_channel_descriptions * 6)
 	{
-		GRK_ERROR("CDEF box: Insufficient data.");
+		Logger::logger_.error("CDEF box: Insufficient data.");
 		return false;
 	}
 	clr->channel_definition = new grk_channel_definition();
@@ -851,13 +851,13 @@ bool FileFormatDecompress::read_channel_definition([[maybe_unused]] uint8_t* p_c
 		p_cdef_header_data += 2;
 		if(cdef_info[i].typ > 2 && cdef_info[i].typ != GRK_CHANNEL_TYPE_UNSPECIFIED)
 		{
-			GRK_ERROR("CDEF box : Illegal channel type %u", cdef_info[i].typ);
+			Logger::logger_.error("CDEF box : Illegal channel type %u", cdef_info[i].typ);
 			goto cleanup;
 		}
 		grk_read<uint16_t>(p_cdef_header_data, &cdef_info[i].asoc); /* Asoc^i */
 		if(cdef_info[i].asoc > 3 && cdef_info[i].asoc != GRK_CHANNEL_ASSOC_UNASSOCIATED)
 		{
-			GRK_ERROR("CDEF box : Illegal channel association %u", cdef_info[i].asoc);
+			Logger::logger_.error("CDEF box : Illegal channel association %u", cdef_info[i].asoc);
 			goto cleanup;
 		}
 		p_cdef_header_data += 2;
@@ -873,7 +873,7 @@ bool FileFormatDecompress::read_channel_definition([[maybe_unused]] uint8_t* p_c
 			auto info_j = cdef_info[j];
 			if(i != j && info_i.channel == info_j.channel && info_i.typ != info_j.typ)
 			{
-				GRK_ERROR("CDEF box : multiple descriptions of channel %u with differing types "
+				Logger::logger_.error("CDEF box : multiple descriptions of channel %u with differing types "
 						  ": %u and %u.",
 						  info_i.channel, info_i.typ, info_j.typ);
 				goto cleanup;
@@ -893,7 +893,7 @@ bool FileFormatDecompress::read_channel_definition([[maybe_unused]] uint8_t* p_c
 			   (info_i.typ != GRK_CHANNEL_TYPE_UNSPECIFIED ||
 				info_i.asoc != GRK_CHANNEL_ASSOC_UNASSOCIATED))
 			{
-				GRK_ERROR("CDEF box : channels %u and %u share same type/association pair (%u,%u).",
+				Logger::logger_.error("CDEF box : channels %u and %u share same type/association pair (%u,%u).",
 						  info_i.channel, info_j.channel, info_j.typ, info_j.asoc);
 				goto cleanup;
 			}
@@ -916,7 +916,7 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 
 	if(colr_header_size < 3)
 	{
-		GRK_ERROR("Bad COLR header box (bad size)");
+		Logger::logger_.error("Bad COLR header box (bad size)");
 		return false;
 	}
 
@@ -927,7 +927,7 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 	 */
 	if(clr->has_colour_specification_box)
 	{
-		GRK_WARN("A conforming JP2 reader shall ignore all colour specification boxes after the "
+		Logger::logger_.warn("A conforming JP2 reader shall ignore all colour specification boxes after the "
 				 "first, so we ignore this one.");
 		return true;
 	}
@@ -938,7 +938,7 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 	{
 		if(colr_header_size < 7)
 		{
-			GRK_ERROR("Bad COLR header box (bad size: %u)", colr_header_size);
+			Logger::logger_.error("Bad COLR header box (bad size: %u)", colr_header_size);
 			return false;
 		}
 		uint32_t temp;
@@ -950,13 +950,13 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 		   temp != GRK_ENUM_CLRSPC_GRAY && temp != GRK_ENUM_CLRSPC_SYCC &&
 		   temp != GRK_ENUM_CLRSPC_EYCC)
 		{
-			GRK_WARN("Invalid colour space enumeration %u. Ignoring colour box", temp);
+			Logger::logger_.warn("Invalid colour space enumeration %u. Ignoring colour box", temp);
 			return true;
 		}
 		enumcs = (GRK_ENUM_COLOUR_SPACE)temp;
 		if((colr_header_size > 7) && (enumcs != GRK_ENUM_CLRSPC_CIE))
 		{ /* handled below for CIELab) */
-			GRK_WARN("Bad COLR header box (bad size: %u)", colr_header_size);
+			Logger::logger_.warn("Bad COLR header box (bad size: %u)", colr_header_size);
 		}
 		if(enumcs == GRK_ENUM_CLRSPC_CIE)
 		{
@@ -966,7 +966,7 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 			cielab = (uint32_t*)new uint8_t[(nonDefaultLab ? 9 : 2) * sizeof(uint32_t)];
 			if(cielab == nullptr)
 			{
-				GRK_ERROR("Not enough memory for cielab");
+				Logger::logger_.error("Not enough memory for cielab");
 				return false;
 			}
 			cielab[0] = GRK_ENUM_CLRSPC_CIE; /* enumcs */
@@ -1001,7 +1001,7 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 			}
 			else if(colr_header_size != 7)
 			{
-				GRK_WARN("Bad COLR header box (CIELab, bad size: %u)", colr_header_size);
+				Logger::logger_.warn("Bad COLR header box (CIELab, bad size: %u)", colr_header_size);
 			}
 			clr->icc_profile_buf = (uint8_t*)cielab;
 			clr->icc_profile_len = 0;
@@ -1014,7 +1014,7 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 		uint32_t icc_len = (uint32_t)(colr_header_size - 3);
 		if(icc_len == 0)
 		{
-			GRK_ERROR("ICC profile buffer length equals zero");
+			Logger::logger_.error("ICC profile buffer length equals zero");
 			return false;
 		}
 		clr->icc_profile_buf = new uint8_t[(size_t)icc_len];
@@ -1026,7 +1026,7 @@ bool FileFormatDecompress::read_colr(uint8_t* p_colr_header_data, uint32_t colr_
 	{
 		/*	ISO/IEC 15444-1:2004 (E), Table I.9 Legal METH values:
 		 conforming JP2 reader shall ignore the entire Colour Specification box.*/
-		GRK_WARN("COLR BOX meth value is not a regular value (%u), "
+		Logger::logger_.warn("COLR BOX meth value is not a regular value (%u), "
 				 "so we will ignore the entire Colour Specification box. ",
 				 meth);
 	}
@@ -1042,7 +1042,7 @@ bool FileFormatDecompress::read_component_mapping(uint8_t* component_mapping_hea
 	/* Need num_channels: */
 	if(getColour()->palette == nullptr)
 	{
-		GRK_ERROR("Need to read a PCLR box before the CMAP box.");
+		Logger::logger_.error("Need to read a PCLR box before the CMAP box.");
 		return false;
 	}
 	/* Part 1, I.5.3.5: 'There shall be at most one Component Mapping box
@@ -1050,13 +1050,13 @@ bool FileFormatDecompress::read_component_mapping(uint8_t* component_mapping_hea
 	 */
 	if(getColour()->palette->component_mapping)
 	{
-		GRK_ERROR("Only one CMAP box is allowed.");
+		Logger::logger_.error("Only one CMAP box is allowed.");
 		return false;
 	}
 	num_channels = getColour()->palette->num_channels;
 	if(component_mapping_header_size < (uint32_t)num_channels * 4)
 	{
-		GRK_ERROR("Insufficient data for CMAP box.");
+		Logger::logger_.error("Insufficient data for CMAP box.");
 		return false;
 	}
 	auto component_mapping = new grk_component_mapping_comp[num_channels];
@@ -1068,7 +1068,7 @@ bool FileFormatDecompress::read_component_mapping(uint8_t* component_mapping_hea
 		grk_read<uint8_t>(component_mapping_header_data++, &mapping->mapping_type); /* MTYP^i */
 		if(mapping->mapping_type > 1)
 		{
-			GRK_ERROR("Component mapping type %u for channel %u is greater than 1.",
+			Logger::logger_.error("Component mapping type %u for channel %u is greater than 1.",
 					  mapping->mapping_type, channel);
 			delete[] component_mapping;
 			return false;
@@ -1092,14 +1092,14 @@ bool FileFormatDecompress::read_palette_clr(uint8_t* p_pclr_header_data, uint32_
 	p_pclr_header_data += 2;
 	if((num_entries == 0U) || (num_entries > 1024U))
 	{
-		GRK_ERROR("Invalid PCLR box. Reports %u palette entries", (int)num_entries);
+		Logger::logger_.error("Invalid PCLR box. Reports %u palette entries", (int)num_entries);
 		return false;
 	}
 	uint8_t num_channels;
 	grk_read<uint8_t>(p_pclr_header_data, &num_channels); /* NPC */
 	if(!num_channels)
 	{
-		GRK_ERROR("Invalid PCLR box : 0 palette columns");
+		Logger::logger_.error("Invalid PCLR box : 0 palette columns");
 		return false;
 	}
 	++p_pclr_header_data;
@@ -1114,7 +1114,7 @@ bool FileFormatDecompress::read_palette_clr(uint8_t* p_pclr_header_data, uint32_
 		jp2_pclr->channel_prec[i] = (uint8_t)((val & 0x7f) + 1);
 		if(jp2_pclr->channel_prec[i] > GRK_MAX_SUPPORTED_IMAGE_PRECISION)
 		{
-			GRK_ERROR("Palette : channel precision %u is greater than supported palette channel "
+			Logger::logger_.error("Palette : channel precision %u is greater than supported palette channel "
 					  "precision %u",
 					  jp2_pclr->channel_prec[i], GRK_MAX_SUPPORTED_IMAGE_PRECISION);
 			return false;
@@ -1122,7 +1122,7 @@ bool FileFormatDecompress::read_palette_clr(uint8_t* p_pclr_header_data, uint32_
 		jp2_pclr->channel_sign[i] = (val & 0x80) ? true : false;
 		if(jp2_pclr->channel_sign[i])
 		{
-			GRK_ERROR("Palette : signed channel not supported");
+			Logger::logger_.error("Palette : signed channel not supported");
 			return false;
 		}
 	}
@@ -1135,7 +1135,7 @@ bool FileFormatDecompress::read_palette_clr(uint8_t* p_pclr_header_data, uint32_
 			if((ptrdiff_t)pclr_header_size <
 			   (ptrdiff_t)(p_pclr_header_data - orig_header_data) + (ptrdiff_t)bytes_to_read)
 			{
-				GRK_ERROR("Palette : box too short");
+				Logger::logger_.error("Palette : box too short");
 				return false;
 			}
 			grk_read<int32_t>(p_pclr_header_data, lut++, bytes_to_read); /* Cji */
@@ -1178,20 +1178,20 @@ bool FileFormatDecompress::read_jp(uint8_t* headerData, uint32_t header_size)
 
 	if(jp2_state != JP2_STATE_NONE)
 	{
-		GRK_ERROR("The signature box must be the first box in the file.");
+		Logger::logger_.error("The signature box must be the first box in the file.");
 		return false;
 	}
 	/* assure length of data is correct (4 -> magic number) */
 	if(header_size != 4)
 	{
-		GRK_ERROR("Error with JP signature Box size");
+		Logger::logger_.error("Error with JP signature Box size");
 		return false;
 	}
 	/* rearrange data */
 	grk_read<uint32_t>(headerData, &magic_number);
 	if(magic_number != 0x0d0a870a)
 	{
-		GRK_ERROR("Error with JP Signature : bad magic number");
+		Logger::logger_.error("Error with JP Signature : bad magic number");
 		return false;
 	}
 	jp2_state |= JP2_STATE_SIGNATURE;
@@ -1213,13 +1213,13 @@ bool FileFormatDecompress::read_ftyp(uint8_t* headerData, uint32_t header_size)
 
 	if(jp2_state != JP2_STATE_SIGNATURE)
 	{
-		GRK_ERROR("The ftyp box must be the second box in the file.");
+		Logger::logger_.error("The ftyp box must be the second box in the file.");
 		return false;
 	}
 	/* assure length of data is correct */
 	if(header_size < 8)
 	{
-		GRK_ERROR("Error with FTYP signature Box size");
+		Logger::logger_.error("Error with FTYP signature Box size");
 		return false;
 	}
 	grk_read<uint32_t>(headerData, &brand); /* BR */
@@ -1230,7 +1230,7 @@ bool FileFormatDecompress::read_ftyp(uint8_t* headerData, uint32_t header_size)
 	/* the number of remaining bytes should be a multiple of 4 */
 	if((remaining_bytes & 0x3) != 0)
 	{
-		GRK_ERROR("Error with FTYP signature Box size");
+		Logger::logger_.error("Error with FTYP signature Box size");
 		return false;
 	}
 	/* div by 4 */
@@ -1240,7 +1240,7 @@ bool FileFormatDecompress::read_ftyp(uint8_t* headerData, uint32_t header_size)
 		cl = (uint32_t*)grk_calloc(numcl, sizeof(uint32_t));
 		if(cl == nullptr)
 		{
-			GRK_ERROR("Not enough memory with FTYP Box");
+			Logger::logger_.error("Not enough memory with FTYP Box");
 			return false;
 		}
 	}
@@ -1268,7 +1268,7 @@ bool FileFormatDecompress::read_jp2h(uint8_t* headerData, uint32_t header_size)
 	/* make sure the box is well placed */
 	if((jp2_state & JP2_STATE_FILE_TYPE) != JP2_STATE_FILE_TYPE)
 	{
-		GRK_ERROR("The  box must be the first box in the file.");
+		Logger::logger_.error("The  box must be the first box in the file.");
 		return false;
 	}
 	bool has_ihdr = false;
@@ -1296,7 +1296,7 @@ bool FileFormatDecompress::read_jp2h(uint8_t* headerData, uint32_t header_size)
 	}
 	if(!has_ihdr)
 	{
-		GRK_ERROR("Stream error while reading JP2 Header box: no 'ihdr' box.");
+		Logger::logger_.error("Stream error while reading JP2 Header box: no 'ihdr' box.");
 		return false;
 	}
 	jp2_state |= JP2_STATE_HEADER;
@@ -1312,7 +1312,7 @@ bool FileFormatDecompress::read_box(FileFormatBox* box, uint8_t* p_data,
 
 	if(maxBoxSize < 8)
 	{
-		GRK_ERROR("box must be at least 8 bytes in size");
+		Logger::logger_.error("box must be at least 8 bytes in size");
 		return false;
 	}
 	/* process read data */
@@ -1328,7 +1328,7 @@ bool FileFormatDecompress::read_box(FileFormatBox* box, uint8_t* p_data,
 	{
 		if(maxBoxSize < 16)
 		{
-			GRK_ERROR("Cannot handle XL box of less than 16 bytes");
+			Logger::logger_.error("Cannot handle XL box of less than 16 bytes");
 			return false;
 		}
 		grk_read<uint64_t>(p_data, &box->length);
@@ -1337,23 +1337,23 @@ bool FileFormatDecompress::read_box(FileFormatBox* box, uint8_t* p_data,
 
 		if(box->length == 0)
 		{
-			GRK_ERROR("Cannot handle box of undefined sizes");
+			Logger::logger_.error("Cannot handle box of undefined sizes");
 			return false;
 		}
 	}
 	else if(box->length == 0)
 	{
-		GRK_ERROR("Cannot handle box of undefined sizes");
+		Logger::logger_.error("Cannot handle box of undefined sizes");
 		return false;
 	}
 	if(box->length < *p_number_bytes_read)
 	{
-		GRK_ERROR("Box length is inconsistent.");
+		Logger::logger_.error("Box length is inconsistent.");
 		return false;
 	}
 	if(box->length > maxBoxSize)
 	{
-		GRK_ERROR("Stream error while reading JP2 Header box: box length %" PRIu64
+		Logger::logger_.error("Stream error while reading JP2 Header box: box length %" PRIu64
 				  " is larger than "
 				  "maximum box length %" PRIu64 ".",
 				  box->length, maxBoxSize);

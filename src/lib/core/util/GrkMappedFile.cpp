@@ -167,11 +167,11 @@ static grk_handle open_fd(const char* fname, const char* mode)
 	{
 		if(errno > 0 && strerror(errno) != nullptr)
 		{
-			GRK_ERROR("%s: %s", fname, strerror(errno));
+			Logger::logger_.error("%s: %s", fname, strerror(errno));
 		}
 		else
 		{
-			GRK_ERROR("%s: Cannot open", fname);
+			Logger::logger_.error("%s: Cannot open", fname);
 		}
 		return (grk_handle)-1;
 	}
@@ -194,10 +194,10 @@ static void mem_map_free(void* user_data)
 		MemStream* buffer_info = (MemStream*)user_data;
 		int32_t rc = unmap(buffer_info->buf, buffer_info->len);
 		if(rc)
-			GRK_ERROR("Unmapping memory mapped file failed with error %u", rc);
+			Logger::logger_.error("Unmapping memory mapped file failed with error %u", rc);
 		rc = close_fd(buffer_info->fd);
 		if(rc)
-			GRK_ERROR("Closing memory mapped file failed with error %u", rc);
+			Logger::logger_.error("Closing memory mapped file failed with error %u", rc);
 		delete buffer_info;
 	}
 }
@@ -207,13 +207,13 @@ grk_stream* create_mapped_file_read_stream(const char* fname)
 	grk_handle fd = open_fd(fname, "r");
 	if(fd == (grk_handle)-1)
 	{
-		GRK_ERROR("Unable to open memory mapped file %s", fname);
+		Logger::logger_.error("Unable to open memory mapped file %s", fname);
 		return nullptr;
 	}
 	size_t len = (size_t)size_proc(fd);
 	if(len < 12)
 	{
-		GRK_ERROR("File length %ld too short.", len);
+		Logger::logger_.error("File length %ld too short.", len);
 		return nullptr;
 	}
 	auto memStream = new MemStream();
@@ -222,7 +222,7 @@ grk_stream* create_mapped_file_read_stream(const char* fname)
 	auto mapped_view = grk_map(fd, memStream->len, true);
 	if(!mapped_view)
 	{
-		GRK_ERROR("Unable to map memory mapped file %s", fname);
+		Logger::logger_.error("Unable to map memory mapped file %s", fname);
 		mem_map_free(memStream);
 		return nullptr;
 	}
@@ -230,7 +230,7 @@ grk_stream* create_mapped_file_read_stream(const char* fname)
 	GRK_CODEC_FORMAT fmt;
 	if(!grk_decompress_buffer_detect_format((uint8_t*)mapped_view, 12, &fmt))
 	{
-		GRK_ERROR("Unable to detect codec format.");
+		Logger::logger_.error("Unable to detect codec format.");
 		return nullptr;
 	}
 	memStream->buf = (uint8_t*)mapped_view;
@@ -248,13 +248,13 @@ grk_stream* create_mapped_file_read_stream(const char* fname)
 
 grk_stream* create_mapped_file_write_stream(const char* fname)
 {
-	GRK_ERROR("Memory mapped file writing not currently supported");
+	Logger::logger_.error("Memory mapped file writing not currently supported");
 	return nullptr;
 
 	grk_handle fd = open_fd(fname, "w");
 	if(fd == (grk_handle)-1)
 	{
-		GRK_ERROR("Unable to open memory mapped file %s", fname);
+		Logger::logger_.error("Unable to open memory mapped file %s", fname);
 		return nullptr;
 	}
 
@@ -263,7 +263,7 @@ grk_stream* create_mapped_file_write_stream(const char* fname)
 	auto mapped_view = grk_map(fd, memStream->len, false);
 	if(!mapped_view)
 	{
-		GRK_ERROR("Unable to map memory mapped file %s", fname);
+		Logger::logger_.error("Unable to map memory mapped file %s", fname);
 		mem_map_free(memStream);
 		return nullptr;
 	}

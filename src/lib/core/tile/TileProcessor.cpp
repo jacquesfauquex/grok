@@ -51,7 +51,7 @@ bool TileProcessor::subtractMarkerSegmentLength(uint16_t markerLen)
 	uint32_t segmentLength = (uint32_t)(markerLen + MARKER_LENGTH_BYTES);
 	if(tilePartDataLength > 0 && tilePartDataLength < segmentLength)
 	{
-		GRK_ERROR("Tile part data length %u smaller than marker segment length %u",
+		Logger::logger_.error("Tile part data length %u smaller than marker segment length %u",
 				  tilePartDataLength, markerLen);
 		return false;
 	}
@@ -66,7 +66,7 @@ bool TileProcessor::setTilePartDataLength(uint16_t tilePart, uint32_t tilePartLe
 	{
 		if(tilePartLength < sot_marker_segment_len_minus_tile_data_len)
 		{
-			GRK_ERROR("Tile part data length %u is smaller than for marker segment length %u",
+			Logger::logger_.error("Tile part data length %u is smaller than for marker segment length %u",
 					  tilePartDataLength, sot_marker_segment_len_minus_tile_data_len);
 			return false;
 		}
@@ -76,7 +76,7 @@ bool TileProcessor::setTilePartDataLength(uint16_t tilePart, uint32_t tilePartLe
 		{
 			if(tilePartDataLength == 1)
 			{
-				GRK_WARN("Tile %u: tile part %u data length %u is smaller than minimum size of 2 - "
+				Logger::logger_.warn("Tile %u: tile part %u data length %u is smaller than minimum size of 2 - "
 						 "room for single SOD marker. Ignoring.",
 						 getIndex(), tilePart, tilePartDataLength);
 				tilePartDataLength = 0;
@@ -213,7 +213,7 @@ bool TileProcessor::init(void)
 
 	if(tcp->tccps->numresolutions == 0)
 	{
-		GRK_ERROR("tiles require at least one resolution");
+		Logger::logger_.error("tiles require at least one resolution");
 		return false;
 	}
 
@@ -239,7 +239,7 @@ bool TileProcessor::init(void)
 		if(state & GRK_PLUGIN_STATE_DEBUG)
 		{
 			if(!tile_equals(current_plugin_tile, tile))
-				GRK_WARN("plugin tile differs from grok tile", nullptr);
+				Logger::logger_.warn("plugin tile differs from grok tile", nullptr);
 		}
 	}
 	numProcessedPackets = 0;
@@ -349,13 +349,13 @@ bool TileProcessor::doCompress(void)
 	bool rc = rateAllocate(&allPacketBytes, false);
 	if(!rc)
 	{
-		GRK_WARN("Unable to perform rate control on tile %d", tileIndex_);
-		GRK_WARN("Rate control will be disabled for this tile");
+		Logger::logger_.warn("Unable to perform rate control on tile %d", tileIndex_);
+		Logger::logger_.warn("Rate control will be disabled for this tile");
 		allPacketBytes = 0;
 		rc = rateAllocate(&allPacketBytes, true);
 		if(!rc)
 		{
-			GRK_ERROR("Unable to perform rate control on tile %d", tileIndex_);
+			Logger::logger_.error("Unable to perform rate control on tile %d", tileIndex_);
 			return false;
 		}
 	}
@@ -435,7 +435,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 	auto tcp = getTileCodingParams();
 	if(!tcp->compressedTileData_)
 	{
-		GRK_ERROR("Decompress: Tile %u has no compressed data", getIndex());
+		Logger::logger_.error("Decompress: Tile %u has no compressed data", getIndex());
 		return false;
 	}
 	bool doT1 = !current_plugin_tile || (current_plugin_tile->decompress_flags & GRK_DECODE_T1);
@@ -580,7 +580,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 			}
 			if(!tilec->getWindow()->alloc())
 			{
-				GRK_ERROR("Not enough memory for tile data");
+				Logger::logger_.error("Not enough memory for tile data");
 				return false;
 			}
 			if(!scheduler_->schedule(compno))
@@ -632,7 +632,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 	}
 	if(doT1 && getNumDecompressedPackets() == 0)
 	{
-		GRK_WARN("Tile %u was not decompressed", tileIndex_);
+		Logger::logger_.warn("Tile %u was not decompressed", tileIndex_);
 		if(!outputImage->hasMultipleTiles)
 			return false;
 	}
@@ -667,12 +667,12 @@ bool TileProcessor::needsMctDecompress(void)
 		return false;
 	if(tile->numcomps_ < 3)
 	{
-		GRK_WARN("Number of components (%u) is less than 3 - skipping MCT.", tile->numcomps_);
+		Logger::logger_.warn("Number of components (%u) is less than 3 - skipping MCT.", tile->numcomps_);
 		return false;
 	}
 	if(!headerImage->componentsEqual(3, false))
 	{
-		GRK_WARN("Not all tiles components have the same dimensions - skipping MCT.");
+		Logger::logger_.warn("Not all tiles components have the same dimensions - skipping MCT.");
 		return false;
 	}
 	if(tcp_->mct == 2 && !tcp_->mct_decoding_matrix_)
@@ -951,7 +951,7 @@ bool TileProcessor::preCompressTile()
 			tilec->getWindow()->attach(imagec->data, imagec->stride);
 		else if(!tilec->getWindow()->alloc())
 		{
-			GRK_ERROR("Error allocating tile component data.");
+			Logger::logger_.error("Error allocating tile component data.");
 			return false;
 		}
 	}
@@ -1051,7 +1051,7 @@ bool TileProcessor::cacheTilePartPackets(CodeStreamDecompress* codeStream)
 		auto bytesLeftInStream = stream_->numBytesLeft();
 		if(bytesLeftInStream == 0)
 		{
-			GRK_ERROR("Tile %u, tile part %u: stream has been truncated and "
+			Logger::logger_.error("Tile %u, tile part %u: stream has been truncated and "
 					  "there is no tile data available",
 					  tileIndex_, tcp->tilePartCounter_ - 1);
 			return false;
@@ -1059,7 +1059,7 @@ bool TileProcessor::cacheTilePartPackets(CodeStreamDecompress* codeStream)
 		// check that there are enough bytes in stream to fill tile data
 		if(tilePartDataLength > bytesLeftInStream)
 		{
-			GRK_WARN("Tile part length %lld greater than "
+			Logger::logger_.warn("Tile part length %lld greater than "
 					 "stream length %lld\n"
 					 "(tile: %u, tile part: %u). Tile has been truncated.",
 					 tilePartDataLength, stream_->numBytesLeft(), tileIndex_,
@@ -1077,7 +1077,7 @@ bool TileProcessor::cacheTilePartPackets(CodeStreamDecompress* codeStream)
 		uint64_t current_pos = stream_->tell();
 		if(current_pos < MARKER_BYTES)
 		{
-			GRK_ERROR("Stream too short");
+			Logger::logger_.error("Stream too short");
 
 			return false;
 		}
@@ -1090,7 +1090,7 @@ bool TileProcessor::cacheTilePartPackets(CodeStreamDecompress* codeStream)
 		if(!TileLengthMarkers::addTileMarkerInfo(tileIndex_, codeStreamInfo, J2K_MS_SOD,
 												 current_pos, 0))
 		{
-			GRK_ERROR("Not enough memory to add tl marker");
+			Logger::logger_.error("Not enough memory to add tl marker");
 
 			return false;
 		}
@@ -1115,7 +1115,7 @@ bool TileProcessor::cacheTilePartPackets(CodeStreamDecompress* codeStream)
 			}
 			catch([[maybe_unused]] std::bad_alloc& ex)
 			{
-				GRK_ERROR("Not enough memory to allocate segment");
+				Logger::logger_.error("Not enough memory to allocate segment");
 
 				return false;
 			}
@@ -1556,7 +1556,7 @@ bool TileProcessor::pcrdBisectSimple(uint32_t* allPacketBytes, bool disableRateC
 
 	// final simulation will generate correct PLT lengths
 	// and correct tile length
-	// GRK_INFO("Rate control final simulation");
+	// Logger::logger_.info("Rate control final simulation");
 	return t2.compressPacketsSimulate(tileIndex_, tcp_->max_layers_, allPacketBytes, maxLayerLength,
 									  newTilePartProgressionPosition,
 									  packetLengthCache.getMarkers(), true, false);

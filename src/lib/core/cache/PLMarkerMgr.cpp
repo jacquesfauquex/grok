@@ -65,7 +65,7 @@ void PLMarkerMgr::pushInit(bool isFinal)
 bool PLMarkerMgr::pushPL(uint32_t len)
 {
 	assert(len);
-	// GRK_INFO("Push packet length: %u", len);
+	// Logger::logger_.info("Push packet length: %u", len);
 	uint32_t numbits = floorlog2(len) + 1;
 	uint32_t numBytes = (numbits + 6) / 7;
 	assert(numBytes <= 5);
@@ -110,7 +110,7 @@ bool PLMarkerMgr::pushPL(uint32_t len)
 	{
 		// write period
 		// static int count = 0;
-		// GRK_INFO("Wrote PLT packet %u, length %u", count++,len);
+		// Logger::logger_.info("Wrote PLT packet %u, length %u", count++,len);
 		uint8_t temp[5];
 		int32_t counter = (int32_t)(numBytes - 1);
 		temp[counter--] = (len & 0x7F);
@@ -161,7 +161,7 @@ bool PLMarkerMgr::readPLM(uint8_t* headerData, uint16_t header_size)
 {
 	if(header_size < 1)
 	{
-		GRK_ERROR("PLM marker segment too short");
+		Logger::logger_.error("PLM marker segment too short");
 		return false;
 	}
 	// Zplm
@@ -169,7 +169,7 @@ bool PLMarkerMgr::readPLM(uint8_t* headerData, uint16_t header_size)
 	--header_size;
 	if(rawMarkers_->size() == 256)
 	{
-		GRK_ERROR("PLM: only 256 PLM markers are allowed by the standard.");
+		Logger::logger_.error("PLM: only 256 PLM markers are allowed by the standard.");
 		return false;
 	}
 	if(!findMarker(Zplm, false))
@@ -181,7 +181,7 @@ bool PLMarkerMgr::readPLM(uint8_t* headerData, uint16_t header_size)
 		uint16_t segmentLength = (uint16_t)Nplm + 1;
 		if(header_size < segmentLength)
 		{
-			GRK_ERROR("Malformed PLM marker segment");
+			Logger::logger_.error("Malformed PLM marker segment");
 			return false;
 		}
 		// 2. push packets for nth tile part into current raw marker
@@ -209,7 +209,7 @@ bool PLMarkerMgr::readPLT(uint8_t* headerData, uint16_t header_size)
 {
 	if(header_size <= 1)
 	{
-		GRK_ERROR("PLT marker segment too short");
+		Logger::logger_.error("PLT marker segment too short");
 		return false;
 	}
 	/* Zplt */
@@ -220,7 +220,7 @@ bool PLMarkerMgr::readPLT(uint8_t* headerData, uint16_t header_size)
 
 	addNewMarker(headerData, header_size);
 #ifdef DEBUG_PLT
-	GRK_INFO("PLT marker %u", Zpl);
+	Logger::logger_.info("PLT marker %u", Zpl);
 #endif
 
 	return true;
@@ -241,7 +241,7 @@ bool PLMarkerMgr::findMarker(uint32_t nextIndex, bool compress)
 				sequential_ = (rawMarkers_->size() & 0xFF) == nextIndex;
 				if(!sequential_ && rawMarkers_->size() > 256)
 				{
-					GRK_ERROR("PLT: sequential marker assumption has been broken.");
+					Logger::logger_.error("PLT: sequential marker assumption has been broken.");
 					return false;
 				}
 			}
@@ -300,7 +300,7 @@ uint32_t PLMarkerMgr::pop(void)
 
 	if(currMarkerIter_ == rawMarkers_->end())
 	{
-		GRK_ERROR("Attempt to pop PLT beyond PLT marker range.");
+		Logger::logger_.error("Attempt to pop PLT beyond PLT marker range.");
 		return 0;
 	}
 	if(currMarkerIter_ != rawMarkers_->end() && currMarkerBuf_)
@@ -333,7 +333,7 @@ uint32_t PLMarkerMgr::pop(void)
 	}
 
 	// static int count = 0;
-	// GRK_INFO("Read PLT packet %u, length %u", count++,rc);
+	// Logger::logger_.info("Read PLT packet %u, length %u", count++,rc);
 	return rc;
 }
 

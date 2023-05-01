@@ -56,7 +56,7 @@ void decompress_synch_plugin_with_host(TileProcessor* tcd)
 							// sanity check
 							if(cblk->getNumSegments() != 1)
 							{
-								GRK_INFO("Plugin does not handle code blocks with multiple "
+								Logger::logger_.info("Plugin does not handle code blocks with multiple "
 										 "segments. Image will be decompressed on CPU.");
 								throw PluginDecodeUnsupportedException();
 							}
@@ -65,7 +65,7 @@ void decompress_synch_plugin_with_host(TileProcessor* tcd)
 								(uint32_t)((tcd->headerImage->comps[0].prec + BIBO_EXTRA_BITS) - 2);
 							if(cblk->getSegment(0)->numpasses > maxPasses)
 							{
-								GRK_INFO("Number of passes %u in segment exceeds BIBO maximum %u. "
+								Logger::logger_.info("Number of passes %u in segment exceeds BIBO maximum %u. "
 										 "Image will be decompressed on CPU.",
 										 cblk->getSegment(0)->numpasses, maxPasses);
 								throw PluginDecodeUnsupportedException();
@@ -159,11 +159,11 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 		{
 			if(band->stepsize != plugin_band->stepsize)
 			{
-				GRK_WARN("ojp band step size %u differs from plugin step size %u", band->stepsize,
+				Logger::logger_.warn("grok band step size %u differs from plugin step size %u", band->stepsize,
 						 plugin_band->stepsize);
 			}
 			if(cblk->numPassesTotal != plugin_cblk->numPasses)
-				GRK_WARN(
+				Logger::logger_.warn(
 					"CPU total number of passes (%u) differs from "
 					"plugin total number of passes (%u) : component=%u, res=%u, band=%u, block=%u",
 					cblk->numPassesTotal, (uint32_t)plugin_cblk->numPasses, compno, resno,
@@ -177,7 +177,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 		{
 			uint32_t grkNumPix = (uint32_t)cblk->area();
 			if(plugin_cblk->numPix != grkNumPix)
-				GRK_WARN("ojp numPix %u differs from plugin numPix %u", grkNumPix,
+				Logger::logger_.warn("grok numPix %u differs from plugin numPix %u", grkNumPix,
 						 plugin_cblk->numPix);
 		}
 
@@ -193,7 +193,8 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 				totalRate = (cblk->passes + cblk->numPassesTotal - 1)->rate;
 				if(totalRatePlugin != totalRate)
 				{
-					GRK_WARN("CPU rate %u differs from plugin rate %u", totalRate, totalRatePlugin);
+					Logger::logger_.warn("Total CPU rate %u differs from total plugin rate %u, component=%u,res=%u,band=%u, "
+							 "block=%u", totalRate, totalRatePlugin, compno, resno, bandIndex, cblkno);
 				}
 			}
 
@@ -201,7 +202,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 			{
 				if(cblk->paddedCompressedStream[p] != plugin_cblk->compressedData[p])
 				{
-					GRK_WARN("data differs at position=%u, component=%u, res=%u, band=%u, "
+					Logger::logger_.warn("data differs at position=%u, component=%u, res=%u, band=%u, "
 							 "block=%u, CPU rate =%u, plugin rate=%u",
 							 p, compno, resno, bandIndex, cblkno, totalRate, totalRatePlugin);
 					goodData = false;
@@ -220,7 +221,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 			if(cblk->x0 != plugin_cblk->x0 || cblk->y0 != plugin_cblk->y0 ||
 			   cblk->x1 != plugin_cblk->x1 || cblk->y1 != plugin_cblk->y1)
 			{
-				GRK_ERROR("CPU code block bounding box differs from plugin code block");
+				Logger::logger_.error("CPU code block bounding box differs from plugin code block");
 			}
 		}
 
@@ -239,8 +240,8 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 						   fabs(pass->distortiondec) >
 					   0.01)
 					{
-						GRK_WARN("distortion decrease for pass %u differs between plugin and OPJ:  "
-								 "plugin: %u, OPJ : %u",
+						Logger::logger_.warn("distortion decrease for pass %u differs between plugin and CPU:  "
+								 "plugin: %u, CPU : %u",
 								 passno, pluginPass->distortionDecrease, pass->distortiondec);
 					}
 				}
@@ -260,7 +261,9 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 			{
 				if(pluginRate != pass->rate)
 				{
-					GRK_WARN("CPU rate %u differs from plugin rate %u", pass->rate, pluginRate);
+					Logger::logger_.warn("CPU rate %u differs from plugin rate %u,pass=%u, component=%u,res=%u,band=%u, "
+							 "block=%u", pass->rate, pluginRate,
+							 passno, compno, resno, bandIndex, cblkno);
 				}
 			}
 

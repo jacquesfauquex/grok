@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <cstring>
 #include "grok.h"
-#include "logger.h"
+#include "Logger.h"
 
 namespace grk
 {
@@ -218,7 +218,7 @@ static int32_t minpf_post_load_plugin(const char* pluginPath, bool verbose,
 	minpf_plugin_manager* mgr = minpf_get_plugin_manager();
 	mgr->platformServices.pluginPath = pluginPath;
 	mgr->platformServices.verbose = verbose;
-	mgr->platformServices.logger = &grk::logger::logger_;
+	mgr->platformServices.logger = &grk::Logger::logger_;
 	minpf_exit_func exitFunc = postLoadFunc(&mgr->platformServices);
 	if(!exitFunc)
 		return -1;

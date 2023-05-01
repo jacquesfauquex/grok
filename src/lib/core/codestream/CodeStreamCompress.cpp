@@ -122,12 +122,12 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 	// sanity check on image
 	if(image->numcomps < 1 || image->numcomps > maxNumComponentsJ2K)
 	{
-		GRK_ERROR("Invalid number of components specified while setting up JP2 compressor");
+		Logger::logger_.error("Invalid number of components specified while setting up JP2 compressor");
 		return false;
 	}
 	if((image->x1 < image->x0) || (image->y1 < image->y0))
 	{
-		GRK_ERROR("Invalid input image dimensions found while setting up JP2 compressor");
+		Logger::logger_.error("Invalid input image dimensions found while setting up JP2 compressor");
 		return false;
 	}
 	for(uint32_t i = 0; i < image->numcomps; ++i)
@@ -138,13 +138,13 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 #endif
 		if(comp->w == 0 || comp->h == 0)
 		{
-			GRK_ERROR(
+			Logger::logger_.error(
 				"Invalid input image component dimensions found while setting up JP2 compressor");
 			return false;
 		}
 		if(comp->prec == 0)
 		{
-			GRK_ERROR("Invalid component precision of 0 found while setting up JP2 compressor");
+			Logger::logger_.error("Invalid component precision of 0 found while setting up JP2 compressor");
 			return false;
 		}
 	}
@@ -170,7 +170,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 	{
 		if(parameters->numlayers > 1 || parameters->layer_rate[0] != 0)
 		{
-			GRK_WARN("Rate control not supported for HTJ2K compression.");
+			Logger::logger_.warn("Rate control not supported for HTJ2K compression.");
 			parameters->numlayers = 1;
 			parameters->layer_rate[0] = 0;
 		}
@@ -179,7 +179,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 
 	if((parameters->numresolution == 0) || (parameters->numresolution > GRK_J2K_MAXRLVLS))
 	{
-		GRK_ERROR("Invalid number of resolutions : %u not in range [1,%u]",
+		Logger::logger_.error("Invalid number of resolutions : %u not in range [1,%u]",
 				  parameters->numresolution, GRK_J2K_MAXRLVLS);
 		return false;
 	}
@@ -227,8 +227,8 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		}
 		if(cap)
 		{
-			GRK_WARN("The desired maximum code stream size has limited");
-			GRK_WARN("at least one of the desired quality layers\n");
+			Logger::logger_.warn("The desired maximum code stream size has limited");
+			Logger::logger_.warn("at least one of the desired quality layers\n");
 		}
 	}
 
@@ -241,7 +241,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		if((parameters->rsiz == GRK_PROFILE_CINEMA_S2K) ||
 		   (parameters->rsiz == GRK_PROFILE_CINEMA_S4K))
 		{
-			GRK_WARN("JPEG 2000 Scalable Digital Cinema profiles not supported");
+			Logger::logger_.warn("JPEG 2000 Scalable Digital Cinema profiles not supported");
 			parameters->rsiz = GRK_PROFILE_NONE;
 		}
 		else
@@ -254,7 +254,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 	}
 	else if(GRK_IS_STORAGE(parameters->rsiz))
 	{
-		GRK_WARN("JPEG 2000 Long Term Storage profile not supported");
+		Logger::logger_.warn("JPEG 2000 Long Term Storage profile not supported");
 		parameters->rsiz = GRK_PROFILE_NONE;
 	}
 	else if(GRK_IS_BROADCAST(parameters->rsiz))
@@ -273,14 +273,14 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 	{
 		if(parameters->rsiz == ((GRK_PROFILE_PART2) | (GRK_EXTENSION_NONE)))
 		{
-			GRK_WARN("JPEG 2000 Part-2 profile defined\n"
+			Logger::logger_.warn("JPEG 2000 Part-2 profile defined\n"
 					 "but no Part-2 extension enabled.\n"
 					 "Profile set to NONE.");
 			parameters->rsiz = GRK_PROFILE_NONE;
 		}
 		else if(parameters->rsiz != ((GRK_PROFILE_PART2) | (GRK_EXTENSION_MCT)))
 		{
-			GRK_WARN("Unsupported Part-2 extension enabled\n"
+			Logger::logger_.warn("Unsupported Part-2 extension enabled\n"
 					 "Profile set to NONE.");
 			parameters->rsiz = GRK_PROFILE_NONE;
 		}
@@ -292,7 +292,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 									  parameters->numresolution, image->numcomps,
 									  parameters->numlayers))
 		{
-			GRK_ERROR("Failed to initialize POC");
+			Logger::logger_.error("Failed to initialize POC");
 			return false;
 		}
 	}
@@ -324,12 +324,12 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			cp_.comment_len[i] = parameters->comment_len[i];
 			if(!cp_.comment_len[i])
 			{
-				GRK_WARN("Empty comment. Ignoring");
+				Logger::logger_.warn("Empty comment. Ignoring");
 				continue;
 			}
 			if(cp_.comment_len[i] > GRK_MAX_COMMENT_LENGTH)
 			{
-				GRK_WARN("Comment length %s is greater than maximum comment length %u. Ignoring",
+				Logger::logger_.warn("Comment length %s is greater than maximum comment length %u. Ignoring",
 						 cp_.comment_len[i], GRK_MAX_COMMENT_LENGTH);
 				continue;
 			}
@@ -355,7 +355,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		// avoid divide by zero
 		if(cp_.t_width == 0 || cp_.t_height == 0)
 		{
-			GRK_ERROR("Invalid tile dimensions (%u,%u)", cp_.t_width, cp_.t_height);
+			Logger::logger_.error("Invalid tile dimensions (%u,%u)", cp_.t_width, cp_.t_height);
 			return false;
 		}
 		uint32_t tgw = ceildiv<uint32_t>((image->x1 - cp_.tx0), cp_.t_width);
@@ -363,7 +363,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		uint64_t numTiles = (uint64_t)tgw * tgh;
 		if(numTiles > maxNumTilesJ2K)
 		{
-			GRK_ERROR("Number of tiles %u is greater than max tiles %u"
+			Logger::logger_.error("Number of tiles %u is greater than max tiles %u"
 					  "allowed by the standard.",
 					  numTiles, maxNumTilesJ2K);
 			return false;
@@ -385,7 +385,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 	uint8_t numgbits = parameters->numgbits;
 	if(parameters->numgbits > 7)
 	{
-		GRK_ERROR("Number of guard bits %u is greater than 7", numgbits);
+		Logger::logger_.error("Number of guard bits %u is greater than 7", numgbits);
 		return false;
 	}
 	cp_.tcps = new TileCodingParams[cp_.t_grid_width * cp_.t_grid_height];
@@ -433,7 +433,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			}
 			if(numTileProgressions == 0)
 			{
-				GRK_ERROR("Problem with specified progression order changes");
+				Logger::logger_.error("Problem with specified progression order changes");
 				return false;
 			}
 			tcp->numpocs = numTileProgressions - 1;
@@ -449,7 +449,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			auto dc_shift = (int32_t*)((uint8_t*)parameters->mct_data + lMctSize);
 			if(!lTmpBuf)
 			{
-				GRK_ERROR("Not enough memory to allocate temp buffer");
+				Logger::logger_.error("Not enough memory to allocate temp buffer");
 				return false;
 			}
 			tcp->mct = 2;
@@ -458,7 +458,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			{
 				grk_free(lTmpBuf);
 				lTmpBuf = nullptr;
-				GRK_ERROR("Not enough memory to allocate compressor MCT coding matrix ");
+				Logger::logger_.error("Not enough memory to allocate compressor MCT coding matrix ");
 				return false;
 			}
 			memcpy(tcp->mct_coding_matrix_, parameters->mct_data, lMctSize);
@@ -469,7 +469,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			{
 				grk_free(lTmpBuf);
 				lTmpBuf = nullptr;
-				GRK_ERROR("Not enough memory to allocate compressor MCT decoding matrix ");
+				Logger::logger_.error("Not enough memory to allocate compressor MCT decoding matrix ");
 				return false;
 			}
 			if(GrkMatrix().matrix_inversion_f(lTmpBuf, (tcp->mct_decoding_matrix_),
@@ -477,7 +477,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			{
 				grk_free(lTmpBuf);
 				lTmpBuf = nullptr;
-				GRK_ERROR("Failed to inverse compressor MCT decoding matrix ");
+				Logger::logger_.error("Failed to inverse compressor MCT decoding matrix ");
 				return false;
 			}
 
@@ -486,7 +486,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			{
 				grk_free(lTmpBuf);
 				lTmpBuf = nullptr;
-				GRK_ERROR("Not enough memory to allocate compressor MCT norms ");
+				Logger::logger_.error("Not enough memory to allocate compressor MCT norms ");
 				return false;
 			}
 			mct::calculate_norms(tcp->mct_norms, image->numcomps, tcp->mct_decoding_matrix_);
@@ -500,7 +500,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 
 			if(init_mct_encoding(tcp, image) == false)
 			{
-				GRK_ERROR("Failed to set up j2k mct compressing");
+				Logger::logger_.error("Failed to set up j2k mct compressing");
 				return false;
 			}
 		}
@@ -510,7 +510,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			{
 				if(image->color_space == GRK_CLRSPC_EYCC || image->color_space == GRK_CLRSPC_SYCC)
 				{
-					GRK_WARN("Disabling MCT for sYCC/eYCC colour space");
+					Logger::logger_.warn("Disabling MCT for sYCC/eYCC colour space");
 					tcp->mct = 0;
 				}
 				else if(image->numcomps >= 3)
@@ -520,7 +520,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 					   (image->comps[0].dy != image->comps[1].dy) ||
 					   (image->comps[0].dy != image->comps[2].dy))
 					{
-						GRK_WARN("Cannot perform MCT on components with different dimensions. "
+						Logger::logger_.warn("Cannot perform MCT on components with different dimensions. "
 								 "Disabling MCT.");
 						tcp->mct = 0;
 					}
@@ -612,7 +612,7 @@ uint64_t CodeStreamCompress::compress(grk_plugin_tile* tile)
 	uint32_t numTiles = (uint32_t)cp_.t_grid_height * cp_.t_grid_width;
 	if(numTiles > maxNumTilesJ2K)
 	{
-		GRK_ERROR("Number of tiles %u is greater than max tiles %u"
+		Logger::logger_.error("Number of tiles %u is greater than max tiles %u"
 				  "allowed by the standard.",
 				  numTiles, maxNumTilesJ2K);
 		return 0;
@@ -824,7 +824,7 @@ bool CodeStreamCompress::writeTilePart(TileProcessor* tileProcessor)
 	// 3. compress tile part and write to stream
 	if(!tileProcessor->writeTilePartT2(&tilePartBytesWritten))
 	{
-		GRK_ERROR("Cannot compress tile");
+		Logger::logger_.error("Cannot compress tile");
 		return false;
 	}
 	// 4. now that we know the tile part length, we can
@@ -835,11 +835,11 @@ bool CodeStreamCompress::writeTilePart(TileProcessor* tileProcessor)
 	if(tileProcessor->canPreCalculateTileLen())
 	{
 		auto actualBytes = stream_->tell() - currentPos;
-		// GRK_INFO("Tile %u: precalculated / actual : %u / %u",
+		// Logger::logger_.info("Tile %u: precalculated / actual : %u / %u",
 		//		tileProcessor->getIndex(), calculatedBytesWritten, actualBytes);
 		if(actualBytes != calculatedBytesWritten)
 		{
-			GRK_ERROR("Error in tile length calculation. Please share uncompressed image\n"
+			Logger::logger_.error("Error in tile length calculation. Please share uncompressed image\n"
 					  "and compression parameters on Github issue tracker");
 			return false;
 		}
@@ -867,7 +867,7 @@ bool CodeStreamCompress::writeTileParts(TileProcessor* tileProcessor)
 	uint64_t numTileParts = getNumTilePartsForProgression(0, tileProcessor->getIndex());
 	if(numTileParts > maxTilePartsPerTileJ2K)
 	{
-		GRK_ERROR("Number of tile parts %u for first POC exceeds maximum number of tile parts %u",
+		Logger::logger_.error("Number of tile parts %u for first POC exceeds maximum number of tile parts %u",
 				  numTileParts, maxTilePartsPerTileJ2K);
 		return false;
 	}
@@ -884,7 +884,7 @@ bool CodeStreamCompress::writeTileParts(TileProcessor* tileProcessor)
 		numTileParts = getNumTilePartsForProgression(pino, tileProcessor->getIndex());
 		if(numTileParts > maxTilePartsPerTileJ2K)
 		{
-			GRK_ERROR("Number of tile parts %u exceeds maximum number of "
+			Logger::logger_.error("Number of tile parts %u exceeds maximum number of "
 					  "tile parts %u",
 					  numTileParts, maxTilePartsPerTileJ2K);
 			return false;
@@ -985,18 +985,18 @@ bool CodeStreamCompress::compressValidation()
 	if((cp_.tcps->tccps->numresolutions == 0) ||
 	   (cp_.tcps->tccps->numresolutions > GRK_J2K_MAXRLVLS))
 	{
-		GRK_ERROR("Invalid number of resolutions : %u not in range [1,%u]",
+		Logger::logger_.error("Invalid number of resolutions : %u not in range [1,%u]",
 				  cp_.tcps->tccps->numresolutions, GRK_J2K_MAXRLVLS);
 		return false;
 	}
 	if(cp_.t_width == 0)
 	{
-		GRK_ERROR("Tile x dimension must be greater than zero ");
+		Logger::logger_.error("Tile x dimension must be greater than zero ");
 		return false;
 	}
 	if(cp_.t_height == 0)
 	{
-		GRK_ERROR("Tile y dimension must be greater than zero ");
+		Logger::logger_.error("Tile y dimension must be greater than zero ");
 		return false;
 	}
 
@@ -1025,12 +1025,12 @@ bool CodeStreamCompress::write_com()
 		uint16_t comment_size = cp_.comment_len[i];
 		if(!comment_size)
 		{
-			GRK_WARN("Empty comment. Ignoring");
+			Logger::logger_.warn("Empty comment. Ignoring");
 			continue;
 		}
 		if(comment_size > GRK_MAX_COMMENT_LENGTH)
 		{
-			GRK_WARN("Comment length %s is greater than maximum comment length %u. Ignoring",
+			Logger::logger_.warn("Comment length %s is greater than maximum comment length %u. Ignoring",
 					 comment_size, GRK_MAX_COMMENT_LENGTH);
 			continue;
 		}
@@ -1076,7 +1076,7 @@ bool CodeStreamCompress::write_cod()
 		return false;
 	if(!write_SPCod_SPCoc(0))
 	{
-		GRK_ERROR("Error writing COD marker");
+		Logger::logger_.error("Error writing COD marker");
 		return false;
 	}
 
@@ -1138,7 +1138,7 @@ bool CodeStreamCompress::write_qcd()
 		return false;
 	if(!write_SQcd_SQcc(0))
 	{
-		GRK_ERROR("Error writing QCD marker");
+		Logger::logger_.error("Error writing QCD marker");
 		return false;
 	}
 
@@ -1706,7 +1706,7 @@ bool CodeStreamCompress::validateProgressionOrders(const grk_progression* progre
 		}
 	}
 	if(loss)
-		GRK_ERROR("POC: missing packets");
+		Logger::logger_.error("POC: missing packets");
 	delete[] packet_array;
 
 	return !loss;
@@ -1740,7 +1740,7 @@ bool CodeStreamCompress::init_mct_encoding(TileCodingParams* p_tcp, GrkImage* p_
 				p_tcp->mct_records_ = nullptr;
 				p_tcp->nb_max_mct_records_ = 0;
 				p_tcp->nb_mct_records_ = 0;
-				/* GRK_ERROR( "Not enough memory to set up mct compressing"); */
+				/* Logger::logger_.error( "Not enough memory to set up mct compressing"); */
 				return false;
 			}
 			p_tcp->mct_records_ = new_mct_records;
@@ -1782,7 +1782,7 @@ bool CodeStreamCompress::init_mct_encoding(TileCodingParams* p_tcp, GrkImage* p_
 			p_tcp->mct_records_ = nullptr;
 			p_tcp->nb_max_mct_records_ = 0;
 			p_tcp->nb_mct_records_ = 0;
-			/* GRK_ERROR( "Not enough memory to set up mct compressing"); */
+			/* Logger::logger_.error( "Not enough memory to set up mct compressing"); */
 			return false;
 		}
 		p_tcp->mct_records_ = new_mct_records;
@@ -1842,7 +1842,7 @@ bool CodeStreamCompress::init_mct_encoding(TileCodingParams* p_tcp, GrkImage* p_
 			p_tcp->mcc_records_ = nullptr;
 			p_tcp->nb_max_mcc_records_ = 0;
 			p_tcp->nb_mcc_records_ = 0;
-			/* GRK_ERROR( "Not enough memory to set up mct compressing"); */
+			/* Logger::logger_.error( "Not enough memory to set up mct compressing"); */
 			return false;
 		}
 		p_tcp->mcc_records_ = new_mcc_records;
@@ -1941,7 +1941,7 @@ bool CodeStreamCompress::getNumTileParts(uint16_t* numTilePartsForAllTiles, GrkI
 				uint16_t(numTilePartsForProgression + totalTilePartsForTile);
 			if(newTotalTilePartsForTile > maxTilePartsPerTileJ2K)
 			{
-				GRK_ERROR("Number of tile parts %u exceeds maximum number of "
+				Logger::logger_.error("Number of tile parts %u exceeds maximum number of "
 						  "tile parts %u",
 						  (uint16_t)newTotalTilePartsForTile, maxTilePartsPerTileJ2K);
 				return false;
@@ -1952,7 +1952,7 @@ bool CodeStreamCompress::getNumTileParts(uint16_t* numTilePartsForAllTiles, GrkI
 				(uint32_t)(*numTilePartsForAllTiles + numTilePartsForProgression);
 			if(newTotalTilePartsForAllTiles > maxTotalTilePartsJ2K)
 			{
-				GRK_ERROR("Total number of tile parts %u for image exceeds JPEG 2000 maximum total "
+				Logger::logger_.error("Total number of tile parts %u for image exceeds JPEG 2000 maximum total "
 						  "number of "
 						  "tile parts %u",
 						  newTotalTilePartsForAllTiles, maxTotalTilePartsJ2K);

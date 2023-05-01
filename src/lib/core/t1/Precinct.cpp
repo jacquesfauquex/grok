@@ -28,7 +28,7 @@ PrecinctImpl::PrecinctImpl(bool isCompressor, grk_rect32* bounds, grk_pt32 cblk_
 				   ceildivpow2<uint32_t>(bounds->y1, cblk_expn.y));
 	if(!cblk_grid_.valid())
 	{
-		GRK_ERROR("Invalid code block grid");
+		Logger::logger_.error("Invalid code block grid");
 		throw std::exception();
 	}
 }
@@ -98,7 +98,7 @@ TagTreeU16* PrecinctImpl::getIncludeTagTree(void)
 			}
 			catch([[maybe_unused]] std::exception& e)
 			{
-				GRK_WARN("No incltree created.");
+				Logger::logger_.warn("No incltree created.");
 				throw;
 			}
 		}
@@ -123,7 +123,7 @@ TagTreeU8* PrecinctImpl::getIMsbTagTree(void)
 			}
 			catch([[maybe_unused]] std::exception& e)
 			{
-				GRK_WARN("No imsbtree created.");
+				Logger::logger_.warn("No imsbtree created.");
 				throw;
 			}
 		}

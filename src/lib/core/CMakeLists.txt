@@ -55,8 +55,8 @@ set(GROK_EXECUTABLES_SRCS
 set(GROK_LIBRARY_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/util/BufferedStream.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/util/BufferedStream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/logger.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/logger.h  
+  ${CMAKE_CURRENT_SOURCE_DIR}/util/Logger.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/util/Logger.h  
   ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkMappedFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkMappedFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/MemStream.cpp

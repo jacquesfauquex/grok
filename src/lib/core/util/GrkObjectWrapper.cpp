@@ -12,7 +12,7 @@ int32_t GrkObjectWrapper::ref(void)
 int32_t GrkObjectWrapper::unref(void)
 {
 	if(ref_count == 0)
-		GRK_WARN("Attempt to uref a release object");
+		Logger::logger_.warn("Attempt to uref a release object");
 	else if(--ref_count == 0)
 		release();
 

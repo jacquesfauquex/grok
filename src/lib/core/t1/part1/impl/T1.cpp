@@ -18,9 +18,9 @@
  *    Please see the LICENSE file in the root directory for details.
  *
  */
+#include <Logger.h>
 #include "grk_includes.h"
 #include "t1_common.h"
-#include "logger.h"
 #include "t1_luts.h"
 
 namespace grk
@@ -300,7 +300,7 @@ bool T1::allocUncompressedData(size_t len)
 {
 	if(len == 0)
 	{
-		GRK_ERROR("Unable to allocated zero-length memory");
+		Logger::logger_.error("Unable to allocated zero-length memory");
 		return false;
 	}
 	if(uncompressedData && uncompressedDataLen > len)
@@ -309,7 +309,7 @@ bool T1::allocUncompressedData(size_t len)
 	uncompressedData = (int32_t*)grk::grk_aligned_malloc(len);
 	if(!uncompressedData)
 	{
-		GRK_ERROR("Out of memory");
+		Logger::logger_.error("Out of memory");
 		return false;
 	}
 	ownsUncompressedData = true;
@@ -334,7 +334,7 @@ bool T1::alloc(uint32_t width, uint32_t height)
 {
 	if(width == 0 || height == 0)
 	{
-		GRK_ERROR("Unable to allocated memory for degenerate code block of dimensions %ux%u", width,
+		Logger::logger_.error("Unable to allocated memory for degenerate code block of dimensions %ux%u", width,
 				  height);
 		return false;
 	}
@@ -362,7 +362,7 @@ bool T1::alloc(uint32_t width, uint32_t height)
 		flags = (grk_flag*)grk::grk_aligned_malloc(newflagssize * sizeof(grk_flag));
 		if(!flags)
 		{
-			GRK_ERROR("Out of memory");
+			Logger::logger_.error("Out of memory");
 			return false;
 		}
 	}
@@ -1038,7 +1038,7 @@ void T1::dec_clnpass_check_segsym(int32_t cblksty)
 		mqc_decode(v2, mqc);
 		v = (v << 1) | v2;
 		if(v != 0xa)
-			GRK_WARN("Bad segmentation symbol %x", v);
+			Logger::logger_.warn("Bad segmentation symbol %x", v);
 	}
 }
 template<uint32_t w, uint32_t h, bool vsc>
@@ -1279,7 +1279,7 @@ bool T1::decompress_cblk(DecompressCodeblock* cblk, uint8_t* compressedData, uin
 	int32_t bpno_plus_one = (int32_t)(cblk->numbps);
 	if(bpno_plus_one >= (int32_t)maxBitPlanesGRK)
 	{
-		grk::GRK_ERROR("unsupported number of bit planes: %u > %u", bpno_plus_one, maxBitPlanesGRK);
+		grk::Logger::logger_.error("unsupported number of bit planes: %u > %u", bpno_plus_one, maxBitPlanesGRK);
 		return false;
 	}
 	uint32_t passtype = 2;
@@ -1332,11 +1332,11 @@ bool T1::decompress_cblk(DecompressCodeblock* cblk, uint8_t* compressedData, uin
 	if(check_pterm)
 	{
 		if(mqc->bp + 2 < mqc->end)
-			grk::GRK_WARN("PTERM check failure: %u remaining bytes in code block (%u used / %u)",
+			grk::Logger::logger_.warn("PTERM check failure: %u remaining bytes in code block (%u used / %u)",
 						  (int)(mqc->end - mqc->bp) - 2, (int)(mqc->bp - mqc->start),
 						  (int)(mqc->end - mqc->start));
 		else if(mqc->end_of_byte_stream_counter > 2)
-			grk::GRK_WARN("PTERM check failure: %u synthesized 0xFF markers read",
+			grk::Logger::logger_.warn("PTERM check failure: %u synthesized 0xFF markers read",
 						  mqc->end_of_byte_stream_counter);
 	}
 

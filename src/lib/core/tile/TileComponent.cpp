@@ -100,14 +100,14 @@ bool TileComponent::init(TileProcessor* tileProcessor, grk_rect32 unreducedTileC
 		uint64_t temp = (uint64_t)ceildivpow2<uint32_t>(res->x1, precWidthExp) << precWidthExp;
 		if(temp > UINT_MAX)
 		{
-			GRK_ERROR("Resolution x1 value %u must be less than 2^32", temp);
+			Logger::logger_.error("Resolution x1 value %u must be less than 2^32", temp);
 			return false;
 		}
 		allPrecinctsBounds.x1 = (uint32_t)temp;
 		temp = (uint64_t)ceildivpow2<uint32_t>(res->y1, precHeightExp) << precHeightExp;
 		if(temp > UINT_MAX)
 		{
-			GRK_ERROR("Resolution y1 value %u must be less than 2^32", temp);
+			Logger::logger_.error("Resolution y1 value %u must be less than 2^32", temp);
 			return false;
 		}
 		allPrecinctsBounds.y1 = (uint32_t)temp;
@@ -321,7 +321,7 @@ bool TileComponent::canCreateWindow(grk_rect32 windowBounds)
 	auto maxResolution = resolutions_ + numresolutions - 1;
 	if(!maxResolution->intersection(windowBounds).valid())
 	{
-		GRK_ERROR("Decompress region (%u,%u,%u,%u) must overlap image bounds (%u,%u,%u,%u)",
+		Logger::logger_.error("Decompress region (%u,%u,%u,%u) must overlap image bounds (%u,%u,%u,%u)",
 				  windowBounds.x0, windowBounds.y0, windowBounds.x1, windowBounds.y1,
 				  maxResolution->x0, maxResolution->y0, maxResolution->x1, maxResolution->y1);
 		return false;

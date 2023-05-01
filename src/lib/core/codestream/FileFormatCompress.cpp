@@ -27,7 +27,7 @@ namespace grk
 void MycmsLogErrorHandlerFunction([[maybe_unused]] cmsContext ContextID,
 								  [[maybe_unused]] cmsUInt32Number ErrorCode, const char* Text)
 {
-	GRK_WARN(" LCMS error: {}", Text);
+	Logger::logger_.warn(" LCMS error: {}", Text);
 }
 
 typedef std::function<uint8_t*(uint32_t* len)> WRITE_FUNC;
@@ -83,7 +83,7 @@ bool FileFormatCompress::write_jp2c(void)
 	uint64_t j2k_codestream_exit = stream->tell();
 	if(!stream->seek(j2k_codestream_offset))
 	{
-		GRK_ERROR("Failed to seek in the stream.");
+		Logger::logger_.error("Failed to seek in the stream.");
 		return false;
 	}
 
@@ -111,7 +111,7 @@ bool FileFormatCompress::write_jp2c(void)
 	}
 	if(!stream->seek(j2k_codestream_exit))
 	{
-		GRK_ERROR("Failed to seek in the stream.");
+		Logger::logger_.error("Failed to seek in the stream.");
 		return false;
 	}
 
@@ -159,7 +159,7 @@ bool FileFormatCompress::write_ftyp(void)
 
 end:
 	if(!result)
-		GRK_ERROR("Error while writing ftyp data to stream");
+		Logger::logger_.error("Error while writing ftyp data to stream");
 	return result;
 }
 bool FileFormatCompress::write_uuids(void)
@@ -235,7 +235,7 @@ bool FileFormatCompress::write_jp2h(void)
 		current_writer->data_ = current_writer->handler(&(current_writer->size_));
 		if(current_writer->data_ == nullptr)
 		{
-			GRK_ERROR("Not enough memory to hold JP2 Header data");
+			Logger::logger_.error("Not enough memory to hold JP2 Header data");
 			result = false;
 			break;
 		}
@@ -756,7 +756,7 @@ bool FileFormatCompress::init(grk_cparameters* parameters, GrkImage* image)
 	cl = (uint32_t*)grk_malloc(sizeof(uint32_t));
 	if(!cl)
 	{
-		GRK_ERROR("Not enough memory when set up the JP2 compressor");
+		Logger::logger_.error("Not enough memory when set up the JP2 compressor");
 		return false;
 	}
 	cl[0] = JP2_JP2; /* CL0 : JP2 */
@@ -814,7 +814,7 @@ bool FileFormatCompress::init(grk_cparameters* parameters, GrkImage* image)
 			enumcs = GRK_ENUM_CLRSPC_EYCC; /* YUV */
 		else
 		{
-			GRK_ERROR("Unsupported colour space enumeration %u", inputImage_->color_space);
+			Logger::logger_.error("Unsupported colour space enumeration %u", inputImage_->color_space);
 			return false;
 		}
 	}
@@ -838,7 +838,7 @@ bool FileFormatCompress::init(grk_cparameters* parameters, GrkImage* image)
 			alpha_count++;
 			// technically, this is an error, but we will let it pass
 			if(inputImage_->comps[i].sgnd)
-				GRK_WARN("signed alpha channel %u", i);
+				Logger::logger_.warn("signed alpha channel %u", i);
 		}
 	}
 	switch(enumcs)

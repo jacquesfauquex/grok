@@ -74,7 +74,7 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	/* minimum size == 39 - 3 (= minimum component parameter) */
 	if(header_size < 36)
 	{
-		GRK_ERROR("Error with SIZ marker size");
+		Logger::logger_.error("Error with SIZ marker size");
 		return false;
 	}
 
@@ -83,7 +83,7 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	nb_comp_remain = remaining_size % 3;
 	if(nb_comp_remain != 0)
 	{
-		GRK_ERROR("Error with SIZ marker size");
+		Logger::logger_.error("Error with SIZ marker size");
 		return false;
 	}
 
@@ -101,13 +101,13 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	{
 		if(tmp & 0x3000)
 		{
-			GRK_WARN("SIZ marker segment's Rsiz word must have bits 12 and 13 equal to 0");
-			GRK_WARN("unless the Part-2 flag (bit-15) is set.");
+			Logger::logger_.warn("SIZ marker segment's Rsiz word must have bits 12 and 13 equal to 0");
+			Logger::logger_.warn("unless the Part-2 flag (bit-15) is set.");
 		}
 		uint16_t profile = tmp & GRK_PROFILE_MASK;
 		if((profile > GRK_PROFILE_CINEMA_LTS) && !GRK_IS_BROADCAST(profile) && !GRK_IS_IMF(profile))
 		{
-			GRK_ERROR("Non-compliant Rsiz value 0x%x in SIZ marker", tmp);
+			Logger::logger_.error("Non-compliant Rsiz value 0x%x in SIZ marker", tmp);
 			return false;
 		}
 	}
@@ -133,21 +133,21 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	headerData += 2;
 	if(tmp == 0)
 	{
-		GRK_ERROR("SIZ marker: number of components cannot be zero");
+		Logger::logger_.error("SIZ marker: number of components cannot be zero");
 		return false;
 	}
 	if(tmp <= maxNumComponentsJ2K)
 		image->numcomps = tmp;
 	else
 	{
-		GRK_ERROR("SIZ marker: number of components %u is greater than maximum allowed number of "
+		Logger::logger_.error("SIZ marker: number of components %u is greater than maximum allowed number of "
 				  "components %u",
 				  tmp, maxNumComponentsJ2K);
 		return false;
 	}
 	if(image->numcomps != numComps)
 	{
-		GRK_ERROR("SIZ marker: signalled number of components is not compatible with remaining "
+		Logger::logger_.error("SIZ marker: signalled number of components is not compatible with remaining "
 				  "number of components ( %u vs %u)",
 				  image->numcomps, numComps);
 		return false;
@@ -157,17 +157,17 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 		std::stringstream ss;
 		ss << "SIZ marker: negative or zero image dimensions (" << (int64_t)image->x1 - image->x0
 		   << " x " << (int64_t)image->y1 - image->y0 << ")";
-		GRK_ERROR("%s", ss.str().c_str());
+		Logger::logger_.error("%s", ss.str().c_str());
 		return false;
 	}
 	if((cp->t_width == 0U) || (cp->t_height == 0U))
 	{
-		GRK_ERROR("SIZ marker: invalid tile size (%u, %u)", cp->t_width, cp->t_height);
+		Logger::logger_.error("SIZ marker: invalid tile size (%u, %u)", cp->t_width, cp->t_height);
 		return false;
 	}
 	if(cp->tx0 > image->x0 || cp->ty0 > image->y0)
 	{
-		GRK_ERROR("SIZ marker: tile origin (%u,%u) cannot lie in the region"
+		Logger::logger_.error("SIZ marker: tile origin (%u,%u) cannot lie in the region"
 				  " to the right and bottom of image origin (%u,%u)",
 				  cp->tx0, cp->ty0, image->x0, image->y0);
 		return false;
@@ -176,7 +176,7 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	uint32_t ty1 = satAdd<uint32_t>(cp->ty0, cp->t_height);
 	if(tx1 <= image->x0 || ty1 <= image->y0)
 	{
-		GRK_ERROR("SIZ marker: first tile (%u,%u,%u,%u) must overlap"
+		Logger::logger_.error("SIZ marker: first tile (%u,%u,%u,%u) must overlap"
 				  " image (%u,%u,%u,%u)",
 				  cp->tx0, cp->ty0, tx1, ty1, image->x0, image->y0, image->x1, image->y1);
 		return false;
@@ -198,7 +198,7 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 		img_comp->dy = tmp; /* should be between 1 and 255 */
 		if(img_comp->dx == 0 || img_comp->dy == 0)
 		{
-			GRK_ERROR("Invalid values for comp = %u : dx=%u dy=%u\n (should be positive "
+			Logger::logger_.error("Invalid values for comp = %u : dx=%u dy=%u\n (should be positive "
 					  "according to the JPEG2000 standard)",
 					  i, img_comp->dx, img_comp->dy);
 			return false;
@@ -206,7 +206,7 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 
 		if(img_comp->prec == 0 || img_comp->prec > GRK_MAX_SUPPORTED_IMAGE_PRECISION)
 		{
-			GRK_ERROR("Unsupported precision for comp = %u : prec=%u (this library only supports "
+			Logger::logger_.error("Unsupported precision for comp = %u : prec=%u (this library only supports "
 					  "precisions between 1 and %u)",
 					  i, img_comp->prec, GRK_MAX_SUPPORTED_IMAGE_PRECISION);
 			return false;
@@ -218,14 +218,14 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	uint32_t t_grid_height = ceildiv<uint32_t>(image->y1 - cp->ty0, cp->t_height);
 	if(t_grid_width == 0 || t_grid_height == 0)
 	{
-		GRK_ERROR("Invalid grid of tiles: %u x %u. JPEG 2000 standard requires at least one tile "
+		Logger::logger_.error("Invalid grid of tiles: %u x %u. JPEG 2000 standard requires at least one tile "
 				  "in grid. ",
 				  t_grid_width, t_grid_height);
 		return false;
 	}
 	if((uint64_t)t_grid_width * t_grid_height > (uint64_t)maxNumTilesJ2K)
 	{
-		GRK_ERROR(
+		Logger::logger_.error(
 			"Invalid grid of tiles : %u x %u.  JPEG 2000 standard specifies maximum of %u tiles",
 			t_grid_width, t_grid_height, maxNumTilesJ2K);
 		return false;
@@ -240,7 +240,7 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 		(grk_mct_data*)grk_calloc(default_number_mct_records, sizeof(grk_mct_data));
 	if(!decompressState->default_tcp_->mct_records_)
 	{
-		GRK_ERROR("Not enough memory to take in charge SIZ marker");
+		Logger::logger_.error("Not enough memory to take in charge SIZ marker");
 		return false;
 	}
 	decompressState->default_tcp_->nb_max_mct_records_ = default_number_mct_records;
@@ -248,7 +248,7 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 		default_number_mcc_records, sizeof(grk_simple_mcc_decorrelation_data));
 	if(!decompressState->default_tcp_->mcc_records_)
 	{
-		GRK_ERROR("Not enough memory to take in charge SIZ marker");
+		Logger::logger_.error("Not enough memory to take in charge SIZ marker");
 		return false;
 	}
 	decompressState->default_tcp_->nb_max_mcc_records_ = default_number_mcc_records;

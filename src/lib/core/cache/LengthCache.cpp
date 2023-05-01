@@ -68,7 +68,7 @@ bool TileInfo::checkResize(void)
 			markerInfo = nullptr;
 			allocatedMarkers = 0;
 			numMarkers = 0;
-			GRK_ERROR("Not enough memory to add TLM marker");
+			Logger::logger_.error("Not enough memory to add TLM marker");
 			return false;
 		}
 		markerInfo = new_marker;
@@ -217,7 +217,7 @@ bool CodeStreamInfo::seekFirstTilePart(uint16_t tileIndex)
 	// move just past SOT marker of first tile part for this tile
 	if(!(stream->seek(tileInfoForTile->getTilePartInfo(0)->startPosition + MARKER_BYTES)))
 	{
-		GRK_ERROR("Error in seek");
+		Logger::logger_.error("Error in seek");
 		return false;
 	}
 
@@ -263,7 +263,7 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 	assert(markers_);
 	if(header_size < tlm_marker_start_bytes)
 	{
-		GRK_ERROR("TLM: error reading marker");
+		Logger::logger_.error("TLM: error reading marker");
 		return false;
 	}
 	// read TLM marker segment index
@@ -274,7 +274,7 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 	{
 		if(valid_)
 		{
-			GRK_WARN("TLM: each marker index must be unique. Disabling TLM");
+			Logger::logger_.warn("TLM: each marker index must be unique. Disabling TLM");
 			valid_ = false;
 		}
 	}
@@ -286,7 +286,7 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 	// 0x70 ==  1110000
 	if((L & ~0x70) != 0)
 	{
-		GRK_ERROR("TLM: illegal L value");
+		Logger::logger_.error("TLM: illegal L value");
 		return false;
 	}
 	/*
@@ -315,7 +315,7 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 	{
 		if(valid_)
 		{
-			GRK_WARN("TLM: Cannot mix markers with and without tile part indices. Disabling TLM");
+			Logger::logger_.warn("TLM: Cannot mix markers with and without tile part indices. Disabling TLM");
 			valid_ = false;
 		}
 	}
@@ -323,7 +323,7 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 	uint32_t quotient = bytesPerTilePartLength + L_iT;
 	if(header_size % quotient != 0)
 	{
-		GRK_ERROR("TLM: error reading marker");
+		Logger::logger_.error("TLM: error reading marker");
 		return false;
 	}
 	// note: each tile can have max 255 tile parts, but
@@ -345,7 +345,7 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 		{
 			if(valid_)
 			{
-				GRK_WARN("TLM: tile part length %u is less than 14. Disabling TLM", Ptlm_i);
+				Logger::logger_.warn("TLM: tile part length %u is less than 14. Disabling TLM", Ptlm_i);
 				valid_ = false;
 			}
 		}
@@ -399,7 +399,7 @@ TilePartLengthInfo* TileLengthMarkers::next(bool peek)
 	assert(markers_);
 	if(!valid_)
 	{
-		GRK_WARN("Attempt to get next marker from invalid TLM marker");
+		Logger::logger_.warn("Attempt to get next marker from invalid TLM marker");
 		return nullptr;
 	}
 	if(curr_vec_)
@@ -422,7 +422,7 @@ TilePartLengthInfo* TileLengthMarkers::next(bool peek)
 			auto rc = &curr_vec_->operator[](markerTilePartIndex_);
 			if(rc->tileIndex_ >= numSignalledTiles_)
 			{
-				GRK_ERROR("TLM entry tile index %d must be less than signalled number of tiles %d",
+				Logger::logger_.error("TLM entry tile index %d must be less than signalled number of tiles %d",
 						  rc->tileIndex_, numSignalledTiles_);
 				throw CorruptTLMException();
 			}
@@ -450,11 +450,11 @@ void TileLengthMarkers::seek(TileSet* tilesToDecompress, CodingParams* cp, Buffe
 		if(tilePart->length_ == 0)
 		{
 			stream->seek(currentPosition);
-			GRK_ERROR("corrupt TLM marker");
+			Logger::logger_.error("corrupt TLM marker");
 			throw CorruptTLMException();
 		}
 		skip += tilePart->length_;
-		// GRK_INFO("Skipped tile part from tile %u",tilePart->tileIndex_);
+		// Logger::logger_.info("Skipped tile part from tile %u",tilePart->tileIndex_);
 		auto tcp = cp->tcps + tilePart->tileIndex_;
 		// increment tile part counter (unable to validate with SOT marker)
 		tcp->tilePartCounter_++;

@@ -17,7 +17,7 @@
 #pragma once
 #include <stdint.h>
 #include "grok.h"
-#include "logger.h"
+#include "Logger.h"
 
 namespace grk
 {
@@ -56,7 +56,7 @@ typedef struct minpf_platform_services
 
 	const char* pluginPath;
 	bool verbose;
-	grk::logger *logger;
+	grk::ILogger *logger;
 } minpf_platform_services;
 
 typedef int32_t (*minpf_exit_func)();

@@ -250,7 +250,7 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 	/* Check if we have read the main header */
 	if(decompressor->getState() != DECOMPRESS_STATE_TPH_SOT)
 	{
-		GRK_ERROR("Need to read the main header before setting decompress region");
+		Logger::logger_.error("Need to read the main header before setting decompress region");
 		return false;
 	}
 
@@ -265,7 +265,7 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		/* Left */
 		if(start_x > image->x1)
 		{
-			GRK_ERROR("Left position of the decompress region (%u)"
+			Logger::logger_.error("Left position of the decompress region (%u)"
 					  " is outside of the image area (Xsiz=%u).",
 					  start_x, image->x1);
 			return false;
@@ -279,7 +279,7 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		/* Up */
 		if(start_y > image->y1)
 		{
-			GRK_ERROR("Top position of the decompress region (%u)"
+			Logger::logger_.error("Top position of the decompress region (%u)"
 					  " is outside of the image area (Ysiz=%u).",
 					  start_y, image->y1);
 			return false;
@@ -295,7 +295,7 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		assert(end_y > 0);
 		if(end_x > image->x1)
 		{
-			GRK_WARN("Right position of the decompress region (%u)"
+			Logger::logger_.warn("Right position of the decompress region (%u)"
 					 " is outside the image area (Xsiz=%u).",
 					 end_x, image->x1);
 			tilesToDecompress.x1 = cp_.t_grid_width;
@@ -313,7 +313,7 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		/* Bottom */
 		if(end_y > image->y1)
 		{
-			GRK_WARN("Bottom position of the decompress region (%u)"
+			Logger::logger_.warn("Bottom position of the decompress region (%u)"
 					 " is outside of the image area (Ysiz=%u).",
 					 end_y, image->y1);
 			tilesToDecompress.y1 = cp_.t_grid_height;
@@ -332,17 +332,17 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		if(!compositeImage->subsampleAndReduce(cp_.coding_params_.dec_.reduce_))
 			return false;
 
-		GRK_INFO("decompress region canvas coordinates set to (%u,%u,%u,%u)", compositeImage->x0,
+		Logger::logger_.info("decompress region canvas coordinates set to (%u,%u,%u,%u)", compositeImage->x0,
 				 compositeImage->y0, compositeImage->x1, compositeImage->y1);
 		auto scaledX0 = float(compositeImage->x0 - image->x0) / float(image->width());
 		auto scaledY0 = float(compositeImage->y0 - image->y0) / float(image->height());
 		auto scaledX1 = float(compositeImage->x1 - image->x0) / float(image->width());
 		auto scaledY1 = float(compositeImage->y1 - image->y0) / float(image->height());
-		GRK_INFO("Region scaled coordinates : (%f,%f,%f,%f)", scaledX0, scaledY0, scaledX1,
+		Logger::logger_.info("Region scaled coordinates : (%f,%f,%f,%f)", scaledX0, scaledY0, scaledX1,
 				 scaledY1);
-		GRK_INFO("Region scaled coordinates in ROW-COLUMN format : \"{%f,%f},{%f,%f}\"", scaledY0,
+		Logger::logger_.info("Region scaled coordinates in ROW-COLUMN format : \"{%f,%f},{%f,%f}\"", scaledY0,
 				 scaledX0, scaledY1, scaledX1);
-		GRK_INFO("image canvas coordinates :  (%u,%u,%u,%u)", image->x0, image->y0, image->x1,
+		Logger::logger_.info("image canvas coordinates :  (%u,%u,%u,%u)", image->x0, image->y0, image->x1,
 				 image->y1);
 	}
 	compositeImage->validateColourSpace();
@@ -393,7 +393,7 @@ bool CodeStreamDecompress::decompressTile(uint16_t tileIndex)
 	auto compositeImage = getCompositeImage();
 	if(tileIndex >= numTilesToDecompress)
 	{
-		GRK_ERROR("Tile index %u is greater than maximum tile index %u", tileIndex,
+		Logger::logger_.error("Tile index %u is greater than maximum tile index %u", tileIndex,
 				  numTilesToDecompress - 1);
 		return false;
 	}
@@ -416,7 +416,7 @@ bool CodeStreamDecompress::decompressTile(uint16_t tileIndex)
 	}
 	else
 	{
-		GRK_WARN("Decompress bounds <%u,%u,%u,%u> do not overlap with requested tile %u. "
+		Logger::logger_.warn("Decompress bounds <%u,%u,%u,%u> do not overlap with requested tile %u. "
 				 "Decompressing full image",
 				 imageBounds.x0, imageBounds.y0, imageBounds.x1, imageBounds.y1, tileIndex);
 		croppedImageBounds = imageBounds;
@@ -507,7 +507,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 		}
 		catch(InvalidMarkerException& ime)
 		{
-			GRK_ERROR("Found invalid marker : 0x%x", ime.marker_);
+			Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 			success = false;
 			goto cleanup;
 		}
@@ -515,7 +515,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 			continue;
 		if(!currentTileProcessor_)
 		{
-			GRK_ERROR("Missing SOT marker");
+			Logger::logger_.error("Missing SOT marker");
 			success = false;
 			goto cleanup;
 		}
@@ -526,7 +526,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 		{
 			if(!endOfCodeStream() && !findNextSOT(processor))
 			{
-				GRK_ERROR("Failed to find next SOT marker or EOC after tile %u/%u",
+				Logger::logger_.error("Failed to find next SOT marker or EOC after tile %u/%u",
 						  processor->getIndex(), numTilesToDecompress);
 				success = false;
 				goto cleanup;
@@ -545,7 +545,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 			{
 				if(!processor->decompressT2T1(outputImage_))
 				{
-					GRK_ERROR("Failed to decompress tile %u/%u", processor->getIndex(),
+					Logger::logger_.error("Failed to decompress tile %u/%u", processor->getIndex(),
 							  numTilesToDecompress);
 					success = false;
 				}
@@ -619,14 +619,14 @@ bool CodeStreamDecompress::decompressTiles(void)
 
 	if(numTilesDecompressed == 0)
 	{
-		GRK_ERROR("No tiles were decompressed.");
+		Logger::logger_.error("No tiles were decompressed.");
 		success = false;
 		goto cleanup;
 	}
 	else if(numTilesDecompressed < numTilesToDecompress && cp_.wholeTileDecompress_)
 	{
 		uint32_t decompressed = numTilesDecompressed;
-		GRK_WARN("Only %u out of %u tiles were decompressed", decompressed, numTilesToDecompress);
+		Logger::logger_.warn("Only %u out of %u tiles were decompressed", decompressed, numTilesToDecompress);
 	}
 cleanup:
 	if(executor)
@@ -670,7 +670,7 @@ bool CodeStreamDecompress::readHeaderProcedure(void)
 	}
 	catch(InvalidMarkerException& ime)
 	{
-		GRK_ERROR("Found invalid marker : 0x%x", ime.marker_);
+		Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 		rc = false;
 	}
 	return rc;
@@ -686,7 +686,7 @@ bool CodeStreamDecompress::readHeaderProcedureImpl(void)
 	/* Try to read the SOC marker, the code stream must begin with SOC marker */
 	if(!read_soc())
 	{
-		GRK_ERROR("Code stream must begin with SOC marker ");
+		Logger::logger_.error("Code stream must begin with SOC marker ");
 		return false;
 	}
 	if(!readMarker())
@@ -694,7 +694,7 @@ bool CodeStreamDecompress::readHeaderProcedureImpl(void)
 
 	if(curr_marker_ != J2K_MS_SIZ)
 	{
-		GRK_ERROR("Code-stream must contain a valid SIZ marker segment, immediately after the SOC "
+		Logger::logger_.error("Code-stream must contain a valid SIZ marker segment, immediately after the SOC "
 				  "marker ");
 		return false;
 	}
@@ -723,7 +723,7 @@ bool CodeStreamDecompress::readHeaderProcedureImpl(void)
 		 * (main, tile, end of code stream)*/
 		if(!(decompressorState_.getState() & marker_handler->states))
 		{
-			GRK_ERROR("Marker %u is not compliant with its position", curr_marker_);
+			Logger::logger_.error("Marker %u is not compliant with its position", curr_marker_);
 			return false;
 		}
 
@@ -733,7 +733,7 @@ bool CodeStreamDecompress::readHeaderProcedureImpl(void)
 			return false;
 		else if(markerParametersLength == MARKER_LENGTH_BYTES)
 		{
-			GRK_ERROR("Zero-size marker in header.");
+			Logger::logger_.error("Zero-size marker in header.");
 			return false;
 		}
 		markerParametersLength = (uint16_t)(markerParametersLength - MARKER_LENGTH_BYTES);
@@ -752,22 +752,22 @@ bool CodeStreamDecompress::readHeaderProcedureImpl(void)
 	}
 	if(!has_siz)
 	{
-		GRK_ERROR("required SIZ marker not found in main header");
+		Logger::logger_.error("required SIZ marker not found in main header");
 		return false;
 	}
 	else if(!has_cod)
 	{
-		GRK_ERROR("required COD marker not found in main header");
+		Logger::logger_.error("required COD marker not found in main header");
 		return false;
 	}
 	else if(!has_qcd)
 	{
-		GRK_ERROR("required QCD marker not found in main header");
+		Logger::logger_.error("required QCD marker not found in main header");
 		return false;
 	}
 	if(!merge_ppm(&(cp_)))
 	{
-		GRK_ERROR("Failed to merge PPM data");
+		Logger::logger_.error("Failed to merge PPM data");
 		return false;
 	}
 	// subtract bytes for already-read SOT marker
@@ -836,7 +836,7 @@ bool CodeStreamDecompress::decompressTile(void)
 		return false;
 	if(decompressorState_.tilesToDecompress_.numScheduled() != 1)
 	{
-		GRK_ERROR("decompressTile: Unable to decompress tile "
+		Logger::logger_.error("decompressTile: Unable to decompress tile "
 				  "since first tile SOT has not been detected");
 		return false;
 	}
@@ -876,7 +876,7 @@ bool CodeStreamDecompress::decompressTile(void)
 		}
 		catch(InvalidMarkerException& ime)
 		{
-			GRK_ERROR("Found invalid marker : 0x%x", ime.marker_);
+			Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 			return false;
 		}
 		tileProcessor = currentTileProcessor_;
@@ -905,7 +905,7 @@ bool CodeStreamDecompress::decompressTile(void)
 		}
 		catch(InvalidMarkerException& ime)
 		{
-			GRK_ERROR("Found invalid marker : 0x%x", ime.marker_);
+			Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 			return false;
 		}
 	}
@@ -930,13 +930,13 @@ bool CodeStreamDecompress::findNextSOT(TileProcessor* tileProcessor)
 {
 	if(!(decompressorState_.getState() & DECOMPRESS_STATE_DATA))
 	{
-		GRK_ERROR("no tile data.");
+		Logger::logger_.error("no tile data.");
 		return false;
 	}
 	auto tcp = cp_.tcps + tileProcessor->getIndex();
 	if(!tcp->compressedTileData_)
 	{
-		GRK_ERROR("Missing SOD marker");
+		Logger::logger_.error("Missing SOD marker");
 		return false;
 	}
 	// find next tile
@@ -967,7 +967,7 @@ bool CodeStreamDecompress::process_marker(const marker_handler* marker_handler,
 	{
 		if(marker_size > stream_->numBytesLeft())
 		{
-			GRK_ERROR("Marker size inconsistent with stream length");
+			Logger::logger_.error("Marker size inconsistent with stream length");
 			return false;
 		}
 		delete[] marker_scratch_;
@@ -976,7 +976,7 @@ bool CodeStreamDecompress::process_marker(const marker_handler* marker_handler,
 	}
 	if(stream_->read(marker_scratch_, marker_size) != marker_size)
 	{
-		GRK_ERROR("Stream too short");
+		Logger::logger_.error("Stream too short");
 		return false;
 	}
 
@@ -999,7 +999,7 @@ const marker_handler* CodeStreamDecompress::get_marker_handler(uint16_t id)
 		return iter->second;
 	else
 	{
-		GRK_WARN("Unknown marker 0x%02x detected.", id);
+		Logger::logger_.warn("Unknown marker 0x%02x detected.", id);
 		return nullptr;
 	}
 }
@@ -1020,7 +1020,7 @@ bool CodeStreamDecompress::readMarker(bool suppressWarning)
 	if(curr_marker_ < 0xff00)
 	{
 		if(!suppressWarning)
-			GRK_WARN("marker ID 0x%.4x does not match JPEG 2000 marker format 0xffxx",
+			Logger::logger_.warn("marker ID 0x%.4x does not match JPEG 2000 marker format 0xffxx",
 					 curr_marker_);
 		throw InvalidMarkerException(curr_marker_);
 	}

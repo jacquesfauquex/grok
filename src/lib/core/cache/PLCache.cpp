@@ -61,7 +61,7 @@ bool PLCache::next(PacketInfo** p)
 			packetInfo->packetLength = pltMarkers->pop();
 			if(packetInfo->packetLength == 0)
 			{
-				GRK_ERROR("PLT marker: missing packet lengths.");
+				Logger::logger_.error("PLT marker: missing packet lengths.");
 				return false;
 			}
 		}

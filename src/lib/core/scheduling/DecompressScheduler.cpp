@@ -225,7 +225,7 @@ bool DecompressScheduler::decompressBlock(T1Interface* impl, DecompressBlockExec
 	catch(std::runtime_error& rerr)
 	{
 		delete block;
-		GRK_ERROR(rerr.what());
+		Logger::logger_.error(rerr.what());
 		return false;
 	}
 

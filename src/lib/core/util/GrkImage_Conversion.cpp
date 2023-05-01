@@ -21,12 +21,12 @@ bool GrkImage::allComponentsSanityCheck(bool equalPrecision)
 
 	if(!comp0->data)
 	{
-		GRK_ERROR("component 0 : data is null.");
+		Logger::logger_.error("component 0 : data is null.");
 		return false;
 	}
 	if(comp0->prec == 0 || comp0->prec > GRK_MAX_SUPPORTED_IMAGE_PRECISION)
 	{
-		GRK_WARN("component 0 precision %d is not supported.", 0, comp0->prec);
+		Logger::logger_.warn("component 0 precision %d is not supported.", 0, comp0->prec);
 		return false;
 	}
 
@@ -36,40 +36,40 @@ bool GrkImage::allComponentsSanityCheck(bool equalPrecision)
 
 		if(!comp0->data)
 		{
-			GRK_WARN("component %d : data is null.", i);
+			Logger::logger_.warn("component %d : data is null.", i);
 			return false;
 		}
 		if(equalPrecision && comp0->prec != compi->prec)
 		{
-			GRK_WARN("precision %d of component %d"
+			Logger::logger_.warn("precision %d of component %d"
 					 " differs from precision %d of component 0.",
 					 compi->prec, i, comp0->prec);
 			return false;
 		}
 		if(comp0->sgnd != compi->sgnd)
 		{
-			GRK_WARN("signedness %d of component %d"
+			Logger::logger_.warn("signedness %d of component %d"
 					 " differs from signedness %d of component 0.",
 					 compi->sgnd, i, comp0->sgnd);
 			return false;
 		}
 		if(comp0->w != compi->w)
 		{
-			GRK_WARN("width %d of component %d"
+			Logger::logger_.warn("width %d of component %d"
 					 " differs from width %d of component 0.",
 					 compi->sgnd, i, comp0->sgnd);
 			return false;
 		}
 		if(comp0->stride != compi->stride)
 		{
-			GRK_WARN("stride %d of component %d"
+			Logger::logger_.warn("stride %d of component %d"
 					 " differs from stride %d of component 0.",
 					 compi->sgnd, i, comp0->sgnd);
 			return false;
 		}
 		if(comp0->h != compi->h)
 		{
-			GRK_WARN("height %d of component %d"
+			Logger::logger_.warn("height %d of component %d"
 					 " differs from height %d of component 0.",
 					 compi->sgnd, i, comp0->sgnd);
 			return false;
@@ -130,7 +130,7 @@ bool GrkImage::execUpsample(void)
 			uint32_t yoff = org_cmp->dy * org_cmp->y0 - y0;
 			if((xoff >= org_cmp->dx) || (yoff >= org_cmp->dy))
 			{
-				GRK_ERROR("upsample: Invalid image/component parameters found when upsampling");
+				Logger::logger_.error("upsample: Invalid image/component parameters found when upsampling");
 				delete[] new_components;
 				return false;
 			}
@@ -315,7 +315,7 @@ void GrkImage::convertPrecision(void)
 		uint16_t nr_comp = numcomps;
 		if(nr_comp > 4)
 		{
-			GRK_WARN("PNG: number of components %d is "
+			Logger::logger_.warn("PNG: number of components %d is "
 					 "greater than 4. Truncating to 4",
 					 nr_comp);
 			nr_comp = 4;
@@ -405,7 +405,7 @@ bool GrkImage::convertToRGB(bool wholeTileDecompress)
 		case GRK_CLRSPC_SYCC:
 			if(numcomps != 3)
 			{
-				GRK_ERROR("grk_decompress: YCC: number of components %d "
+				Logger::logger_.error("grk_decompress: YCC: number of components %d "
 						  "not equal to 3 ",
 						  numcomps);
 				return false;
@@ -413,30 +413,30 @@ bool GrkImage::convertToRGB(bool wholeTileDecompress)
 			if(convert)
 			{
 				if(!color_sycc_to_rgb(oddFirstX, oddFirstY))
-					GRK_WARN("grk_decompress: sYCC to RGB colour conversion failed");
+					Logger::logger_.warn("grk_decompress: sYCC to RGB colour conversion failed");
 			}
 			break;
 		case GRK_CLRSPC_EYCC:
 			if(numcomps != 3)
 			{
-				GRK_ERROR("grk_decompress: YCC: number of components %d "
+				Logger::logger_.error("grk_decompress: YCC: number of components %d "
 						  "not equal to 3 ",
 						  numcomps);
 				return false;
 			}
 			if(convert && !color_esycc_to_rgb())
-				GRK_WARN("grk_decompress: eYCC to RGB colour conversion failed");
+				Logger::logger_.warn("grk_decompress: eYCC to RGB colour conversion failed");
 			break;
 		case GRK_CLRSPC_CMYK:
 			if(numcomps != 4)
 			{
-				GRK_ERROR("grk_decompress: CMYK: number of components %d "
+				Logger::logger_.error("grk_decompress: CMYK: number of components %d "
 						  "not equal to 4 ",
 						  numcomps);
 				return false;
 			}
 			if(convert && !color_cmyk_to_rgb())
-				GRK_WARN("grk_decompress: CMYK to RGB colour conversion failed");
+				Logger::logger_.warn("grk_decompress: CMYK to RGB colour conversion failed");
 			break;
 		default:
 			break;
@@ -449,7 +449,7 @@ grk_image* GrkImage::createRGB(uint16_t numcmpts, uint32_t w, uint32_t h, uint8_
 {
 	if(!numcmpts)
 	{
-		GRK_WARN("createRGB: number of components cannot be zero.");
+		Logger::logger_.warn("createRGB: number of components cannot be zero.");
 		return nullptr;
 	}
 
@@ -579,7 +579,7 @@ bool GrkImage::sycc422_to_rgb(bool oddFirstX)
 	// sanity check
 	if((loopWidth + 1) / 2 != comps[1].w)
 	{
-		GRK_WARN("incorrect subsampled width %u", comps[1].w);
+		Logger::logger_.warn("incorrect subsampled width %u", comps[1].w);
 		return false;
 	}
 
@@ -599,14 +599,14 @@ bool GrkImage::sycc422_to_rgb(bool oddFirstX)
 	auto y = comps[0].data;
 	if(!y)
 	{
-		GRK_WARN("sycc422_to_rgb: null luma channel");
+		Logger::logger_.warn("sycc422_to_rgb: null luma channel");
 		return false;
 	}
 	auto cb = comps[1].data;
 	auto cr = comps[2].data;
 	if(!cb || !cr)
 	{
-		GRK_WARN("sycc422_to_rgb: null chroma channel");
+		Logger::logger_.warn("sycc422_to_rgb: null chroma channel");
 		return false;
 	}
 
@@ -676,12 +676,12 @@ bool GrkImage::sycc420_to_rgb(bool oddFirstX, bool oddFirstY)
 	// sanity check
 	if((loopWidth + 1) / 2 != comps[1].w)
 	{
-		GRK_WARN("incorrect subsampled width %u", comps[1].w);
+		Logger::logger_.warn("incorrect subsampled width %u", comps[1].w);
 		return false;
 	}
 	if((loopHeight + 1) / 2 != comps[1].h)
 	{
-		GRK_WARN("incorrect subsampled height %u", comps[1].h);
+		Logger::logger_.warn("incorrect subsampled height %u", comps[1].h);
 		return false;
 	}
 
@@ -802,7 +802,7 @@ bool GrkImage::color_sycc_to_rgb(bool oddFirstX, bool oddFirstY)
 {
 	if(numcomps != 3)
 	{
-		GRK_WARN("color_sycc_to_rgb: number of components %d is not equal to 3."
+		Logger::logger_.warn("color_sycc_to_rgb: number of components %d is not equal to 3."
 				 " Unable to convert",
 				 numcomps);
 		return false;
@@ -827,7 +827,7 @@ bool GrkImage::color_sycc_to_rgb(bool oddFirstX, bool oddFirstY)
 	}
 	else
 	{
-		GRK_WARN("color_sycc_to_rgb:  Invalid sub-sampling: (%d,%d), (%d,%d), (%d,%d)."
+		Logger::logger_.warn("color_sycc_to_rgb:  Invalid sub-sampling: (%d,%d), (%d,%d), (%d,%d)."
 				 " Unable to convert.",
 				 comps[0].dx, comps[0].dy, comps[1].dx, comps[1].dy, comps[2].dx, comps[2].dy);
 		rc = false;
@@ -1070,7 +1070,7 @@ bool GrkImage::validateICC(void)
 		iccColourSpace = cmsGetColorSpace(in_prof);
 		if(!isValidICCColourSpace(iccColourSpace))
 		{
-			GRK_WARN("Invalid ICC colour space 0x%x. Ignoring", iccColourSpace);
+			Logger::logger_.warn("Invalid ICC colour space 0x%x. Ignoring", iccColourSpace);
 			cmsCloseProfile(in_prof);
 
 			return false;
@@ -1115,24 +1115,24 @@ bool GrkImage::validateICC(void)
 	}
 	else
 	{
-		GRK_WARN("Unable to parse ICC profile. Ignoring");
+		Logger::logger_.warn("Unable to parse ICC profile. Ignoring");
 		return false;
 	}
 	if(!supportedICCColourSpace)
 	{
-		GRK_WARN("Unsupported ICC colour space %s. Ignoring",
+		Logger::logger_.warn("Unsupported ICC colour space %s. Ignoring",
 				 getICCColourSpaceString((cmsColorSpaceSignature)iccColourSpace).c_str());
 		return false;
 	}
 	if(color_space != GRK_CLRSPC_UNKNOWN && !imageColourSpaceMatchesICCColourSpace)
 	{
-		GRK_WARN("Signaled colour space %s doesn't match ICC colour space %s. Ignoring",
+		Logger::logger_.warn("Signaled colour space %s doesn't match ICC colour space %s. Ignoring",
 				 getColourSpaceString().c_str(),
 				 getICCColourSpaceString((cmsColorSpaceSignature)iccColourSpace).c_str());
 		return false;
 	}
 	if(!imagePropertiesMatchICCColourSpace)
-		GRK_WARN(
+		Logger::logger_.warn(
 			"Image subsampling / number of components do not match ICC colour space %s. Ignoring",
 			getICCColourSpaceString((cmsColorSpaceSignature)iccColourSpace).c_str());
 
@@ -1169,13 +1169,13 @@ bool GrkImage::applyColourManagement(void)
 	if(isCIE)
 	{
 		if(!forceRGB)
-			GRK_WARN(" Input image is in CIE colour space,\n"
+			Logger::logger_.warn(" Input image is in CIE colour space,\n"
 					 "but the codec is unable to store this information in the "
 					 "output file .\n"
 					 "The output image will therefore be converted to sRGB before saving.");
 		if(!cieLabToRGB())
 		{
-			GRK_ERROR("Unable to convert L*a*b image to sRGB");
+			Logger::logger_.error("Unable to convert L*a*b image to sRGB");
 			return false;
 		}
 	}
@@ -1185,17 +1185,17 @@ bool GrkImage::applyColourManagement(void)
 		{
 			if(!forceRGB)
 			{
-				GRK_WARN("");
-				GRK_WARN("The input image contains an ICC profile");
-				GRK_WARN("but the codec is unable to store this profile"
+				Logger::logger_.warn("");
+				Logger::logger_.warn("The input image contains an ICC profile");
+				Logger::logger_.warn("but the codec is unable to store this profile"
 						 " in the output file.");
-				GRK_WARN("The profile will therefore be applied to the output"
+				Logger::logger_.warn("The profile will therefore be applied to the output"
 						 " image before saving.");
-				GRK_WARN("");
+				Logger::logger_.warn("");
 			}
 			if(!applyICC())
 			{
-				GRK_WARN("Unable to apply ICC profile");
+				Logger::logger_.warn("Unable to apply ICC profile");
 				return false;
 			}
 		}
@@ -1295,7 +1295,7 @@ bool GrkImage::applyICC(void)
 	}
 	else
 	{
-		GRK_WARN("Apply ICC profile has unknown "
+		Logger::logger_.warn("Apply ICC profile has unknown "
 				 "output color space (%#x)\nICC profile ignored.",
 				 out_space);
 		goto cleanup;
@@ -1481,11 +1481,11 @@ bool GrkImage::cieLabToRGB(void)
 		return false;
 	if(numcomps < 3)
 	{
-		GRK_WARN("cieLabToRGB: there must be at least three components");
+		Logger::logger_.warn("cieLabToRGB: there must be at least three components");
 		return false;
 	}
 	if(numcomps > 3)
-		GRK_WARN("cieLabToRGB: there are more than three components : extra components will be "
+		Logger::logger_.warn("cieLabToRGB: there are more than three components : extra components will be "
 				 "ignored.");
 	if(!meta)
 		return false;
@@ -1506,7 +1506,7 @@ bool GrkImage::cieLabToRGB(void)
 	}
 	if(i != numcomps)
 	{
-		GRK_WARN("cieLabToRGB: all components must have same dimensions, precision and sign");
+		Logger::logger_.warn("cieLabToRGB: all components must have same dimensions, precision and sign");
 		return false;
 	}
 
@@ -1514,7 +1514,7 @@ bool GrkImage::cieLabToRGB(void)
 	auto enumcs = (GRK_ENUM_COLOUR_SPACE)row[0];
 	if(enumcs != GRK_ENUM_CLRSPC_CIE)
 	{ /* CIELab */
-		GRK_WARN("enumCS %d not handled. Ignoring.", enumcs);
+		Logger::logger_.warn("enumCS %d not handled. Ignoring.", enumcs);
 		return false;
 	}
 
@@ -1577,7 +1577,7 @@ bool GrkImage::cieLabToRGB(void)
 			cmsWhitePointFromTemp(&WhitePoint, 4000);
 			break;
 		default:
-			GRK_WARN("Unrecognized illuminant %d in CIELab colour space. "
+			Logger::logger_.warn("Unrecognized illuminant %d in CIELab colour space. "
 					 "Setting to default Daylight50",
 					 illuminant);
 			illuminant = GRK_CIE_D50;
@@ -1601,7 +1601,7 @@ bool GrkImage::cieLabToRGB(void)
 
 	if(!L || !a || !b)
 	{
-		GRK_WARN("color_cielab_to_rgb: null L*a*b component");
+		Logger::logger_.warn("color_cielab_to_rgb: null L*a*b component");
 		return false;
 	}
 

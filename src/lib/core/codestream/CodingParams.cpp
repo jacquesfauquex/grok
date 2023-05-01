@@ -116,7 +116,7 @@ bool TileCodingParams::advanceTilePartCounter(uint16_t tileIndex, uint8_t tilePa
 	/* should appear in increasing order. */
 	if(uint8_t(tilePartCounter_) != tilePartIndex)
 	{
-		GRK_ERROR("Invalid tile part index for tile number %u. "
+		Logger::logger_.error("Invalid tile part index for tile number %u. "
 				  "Got %u, expected %u",
 				  tileIndex, tilePartIndex, tilePartCounter_);
 		return false;
@@ -286,7 +286,7 @@ bool DecompressorState::findNextSOT(CodeStreamDecompress* codeStream)
 		{
 			if(!codeStream->readMarker())
 			{
-				GRK_WARN("findNextTile: Not enough data to read another marker.\n"
+				Logger::logger_.warn("findNextTile: Not enough data to read another marker.\n"
 						 "Tile may be truncated.");
 				return true;
 			}
@@ -294,7 +294,7 @@ bool DecompressorState::findNextSOT(CodeStreamDecompress* codeStream)
 		catch([[maybe_unused]] InvalidMarkerException& ume)
 		{
 			setState(DECOMPRESS_STATE_NO_EOC);
-			GRK_WARN("findNextTile: expected EOC or SOT "
+			Logger::logger_.warn("findNextTile: expected EOC or SOT "
 					 "but found invalid marker 0x%x.",
 					 codeStream->getCurrentMarker());
 			throw DecodeUnknownMarkerAtEndOfTileException();
@@ -315,7 +315,7 @@ bool DecompressorState::findNextSOT(CodeStreamDecompress* codeStream)
 			default: {
 				auto bytesLeft = stream->numBytesLeft();
 				setState(DECOMPRESS_STATE_NO_EOC);
-				GRK_WARN("findNextTile: expected EOC or SOT "
+				Logger::logger_.warn("findNextTile: expected EOC or SOT "
 						 "but found marker 0x%x.\nIgnoring %u bytes "
 						 "remaining in the stream.",
 						 codeStream->getCurrentMarker(), bytesLeft + 2);

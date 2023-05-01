@@ -24,7 +24,7 @@
 #include <sstream>
 #include <atomic>
 
-#include "logger.h"
+#include "Logger.h"
 #include "grk_intmath.h"
 
 namespace grk
@@ -173,7 +173,7 @@ struct grk_rect
 	}
 	virtual void print(void) const
 	{
-		GRK_INFO("[%u,%u,%u,%u,%u,%u]", origin_x0, origin_y0, x0, y0, x1, y1);
+		Logger::logger_.info("[%u,%u,%u,%u,%u,%u]", origin_x0, origin_y0, x0, y0, x1, y1);
 	}
 	std::string boundsString() const
 	{

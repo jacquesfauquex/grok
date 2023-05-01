@@ -60,7 +60,7 @@ bool grk_memcheck_all(const T* buf, size_t len, std::string msg)
 			std::ostringstream ss;
 			ss << msg << " "
 			   << "offset = " << i + val;
-			GRK_ERROR(ss.str().c_str());
+			Logger::logger_.error(ss.str().c_str());
 			rc = false;
 		}
 	}

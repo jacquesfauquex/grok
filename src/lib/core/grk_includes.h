@@ -80,6 +80,8 @@
 #endif
 
 #include "grok_private.h"
+#include "ILogger.h"
+#include <Logger.h>
 #include "simd.h"
 #include "ThreadPool.hpp"
 #include "packer.h"
@@ -95,7 +97,6 @@
 #include "ICacheable.h"
 #include "TileSet.h"
 #include "GrkObjectWrapper.h"
-#include "logger.h"
 #include "ChronoTimer.h"
 #include "testing.h"
 #include "MemStream.h"

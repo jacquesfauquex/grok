@@ -21,36 +21,12 @@
 
 namespace grk
 {
-struct logger
-{
-	logger();
-	void* error_data_;
-	void* warning_data_;
-	void* info_data_;
-	grk_msg_callback error_handler;
-	grk_msg_callback warning_handler;
-	grk_msg_callback info_handler;
 
-	static logger logger_;
+struct ILogger
+{
+	virtual void info(const char* fmt, ...) = 0;
+	virtual void warn(const char* fmt, ...) = 0;
+	virtual void error(const char* fmt, ...) = 0;
 };
 
-template<typename... Args>
-void log_message(grk_msg_callback msg_handler, void* l_data, char const* const format,
-		 Args&... args) noexcept
-{
-	const int message_size = 512;
-	if((format != nullptr))
-	{
-		char message[message_size];
-		memset(message, 0, message_size);
-		vsnprintf(message, message_size, format, args...);
-		msg_handler(message, l_data);
-	}
 }
-
-
-void GRK_INFO(const char* fmt, ...);
-void GRK_WARN(const char* fmt, ...);
-void GRK_ERROR(const char* fmt, ...);
-
-} // namespace grk

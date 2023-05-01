@@ -531,7 +531,7 @@ bool WaveletReverse::decompress_h_97(uint8_t res, uint32_t numThreads, size_t da
 		auto imageComponentFlow = scheduler_->getImageComponentFlow(compno_);
 		if(!imageComponentFlow)
 		{
-			GRK_WARN("Missing image component flow");
+			Logger::logger_.warn("Missing image component flow");
 			return true;
 		}
 		auto resFlow = imageComponentFlow->getResFlow(res - 1);
@@ -542,7 +542,7 @@ bool WaveletReverse::decompress_h_97(uint8_t res, uint32_t numThreads, size_t da
 			auto myhoriz = new dwt_data<vec4f>(horiz);
 			if(!myhoriz->alloc(dataLength))
 			{
-				GRK_ERROR("Out of memory");
+				Logger::logger_.error("Out of memory");
 				return false;
 			}
 			resFlow->waveletHoriz_->nextTask().work([this, myhoriz, indexMax, winL, winH, winDest] {
@@ -630,7 +630,7 @@ bool WaveletReverse::decompress_v_97(uint8_t res, uint32_t numThreads, size_t da
 		auto imageComponentFlow = scheduler_->getImageComponentFlow(compno_);
 		if(!imageComponentFlow)
 		{
-			GRK_WARN("Missing image component flow");
+			Logger::logger_.warn("Missing image component flow");
 			return false;
 		}
 		auto resFlow = imageComponentFlow->getResFlow(res - 1);
@@ -641,7 +641,7 @@ bool WaveletReverse::decompress_v_97(uint8_t res, uint32_t numThreads, size_t da
 			auto myvert = new dwt_data<vec4f>(vert);
 			if(!myvert->alloc(dataLength))
 			{
-				GRK_ERROR("Out of memory");
+				Logger::logger_.error("Out of memory");
 				delete myvert;
 				return false;
 			}
@@ -674,7 +674,7 @@ bool WaveletReverse::decompress_tile_97(void)
 	size_t dataLength = max_resolution(tr, numres_);
 	if(!horizF_.alloc(dataLength))
 	{
-		GRK_ERROR("decompress_tile_97: out of memory");
+		Logger::logger_.error("decompress_tile_97: out of memory");
 		return false;
 	}
 	vertF_.mem = horizF_.mem;
@@ -1067,7 +1067,7 @@ bool WaveletReverse::decompress_h_53(uint8_t res, TileComponentWindow<int32_t>* 
 			{
 				if(!horiz_.alloc(dataLength))
 				{
-					GRK_ERROR("Out of memory");
+					Logger::logger_.error("Out of memory");
 					return false;
 				}
 				vert_.mem = horiz_.mem;
@@ -1085,7 +1085,7 @@ bool WaveletReverse::decompress_h_53(uint8_t res, TileComponentWindow<int32_t>* 
 				auto horiz = new dwt_data<int32_t>(horiz_);
 				if(!horiz->alloc(dataLength))
 				{
-					GRK_ERROR("Out of memory");
+					Logger::logger_.error("Out of memory");
 					delete horiz;
 					return false;
 				}
@@ -1136,7 +1136,7 @@ bool WaveletReverse::decompress_v_53(uint8_t res, TileComponentWindow<int32_t>* 
 		{
 			if(!horiz_.alloc(dataLength))
 			{
-				GRK_ERROR("Out of memory");
+				Logger::logger_.error("Out of memory");
 				return false;
 			}
 			vert_.mem = horiz_.mem;
@@ -1156,7 +1156,7 @@ bool WaveletReverse::decompress_v_53(uint8_t res, TileComponentWindow<int32_t>* 
 			auto vert = new dwt_data<int32_t>(vert_);
 			if(!vert->alloc(dataLength))
 			{
-				GRK_ERROR("Out of memory");
+				Logger::logger_.error("Out of memory");
 				delete vert;
 				return false;
 			}
@@ -1186,7 +1186,7 @@ bool WaveletReverse::decompress_tile_53(void)
 	/* overflow check */
 	if(dataLength > (SIZE_MAX / PLL_COLS_53 / sizeof(int32_t)))
 	{
-		GRK_ERROR("Overflow");
+		Logger::logger_.error("Overflow");
 		return false;
 	}
 	/* We need PLL_COLS_53 times the height of the array, */
@@ -1932,7 +1932,7 @@ bool WaveletReverse::decompress_partial_tile(ISparseCanvas* sa,
 														   VERT_PASS_WIDTH),
 					   1, VERT_PASS_WIDTH * (sizeof(T) / sizeof(int32_t))))
 				{
-					GRK_ERROR("Sparse array write failure");
+					Logger::logger_.error("Sparse array write failure");
 					return false;
 				}
 			}
