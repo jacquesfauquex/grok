@@ -35,7 +35,7 @@ static uint32_t minpf_is_valid_plugin(const char* id, const minpf_register_param
 {
 	if(!id || id[0] == '\0')
 		return 0;
-	if(!params || !params->createFunc || !params->destroyFunc)
+	if(!params)
 		return 0;
 
 	return 1;

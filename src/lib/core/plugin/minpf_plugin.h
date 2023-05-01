@@ -41,8 +41,6 @@ typedef int32_t (*minpf_destroy_func)(void*);
 typedef struct minpf_register_params
 {
 	minpf_plugin_api_version version;
-	minpf_create_func createFunc;
-	minpf_destroy_func destroyFunc;
 } minpf_register_params;
 
 typedef int32_t (*minpf_register_func)(const char* nodeType, const minpf_register_params* params);
