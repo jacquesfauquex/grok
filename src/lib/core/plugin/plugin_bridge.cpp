@@ -154,8 +154,9 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 		auto precinct = plugin_band->precincts[precinctIndex];
 		auto plugin_cblk = precinct->blocks[cblkno];
 		uint32_t state = grk_plugin_get_debug_state();
+		bool debugPlugin = state & GRK_PLUGIN_STATE_DEBUG;
 
-		if(state & GRK_PLUGIN_STATE_DEBUG)
+		if(debugPlugin)
 		{
 			if(band->stepsize != plugin_band->stepsize)
 			{
@@ -173,7 +174,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 		cblk->numPassesTotal = (uint32_t)plugin_cblk->numPasses;
 		*numPix = (uint32_t)plugin_cblk->numPix;
 
-		if(state & GRK_PLUGIN_STATE_DEBUG)
+		if(debugPlugin)
 		{
 			uint32_t grkNumPix = (uint32_t)cblk->area();
 			if(plugin_cblk->numPix != grkNumPix)
@@ -185,7 +186,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 		uint16_t totalRatePlugin = (uint16_t)plugin_cblk->compressedDataLength;
 
 		// check data
-		if(state & GRK_PLUGIN_STATE_DEBUG)
+		if(debugPlugin)
 		{
 			uint32_t totalRate = 0;
 			if(cblk->numPassesTotal > 0)
@@ -216,7 +217,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 		cblk->compressedStream.len = (uint32_t)(plugin_cblk->compressedDataLength);
 		cblk->compressedStream.owns_data = false;
 		cblk->numbps = plugin_cblk->numBitPlanes;
-		if(state & GRK_PLUGIN_STATE_DEBUG)
+		if(debugPlugin)
 		{
 			if(cblk->x0 != plugin_cblk->x0 || cblk->y0 != plugin_cblk->y0 ||
 			   cblk->x1 != plugin_cblk->x1 || cblk->y1 != plugin_cblk->y1)
@@ -224,7 +225,6 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 				Logger::logger_.error("CPU code block bounding box differs from plugin code block");
 			}
 		}
-
 		uint32_t lastRate = 0;
 		for(uint32_t passno = 0; passno < cblk->numPassesTotal; passno++)
 		{
@@ -234,7 +234,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 			// synch distortion, if applicable
 			if(tcd->needsRateControl())
 			{
-				if(state & GRK_PLUGIN_STATE_DEBUG)
+				if(debugPlugin)
 				{
 					if(fabs(pass->distortiondec - pluginPass->distortionDecrease) /
 						   fabs(pass->distortiondec) >
@@ -253,11 +253,8 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 
 			// Preventing generation of FF as last data byte of a pass
 			if((pluginRate > 1) && (plugin_cblk->compressedData[pluginRate - 1] == 0xFF))
-			{
 				pluginRate--;
-			}
-
-			if(state & GRK_PLUGIN_STATE_DEBUG)
+			if(debugPlugin)
 			{
 				if(pluginRate != pass->rate)
 				{
@@ -266,7 +263,6 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 							 passno, compno, resno, bandIndex, cblkno);
 				}
 			}
-
 			pass->rate = pluginRate;
 			pass->len = (uint16_t)(pass->rate - lastRate);
 			lastRate = pass->rate;

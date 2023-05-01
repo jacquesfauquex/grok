@@ -16,9 +16,9 @@ foreach(exe grk_decompress grk_compress grk_dump)
   	target_link_libraries(${exe} ${CMAKE_DL_LIBS} )
   endif(GRK_BUILD_PLUGIN_LOADER AND UNIX)
 
-  if (OPENCL_FOUND)
+  if (LTK_USE_OPENCL)
   	target_link_libraries(${exe} ${OPENCL_LIBRARIES} )
-  endif(OPENCL_FOUND)
+  endif(LTK_USE_OPENCL)
 
   if(URING)
 	  target_link_libraries(${exe} uring)

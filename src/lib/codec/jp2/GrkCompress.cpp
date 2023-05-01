@@ -1293,14 +1293,12 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					return 1;
 				parameters->writeTLM = true;
 				spdlog::warn("CINEMA 2K profile activated");
-				spdlog::warn("Other options specified may be overridden\n");
+				spdlog::warn("Other options specified may be overridden");
 			}
 			else if(cinema4KArg.isSet())
 			{
 				if(!validateCinema(&cinema4KArg, GRK_PROFILE_CINEMA_4K, parameters))
-				{
 					return 1;
-				}
 				spdlog::warn(" CINEMA 4K profile activated\n"
 							 "Other options specified may be overridden");
 				parameters->writeTLM = true;
