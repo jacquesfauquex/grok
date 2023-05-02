@@ -1421,6 +1421,15 @@ typedef struct grk_plugin_compress_user_callback_info
 
 typedef uint64_t (*GRK_PLUGIN_COMPRESS_USER_CALLBACK)(grk_plugin_compress_user_callback_info* info);
 
+
+typedef struct grk_plugin_compress_batch_info
+{
+	const char* input_dir;
+	const char* output_dir;
+	grk_cparameters* compress_parameters;
+	GRK_PLUGIN_COMPRESS_USER_CALLBACK callback;
+} grk_plugin_compress_batch_info;
+
 /**
  * Compress with plugin
  *
@@ -1441,10 +1450,7 @@ GRK_API int32_t GRK_CALLCONV grk_plugin_compress(grk_cparameters* compress_param
  * @return 0 if successful
  *
  */
-GRK_API int32_t GRK_CALLCONV grk_plugin_batch_compress(const char* input_dir,
-													   const char* output_dir,
-													   grk_cparameters* compress_parameters,
-													   GRK_PLUGIN_COMPRESS_USER_CALLBACK callback);
+GRK_API int32_t GRK_CALLCONV grk_plugin_batch_compress(grk_plugin_compress_batch_info info);
 
 /**
  * Check if batch job is complete

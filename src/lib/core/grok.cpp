@@ -758,23 +758,19 @@ int32_t GRK_CALLCONV grk_plugin_compress(grk_cparameters* compress_parameters,
 	}
 	return -1;
 }
-int32_t GRK_CALLCONV grk_plugin_batch_compress(const char* input_dir, const char* output_dir,
-											   grk_cparameters* compress_parameters,
-											   GRK_PLUGIN_COMPRESS_USER_CALLBACK callback)
+int32_t GRK_CALLCONV grk_plugin_batch_compress(grk_plugin_compress_batch_info info)
 {
 	if(!pluginLoaded)
 		return -1;
-	userEncodeCallback = callback;
+	userEncodeCallback = info.callback;
 	auto mgr = minpf_get_plugin_manager();
+	info.callback = grk_plugin_internal_encode_callback;
 	if(mgr && mgr->num_libraries > 0)
 	{
 		auto func = (PLUGIN_BATCH_ENCODE)minpf_get_symbol(mgr->dynamic_libraries[0],
 														  plugin_batch_encode_method_name);
 		if(func)
-		{
-			return func(input_dir, output_dir, (grk_cparameters*)compress_parameters,
-						grk_plugin_internal_encode_callback);
-		}
+			return func(info);
 	}
 	return -1;
 }

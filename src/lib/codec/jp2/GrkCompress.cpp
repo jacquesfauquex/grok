@@ -533,9 +533,13 @@ cleanup:
 int GrkCompress::pluginBatchCompress(CompressInitParams* initParams)
 {
 	setUpSignalHandler();
-	int success = grk_plugin_batch_compress(initParams->inputFolder.imgdirpath,
-											initParams->outFolder.imgdirpath,
-											&initParams->parameters, pluginCompressCallback);
+	grk_plugin_compress_batch_info info;
+	memset(&info, 0, sizeof(info));
+	info.input_dir = initParams->inputFolder.imgdirpath;
+	info.output_dir = initParams->outFolder.imgdirpath;
+	info.compress_parameters = &initParams->parameters;
+	info.callback = pluginCompressCallback;
+	int success = grk_plugin_batch_compress(info);
 	// if plugin successfully begins batch compress, then wait for batch to complete
 	if(success == 0)
 	{

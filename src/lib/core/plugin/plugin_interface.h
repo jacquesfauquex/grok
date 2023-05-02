@@ -59,9 +59,7 @@ typedef bool (*PLUGIN_INIT)(grk_plugin_init_info initInfo);
 typedef int32_t (*PLUGIN_ENCODE)(grk_cparameters* encoding_parameters,
 		GRK_PLUGIN_COMPRESS_USER_CALLBACK callback);
 
-typedef int32_t (*PLUGIN_BATCH_ENCODE)(const char* input_dir, const char* output_dir,
-									   grk_cparameters* encoding_parameters,
-									   GRK_PLUGIN_COMPRESS_USER_CALLBACK userCallback);
+typedef int32_t (*PLUGIN_BATCH_ENCODE)(grk_plugin_compress_batch_info info);
 
 typedef void (*PLUGIN_STOP_BATCH_ENCODE)(void);
 
