@@ -54,27 +54,14 @@ typedef void (*PLUGIN_DEBUG_MQC_NEXT_PLANE)(grk_plugin_debug_mqc* mqc);
 // compressor interface
 /////////////////////
 
-struct plugin_encode_user_callback_info
-{
-	const char* input_file_name;
-	bool outputFileNameIsRelative;
-	const char* output_file_name;
-	grk_cparameters* compressor_parameters;
-	grk_image* image;
-	grk_plugin_tile* tile;
-	int32_t error_code;
-};
-
-typedef void (*PLUGIN_ENCODE_USER_CALLBACK)(plugin_encode_user_callback_info* info);
-
 typedef bool (*PLUGIN_INIT)(grk_plugin_init_info initInfo);
 
 typedef int32_t (*PLUGIN_ENCODE)(grk_cparameters* encoding_parameters,
-								 PLUGIN_ENCODE_USER_CALLBACK callback);
+		GRK_PLUGIN_COMPRESS_USER_CALLBACK callback);
 
 typedef int32_t (*PLUGIN_BATCH_ENCODE)(const char* input_dir, const char* output_dir,
 									   grk_cparameters* encoding_parameters,
-									   PLUGIN_ENCODE_USER_CALLBACK userCallback);
+									   GRK_PLUGIN_COMPRESS_USER_CALLBACK userCallback);
 
 typedef void (*PLUGIN_STOP_BATCH_ENCODE)(void);
 

@@ -726,7 +726,7 @@ GRK_API bool GRK_CALLCONV grk_plugin_init(grk_plugin_init_info initInfo)
 GRK_PLUGIN_COMPRESS_USER_CALLBACK userEncodeCallback = 0;
 
 /* wrapper for user's compress callback */
-void grk_plugin_internal_encode_callback(plugin_encode_user_callback_info* info)
+uint64_t grk_plugin_internal_encode_callback(grk_plugin_compress_user_callback_info* info)
 {
 	/* set code block data etc on code object */
 	grk_plugin_compress_user_callback_info grk_info;
@@ -739,6 +739,8 @@ void grk_plugin_internal_encode_callback(plugin_encode_user_callback_info* info)
 	grk_info.tile = (grk_plugin_tile*)info->tile;
 	if(userEncodeCallback)
 		userEncodeCallback(&grk_info);
+
+	return 0;
 }
 int32_t GRK_CALLCONV grk_plugin_compress(grk_cparameters* compress_parameters,
 										 GRK_PLUGIN_COMPRESS_USER_CALLBACK callback)
