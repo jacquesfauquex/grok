@@ -228,7 +228,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		if(cap)
 		{
 			Logger::logger_.warn("The desired maximum code stream size has limited");
-			Logger::logger_.warn("at least one of the desired quality layers\n");
+			Logger::logger_.warn("at least one of the desired quality layers");
 		}
 	}
 
