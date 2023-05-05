@@ -728,10 +728,11 @@ GRK_PLUGIN_COMPRESS_USER_CALLBACK userEncodeCallback = 0;
 /* wrapper for user's compress callback */
 uint64_t grk_plugin_internal_encode_callback(grk_plugin_compress_user_callback_info* info)
 {
+	uint64_t rc = 0;
 	if(userEncodeCallback)
-		userEncodeCallback(info);
+		rc = userEncodeCallback(info);
 
-	return 0;
+	return rc;
 }
 int32_t GRK_CALLCONV grk_plugin_compress(grk_cparameters* compress_parameters,
 										 GRK_PLUGIN_COMPRESS_USER_CALLBACK callback)
