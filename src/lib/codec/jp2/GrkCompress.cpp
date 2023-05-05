@@ -345,7 +345,7 @@ static GRK_PROG_ORDER getProgression(const char progression[4])
 	return GRK_PROG_UNKNOWN;
 }
 CompressInitParams::CompressInitParams()
-	: initialized(false), transferExifTags(false), in_image(nullptr), out_buffer(nullptr)
+	: initialized(false), transferExifTags(false), in_image(nullptr), stream_(nullptr)
 {
 	pluginPath[0] = 0;
 	memset(&inputFolder, 0, sizeof(inputFolder));
@@ -459,11 +459,11 @@ static bool validateCinema(TCLAP::ValueArg<uint32_t>* arg, uint16_t profile,
 	return true;
 }
 
-int GrkCompress::main(int argc, char** argv, grk_image* in_image, grk_stream_params* out_buffer)
+int GrkCompress::main(int argc, char** argv, grk_image* in_image, grk_stream_params* stream)
 {
 	CompressInitParams initParams;
 	initParams.in_image = in_image;
-	initParams.out_buffer = out_buffer;
+	initParams.stream_ = stream;
 	int success = 0;
 	try
 	{
@@ -1802,7 +1802,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			}
 		}
 
-		if(parameters->outfile[0] == 0 && !initParams->out_buffer)
+		if(parameters->outfile[0] == 0 && !initParams->stream_)
 		{
 			spdlog::error("Missing output file parameter\n"
 						  "Example: {} -i image.pgm -o image.j2k",
@@ -1866,8 +1866,9 @@ static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* i
 	std::string outfile;
 	std::string temp_ofname;
 
+	bool hasStreamParams = info->stream_params.file || info->stream_params.buf;
 	// get output file
-	if(!info->out_buffer)
+	if(!hasStreamParams)
 	{
 		if(info->output_file_name && info->output_file_name[0])
 		{
@@ -2019,11 +2020,11 @@ static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* i
 		}
 		createdImage = true;
 	}
-
-	if(info->out_buffer)
+#if 0
+	if(hasStreamParams)
 	{
-		info->stream_params.len = info->out_buffer->len;
-		info->stream_params.buf = info->out_buffer->buf;
+		info->stream_params.len = info->stream->len;
+		info->stream_params.buf = info->stream->buf;
 		/*
 		auto fp = fopen(info->input_file_name, "rb");
 		if(!fp)
@@ -2066,7 +2067,7 @@ static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* i
 		}
 		*/
 	}
-
+#endif
 	// limit to 16 bit precision
 	for(uint32_t i = 0; i < image->numcomps; ++i)
 	{
@@ -2211,14 +2212,15 @@ int GrkCompress::compress(const std::string& inputFile, CompressInitParams* init
 	memset(&callbackInfo, 0, sizeof(grk_plugin_compress_user_callback_info));
 	callbackInfo.compressor_parameters = &initParams->parameters;
 	callbackInfo.image = initParams->in_image;
-	callbackInfo.out_buffer = initParams->out_buffer;
+	if (initParams->stream_)
+		callbackInfo.stream_params = *initParams->stream_;
 	callbackInfo.output_file_name = initParams->parameters.outfile;
 	callbackInfo.input_file_name = initParams->parameters.infile;
 	callbackInfo.transferExifTags = initParams->transferExifTags;
 
 	uint64_t compressedBytes = pluginCompressCallback(&callbackInfo);
-	if(initParams->out_buffer)
-		initParams->out_buffer->buf_compressed_len = compressedBytes;
+	if(initParams->stream_)
+		initParams->stream_->buf_compressed_len = compressedBytes;
 
 	return compressedBytes ? 1 : 0;
 }

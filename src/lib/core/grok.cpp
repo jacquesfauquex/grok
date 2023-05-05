@@ -728,17 +728,8 @@ GRK_PLUGIN_COMPRESS_USER_CALLBACK userEncodeCallback = 0;
 /* wrapper for user's compress callback */
 uint64_t grk_plugin_internal_encode_callback(grk_plugin_compress_user_callback_info* info)
 {
-	/* set code block data etc on code object */
-	grk_plugin_compress_user_callback_info grk_info;
-	memset(&grk_info, 0, sizeof(grk_plugin_compress_user_callback_info));
-	grk_info.input_file_name = info->input_file_name;
-	grk_info.outputFileNameIsRelative = info->outputFileNameIsRelative;
-	grk_info.output_file_name = info->output_file_name;
-	grk_info.compressor_parameters = (grk_cparameters*)info->compressor_parameters;
-	grk_info.image = (grk_image*)info->image;
-	grk_info.tile = (grk_plugin_tile*)info->tile;
 	if(userEncodeCallback)
-		userEncodeCallback(&grk_info);
+		userEncodeCallback(info);
 
 	return 0;
 }

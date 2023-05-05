@@ -32,7 +32,7 @@ struct CompressInitParams
 	grk_img_fol outFolder;
 	bool transferExifTags;
 	grk_image* in_image;
-	grk_stream_params* out_buffer;
+	grk_stream_params* stream_;
 };
 
 class GrkCompress

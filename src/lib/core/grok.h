@@ -1412,7 +1412,6 @@ typedef struct grk_plugin_compress_user_callback_info
 	const char* output_file_name;
 	grk_cparameters* compressor_parameters;
 	grk_image* image;
-	grk_stream_params* out_buffer;
 	grk_plugin_tile* tile;
 	grk_stream_params stream_params;
 	unsigned int error_code;
