@@ -175,12 +175,8 @@ bool StripCache::serialize(uint32_t threadId, GrkIOBuf buf)
 		// 1. push to heap
 		serializeHeap.push(buf);
 		// 2. get all sequential buffers in heap
-		buf = serializeHeap.pop();
-		while(buf.data_)
-		{
+		while(serializeHeap.pop(buf))
 			buffersToSerialize.push(buf);
-			buf = serializeHeap.pop();
-		}
 	}
 	// 3. serialize buffers
 	if(!buffersToSerialize.empty())
