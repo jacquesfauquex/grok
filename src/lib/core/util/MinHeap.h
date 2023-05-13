@@ -42,16 +42,12 @@ class MinHeap
 	bool pop(T& val)
 	{
 		L locker(queue_mutex);
-		if(queue.empty())
+		if(queue.empty() || queue.top().getIndex() != nextIndex)
 			return false;
 		val = queue.top();
-		if(val.getIndex() == nextIndex)
-		{
-			queue.pop();
-			nextIndex++;
-			return true;;
-		}
-		return false;
+		queue.pop();
+		nextIndex++;
+		return true;
 	}
 	size_t size(void)
 	{
