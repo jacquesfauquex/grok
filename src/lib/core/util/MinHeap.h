@@ -82,16 +82,12 @@ class MinHeapPtr
 	T* pop(void)
 	{
 		L locker(queue_mutex);
-		if(queue.empty())
+		if(queue.empty() || queue.top()->getIndex() != nextIndex)
 			return nullptr;
 		auto val = queue.top();
-		if(val->getIndex() == nextIndex)
-		{
-			queue.pop();
-			nextIndex++;
-			return val;
-		}
-		return nullptr;
+		queue.pop();
+		nextIndex++;
+		return val;
 	}
 	size_t size(void)
 	{
