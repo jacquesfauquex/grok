@@ -149,66 +149,22 @@ static void compress_help_display(void)
 	fprintf(stdout, "Required Parameters (except with -h):\n");
 	fprintf(stdout, "One of the two options [in_dir] or [in_file] must be used\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "[-i|-in_file] <file>\n");
-	fprintf(stdout, "    Input file\n");
-	fprintf(stdout, "    Supported extensions: <PBM|PGM|PPM|PNM|PAM|PGX|PNG|BMP|TIF|RAW|RAWL>\n");
-	fprintf(stdout, "    If used, '-o <file>' must be provided\n");
-	fprintf(stdout, "[-o|-out_file] <compressed file>\n");
-	fprintf(stdout, "    Output file (supported extensions are j2k or jp2).\n");
-	fprintf(stdout, "[-y|-in_dir] <dir>\n");
-	fprintf(stdout, "    Uncompressed file directory\n");
-	fprintf(stdout, "    When using this option [out_fmt] must be used\n");
-	fprintf(stdout, "[-O|-out_fmt] <J2K|J2C|JP2>\n");
-	fprintf(stdout, "    Output format for compressed files.\n");
-	fprintf(stdout, "    Required only if [in_dir] is used\n");
-	fprintf(stdout, "[-K|-in_fmt] <pbm|pgm|ppm|pnm|pam|pgx|png|bmp|tif|raw|rawl>\n");
-	fprintf(stdout, "    Input format. Will override file tag.\n");
-	fprintf(stdout,
-			"[-F|-raw] <width>,<height>,<ncomp>,<bitdepth>,{s,u}@<dx1>x<dy1>:...:<dxn>x<dyn>\n");
-	fprintf(stdout, "    Characteristics of the raw input image\n");
-	fprintf(stdout, "    If subsampling is omitted, 1x1 is assumed for all components\n");
-	fprintf(stdout, "      Example: -F 512,512,3,8,u@1x1:2x2:2x2\n");
-	fprintf(stdout, "               for raw 512x512 image with 4:2:0 subsampling\n");
-	fprintf(stdout, "    Required only if RAW or RAWL input file is provided.\n");
-	fprintf(stdout, "\n");
-	fprintf(stdout, "Optional Parameters:\n");
-	fprintf(stdout, "\n");
-	fprintf(stdout, "[-h|-help]\n");
-	fprintf(stdout, "    Display the help information.\n");
 	fprintf(stdout, "[-a|-out_dir] <output directory>\n");
 	fprintf(stdout, "    Output directory where compressed files are stored.\n");
-	fprintf(stdout, "[-r|-compression_ratios] <compression ratio>,<compression ratio>,...\n");
-	fprintf(stdout, "    Different compression ratios for successive layers.\n");
-	fprintf(stdout, "    The rate specified for each quality level is the desired\n");
-	fprintf(stdout, "    compression factor.\n");
-	fprintf(stdout, "    Decreasing ratios required.\n");
-	fprintf(stdout, "      Example: -r 20,10,1 means \n");
-	fprintf(stdout, "            quality layer 1: compress 20x, \n");
-	fprintf(stdout, "            quality layer 2: compress 10x \n");
-	fprintf(stdout, "            quality layer 3: compress lossless\n");
-	fprintf(stdout, "    Not supported for Part 15 HTJ2K compression.\n");
-	fprintf(stdout, "    Options -r and -q cannot be used together.\n");
-	fprintf(stdout, "[-q|-quality] <psnr value>,<psnr value>,<psnr value>,...\n");
-	fprintf(stdout, "    Specify PSNR for successive layers (-q 30,40,50).\n");
-	fprintf(stdout, "    Increasing PSNR values required.\n");
-	fprintf(stdout, "    Not supported for Part 15 HTJ2K compression.\n");
-	fprintf(stdout, "    Note: options -r and -q cannot be used together.\n");
 	fprintf(stdout, "[-A|-rate_control_algorithm] <0|1>\n");
 	fprintf(stdout, "    Select algorithm used for rate control\n");
 	fprintf(stdout, "    0: Bisection search for optimal threshold using all code passes in code "
 					"blocks. (default) (slightly higher PSRN than algorithm 1)\n");
 	fprintf(stdout, "    1: Bisection search for optimal threshold using only feasible truncation "
 					"points, on convex hull.\n");
-	fprintf(stdout, "[-n|-num_resolutions] <number of resolutions>\n");
-	fprintf(stdout, "    Number of resolutions.\n");
-	fprintf(stdout, "    This value corresponds to the (number of DWT decompositions + 1). \n");
-	fprintf(stdout, "    Default: 6.\n");
 	fprintf(stdout, "[-b|-code_block_dims] <cblk width>,<cblk height>\n");
 	fprintf(stdout, "    Code-block dimensions. The dimensions must respect the constraint \n");
 	fprintf(stdout, "    defined in the JPEG 2000 standard: no dimension smaller than 4 \n");
 	fprintf(stdout, "    or greater than 1024, no code-block with more than 4096 coefficients.\n");
 	fprintf(stdout, "    The maximum value permitted is `64,64`. \n");
 	fprintf(stdout, "    Default: `64,64`.\n");
+	fprintf(stdout, "[-B|-max_bandwidth] <bandwidth>\n");
+	fprintf(stdout, "    Maximum size (in bytes) of compressed image \n");
 	fprintf(stdout,
 			"[-c|-precinct_dims] [<prec width>,<prec height>],[<prec width>,<prec height>],...\n");
 	fprintf(stdout, "    Precinct dimensions. Dimensions specified must be powers of 2. \n");
@@ -219,22 +175,52 @@ static void compress_help_display(void)
 					"progressively right-shifted (halved in size) \n");
 	fprintf(stdout, "    for each remaining lower resolution level.\n");
 	fprintf(stdout, "    Default: 2^15x2^15 at each resolution i.e. precincts are not used.\n");
-	fprintf(stdout, "[-t|-tile_dims] <tile width>,<tile height>\n");
-	fprintf(stdout, "    Tile dimensions.\n");
-	fprintf(stdout, "    Default: the dimension of the whole image, thus only one tile.\n");
-	fprintf(stdout, "[-p|-progression_order] <LRCP|RLCP|RPCL|PCRL|CPRL>\n");
-	fprintf(stdout, "    Progression order.\n");
-	fprintf(stdout, "    Default: LRCP.\n");
-	fprintf(stdout, "[-P|-POC] <progression order change>/<progression order change>/...\n");
-	fprintf(stdout, "    Progression order change.\n");
-	fprintf(stdout, "    The syntax of a progression order change is the following:\n");
-	fprintf(stdout,
-			"    T<tile>=<resStart>,<compStart>,<layerEnd>,<resEnd>,<compEnd>,<progOrder>\n");
-	fprintf(stdout, "      Example: -POC T1=0,0,1,5,3,CPRL/T1=5,0,1,6,3,CPRL\n");
-	fprintf(stdout, "[-S|-SOP]\n");
-	fprintf(stdout, "    Write SOP marker before each packet.\n");
+	fprintf(stdout, "[-C|-comment] <comment>\n");
+	fprintf(stdout, "    Add <comment> in the comment marker segment.\n");
+	fprintf(stdout, "[-d|-image_offset] <image offset X,image offset Y>\n");
+	fprintf(stdout, "    Offset of the origin of the image.\n");
+	fprintf(stdout, "[-D|-display_res] <display resolution X,display resolution Y>\n");
+	fprintf(stdout, "    Display resolution in pixels/metre, in double precision.\n");
+	fprintf(stdout, "[-e|-repetitions] <number of repetitions>\n");
+	fprintf(stdout, "    Number of repetitions, for either a single image, or a folder of images.\n"
+					"    Default is 1. 0 signifies unlimited repetitions. \n");
 	fprintf(stdout, "[-E|-EPH]\n");
 	fprintf(stdout, "    Write EPH marker after each header packet.\n");
+	fprintf(stdout, "[-f|-apply_icc]");
+	fprintf(stdout, "    Apply ICC profile before compression, if present.\n");
+	fprintf(stdout,
+			"[-F|-raw] <width>,<height>,<ncomp>,<bitdepth>,{s,u}@<dx1>x<dy1>:...:<dxn>x<dyn>\n");
+	fprintf(stdout, "    Characteristics of the raw input image\n");
+	fprintf(stdout, "    If subsampling is omitted, 1x1 is assumed for all components\n");
+	fprintf(stdout, "      Example: -F 512,512,3,8,u@1x1:2x2:2x2\n");
+	fprintf(stdout, "               for raw 512x512 image with 4:2:0 subsampling\n");
+	fprintf(stdout, "    Required only if RAW or RAWL input file is provided.\n");
+	fprintf(stdout, "\n");
+	fprintf(stdout, "Optional Parameters:\n");
+	fprintf(stdout, "\n");
+	fprintf(stdout, "[-g|-plugin_path] <plugin path>\n");
+	fprintf(stdout, "    Path to T1 plugin.\n");
+	fprintf(stdout, "[-G|-device_id] <device ID>\n");
+	fprintf(stdout, "    (GPU) Specify which GPU accelerator to run codec on.\n");
+	fprintf(stdout, "    A value of -1 will specify all devices.\n");
+	fprintf(stdout, "[-h|-help]\n");
+	fprintf(stdout, "    Display the help information.\n");
+	fprintf(stdout, "[-H|-num_threads] <number of threads>\n");
+	fprintf(stdout, "    Number of threads used by libgrokj2k library.\n");
+	fprintf(stdout, "[-i|-in_file] <file>\n");
+	fprintf(stdout, "    Input file\n");
+	fprintf(stdout, "    Supported extensions: <PBM|PGM|PPM|PNM|PAM|PGX|PNG|BMP|TIF|RAW|RAWL>\n");
+	fprintf(stdout, "    If used, '-o <file>' must be provided\n");
+	fprintf(stdout, "[-I|-irreversible\n");
+	fprintf(stdout, "    Use the irreversible DWT 9-7.\n");
+	fprintf(stdout, "[-K|-in_fmt] <pbm|pgm|ppm|pnm|pam|pgx|png|bmp|tif|raw|rawl>\n");
+	fprintf(stdout, "    Input format. Will override file tag.\n");
+	fprintf(stdout, "[-L|-PLT\n");
+	fprintf(stdout, "    Use PLT markers.\n");
+	fprintf(stdout, "[-m|-custom_mct <file>\n");
+	fprintf(stdout, "    Use array-based MCT, values are coma separated, line by line\n");
+	fprintf(stdout, "    No specific separators between lines, no space allowed between values.\n");
+	fprintf(stdout, "    If this option is used, it automatically sets \"-MCT\" option to 2.\n");
 	fprintf(stdout, "[-M|-mode] <key value>\n");
 	fprintf(stdout, "    mode switch.\n");
 	fprintf(stdout, "    [1=BYPASS(LAZY)\n"
@@ -246,10 +232,47 @@ static void compress_help_display(void)
 	fprintf(stdout, "    Multiple modes can be specified by adding their values together.\n");
 	fprintf(stdout, "      Example: RESTART(4) + RESET(2) + SEGMARK(32) => -M 38\n");
 	fprintf(stdout, "      Note: 64(HT) cannot be combined with other flags\n");
-	fprintf(stdout, "[-u|-tile_parts] <R|L|C>\n");
-	fprintf(stdout, "    Divide packets of every tile into tile-parts.\n");
-	fprintf(stdout, "    Division is made by grouping Resolutions (R), Layers (L)\n");
-	fprintf(stdout, "    or Components (C).\n");
+	fprintf(stdout, "[-n|-num_resolutions] <number of resolutions>\n");
+	fprintf(stdout, "    Number of resolutions.\n");
+	fprintf(stdout, "    This value corresponds to the (number of DWT decompositions + 1). \n");
+	fprintf(stdout, "    Default: 6.\n");
+	fprintf(stdout, "[-o|-out_file] <compressed file>\n");
+	fprintf(stdout, "    Output file (supported extensions are j2k or jp2).\n");
+	fprintf(stdout, "[-O|-out_fmt] <J2K|J2C|JP2>\n");
+	fprintf(stdout, "    Output format for compressed files.\n");
+	fprintf(stdout, "    Required only if [in_dir] is used\n");
+	fprintf(stdout, "[-p|-progression_order] <LRCP|RLCP|RPCL|PCRL|CPRL>\n");
+	fprintf(stdout, "    Progression order.\n");
+	fprintf(stdout, "    Default: LRCP.\n");
+	fprintf(stdout, "[-P|-POC] <progression order change>/<progression order change>/...\n");
+	fprintf(stdout, "    Progression order change.\n");
+	fprintf(stdout, "    The syntax of a progression order change is the following:\n");
+	fprintf(stdout,
+			"    T<tile>=<resStart>,<compStart>,<layerEnd>,<resEnd>,<compEnd>,<progOrder>\n");
+	fprintf(stdout, "      Example: -POC T1=0,0,1,5,3,CPRL/T1=5,0,1,6,3,CPRL\n");
+	fprintf(stdout, "[-q|-quality] <psnr value>,<psnr value>,<psnr value>,...\n");
+	fprintf(stdout, "    Specify PSNR for successive layers (-q 30,40,50).\n");
+	fprintf(stdout, "    Increasing PSNR values required.\n");
+	fprintf(stdout, "    Not supported for Part 15 HTJ2K compression.\n");
+	fprintf(stdout, "    Note: options -r and -q cannot be used together.\n");
+	fprintf(stdout, "[-Q|-capture_res] <capture resolution X,capture resolution Y>\n");
+	fprintf(stdout, "    Capture resolution in pixels/metre, in double precision.\n");
+	fprintf(
+		stdout,
+		"    These values will override the resolution stored in the input image, if present \n");
+	fprintf(stdout, "    unless the special values <0,0> are passed in, in which case \n");
+	fprintf(stdout, "    the image resolution will be used.\n");
+	fprintf(stdout, "[-r|-compression_ratios] <compression ratio>,<compression ratio>,...\n");
+	fprintf(stdout, "    Different compression ratios for successive layers.\n");
+	fprintf(stdout, "    The rate specified for each quality level is the desired\n");
+	fprintf(stdout, "    compression factor.\n");
+	fprintf(stdout, "    Decreasing ratios required.\n");
+	fprintf(stdout, "      Example: -r 20,10,1 means \n");
+	fprintf(stdout, "            quality layer 1: compress 20x, \n");
+	fprintf(stdout, "            quality layer 2: compress 10x \n");
+	fprintf(stdout, "            quality layer 3: compress lossless\n");
+	fprintf(stdout, "    Not supported for Part 15 HTJ2K compression.\n");
+	fprintf(stdout, "    Options -r and -q cannot be used together.\n");
 	fprintf(stdout, "[-R|-ROI] c=<component index>,U=<upshifting value>\n");
 	fprintf(stdout, "    Quantization indices up-shifted for a component. \n");
 	fprintf(stdout, "     This option does not implement the usual ROI (Region of Interest).\n");
@@ -259,14 +282,36 @@ static void compress_help_display(void)
 	fprintf(stdout,
 			"    The value after c= is the component number [0, 1, 2, ...] and the value \n");
 	fprintf(stdout, "    after U= is the value of up-shifting. U must be in the range [0, 37].\n");
-	fprintf(stdout, "[-d|-image_offset] <image offset X,image offset Y>\n");
-	fprintf(stdout, "    Offset of the origin of the image.\n");
+	fprintf(stdout, "[-S|-SOP]\n");
+	fprintf(stdout, "    Write SOP marker before each packet.\n");
+	fprintf(stdout, "[-t|-tile_dims] <tile width>,<tile height>\n");
+	fprintf(stdout, "    Tile dimensions.\n");
+	fprintf(stdout, "    Default: the dimension of the whole image, thus only one tile.\n");
 	fprintf(stdout, "[-T|-tile_offset] <tile offset X,tile offset Y>\n");
 	fprintf(stdout, "    Offset of the origin of the tiles.\n");
-	fprintf(stdout, "[-L|-PLT\n");
-	fprintf(stdout, "    Use PLT markers.\n");
-	fprintf(stdout, "[-I|-irreversible\n");
-	fprintf(stdout, "    Use the irreversible DWT 9-7.\n");
+	fprintf(stdout, "[-u|-tile_parts] <R|L|C>\n");
+	fprintf(stdout, "    Divide packets of every tile into tile-parts.\n");
+	fprintf(stdout, "    Division is made by grouping Resolutions (R), Layers (L)\n");
+	fprintf(stdout, "    or Components (C).\n");
+	fprintf(stdout, "-U|-broadcast <PROFILE>[,mainlevel=X][,framerate=FPS]\n");
+	fprintf(stdout, "    Broadcast compliant code stream.\n");
+	fprintf(stdout, "    <PROFILE>=SINGLE,MULTI and MULTI_R.\n");
+	fprintf(stdout, "    X >= 0 and X <= 11.\n");
+	fprintf(stdout, "    framerate > 0 may be specified to enhance checks and set maximum bit rate "
+					"when Y > 0.\n");
+	fprintf(stdout, "[-w|-cinema2K] <24|48>\n");
+	fprintf(stdout, "    Digital Cinema 2K profile compliant code stream.\n");
+	fprintf(stdout, "   Need to specify the frames per second.\n");
+	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
+	fprintf(stdout, "[-W|-logfile] <log file name>\n"
+					"    log to file. File name will be set to \"log file name\"\n");
+	fprintf(stdout, "[-x|-cinema4k] <24|48>\n");
+	fprintf(stdout, "    Digital Cinema 4K profile compliant code stream.\n");
+	fprintf(stdout, "   Need to specify the frames per second.\n");
+	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
+	fprintf(stdout, "[-y|-in_dir] <dir>\n");
+	fprintf(stdout, "    Uncompressed file directory\n");
+	fprintf(stdout, "    When using this option [out_fmt] must be used\n");
 	fprintf(stdout, "[-Y|-MCT] <0|1|2>\n");
 	fprintf(stdout, "    Specifies explicitly if a Multiple Component Transform has to be used.\n");
 	fprintf(stdout, "    0: no MCT ; 1: RGB->YCC conversion ; 2: custom MCT.\n");
@@ -274,27 +319,6 @@ static void compress_help_display(void)
 	fprintf(stdout,
 			"    By default, RGB->YCC conversion is used if there are 3 components or more,\n");
 	fprintf(stdout, "    no conversion otherwise.\n");
-	fprintf(stdout, "[-m|-custom_mct <file>\n");
-	fprintf(stdout, "    Use array-based MCT, values are coma separated, line by line\n");
-	fprintf(stdout, "    No specific separators between lines, no space allowed between values.\n");
-	fprintf(stdout, "    If this option is used, it automatically sets \"-MCT\" option to 2.\n");
-	fprintf(stdout, "[-Z|-rsiz] <rsiz>\n");
-	fprintf(stdout, "    Profile, main level, sub level and version.\n");
-	fprintf(stdout, "   Note: this flag will be ignored if cinema profile flags are used.\n");
-	fprintf(stdout, "[-w|-cinema2K] <24|48>\n");
-	fprintf(stdout, "    Digital Cinema 2K profile compliant code stream.\n");
-	fprintf(stdout, "   Need to specify the frames per second.\n");
-	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
-	fprintf(stdout, "[-x|-cinema4k] <24|48>\n");
-	fprintf(stdout, "    Digital Cinema 4K profile compliant code stream.\n");
-	fprintf(stdout, "   Need to specify the frames per second.\n");
-	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
-	fprintf(stdout, "-U|-broadcast <PROFILE>[,mainlevel=X][,framerate=FPS]\n");
-	fprintf(stdout, "    Broadcast compliant code stream.\n");
-	fprintf(stdout, "    <PROFILE>=SINGLE,MULTI and MULTI_R.\n");
-	fprintf(stdout, "    X >= 0 and X <= 11.\n");
-	fprintf(stdout, "    framerate > 0 may be specified to enhance checks and set maximum bit rate "
-					"when Y > 0.\n");
 	fprintf(stdout, "-z|-IMF <PROFILE>[,mainlevel=X][,sublevel=Y][,framerate=FPS]\n");
 	fprintf(stdout, "    Interoperable Master Format compliant code stream.\n");
 	fprintf(stdout, "    <PROFILE>=2K, 4K, 8K, 2K_R, 4K_R or 8K_R.\n");
@@ -302,31 +326,9 @@ static void compress_help_display(void)
 	fprintf(stdout, "    Y >= 0 and Y <= 9.\n");
 	fprintf(stdout, "    framerate > 0 may be specified to enhance checks and set maximum bit rate "
 					"when Y > 0.\n");
-	fprintf(stdout, "[-C|-comment] <comment>\n");
-	fprintf(stdout, "    Add <comment> in the comment marker segment.\n");
-	fprintf(stdout, "[-Q|-capture_res] <capture resolution X,capture resolution Y>\n");
-	fprintf(stdout, "    Capture resolution in pixels/metre, in double precision.\n");
-	fprintf(
-		stdout,
-		"    These values will override the resolution stored in the input image, if present \n");
-	fprintf(stdout, "    unless the special values <0,0> are passed in, in which case \n");
-	fprintf(stdout, "    the image resolution will be used.\n");
-	fprintf(stdout, "[-D|-display_res] <display resolution X,display resolution Y>\n");
-	fprintf(stdout, "    Display resolution in pixels/metre, in double precision.\n");
-	fprintf(stdout, "[-f|-apply_icc]");
-	fprintf(stdout, "    Apply ICC profile before compression, if present.\n");
-	fprintf(stdout, "[-e|-repetitions] <number of repetitions>\n");
-	fprintf(stdout, "    Number of repetitions, for either a single image, or a folder of images.\n"
-					"    Default is 1. 0 signifies unlimited repetitions. \n");
-	fprintf(stdout, "[-g|-plugin_path] <plugin path>\n");
-	fprintf(stdout, "    Path to T1 plugin.\n");
-	fprintf(stdout, "[-H|-num_threads] <number of threads>\n");
-	fprintf(stdout, "    Number of threads used by libgrokj2k library.\n");
-	fprintf(stdout, "[-G|-device_id] <device ID>\n");
-	fprintf(stdout, "    (GPU) Specify which GPU accelerator to run codec on.\n");
-	fprintf(stdout, "    A value of -1 will specify all devices.\n");
-	fprintf(stdout, "[-W|-logfile] <log file name>\n"
-					"    log to file. File name will be set to \"log file name\"\n");
+	fprintf(stdout, "[-Z|-rsiz] <rsiz>\n");
+	fprintf(stdout, "    Profile, main level, sub level and version.\n");
+	fprintf(stdout, "   Note: this flag will be ignored if cinema profile flags are used.\n");
 }
 
 static GRK_PROG_ORDER getProgression(const char progression[4])
@@ -448,13 +450,9 @@ static bool validateCinema(TCLAP::ValueArg<uint32_t>* arg, uint16_t profile,
 			parameters->max_cs_size = GRK_CINEMA_48_CS;
 		}
 		if(profile == GRK_PROFILE_CINEMA_2K)
-		{
 			parameters->numgbits = 1;
-		}
 		else
-		{
 			parameters->numgbits = 2;
-		}
 	}
 	return true;
 }
@@ -647,10 +645,11 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 													 "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> codeBlockDimArg(
 			"b", "code_block_dims", "Code block dimensions", false, "", "string", cmd);
-
+		TCLAP::ValueArg<uint64_t> maxBandwidthArg("B", "max_bandwidth",
+													 "Maximum size (in bytes) of compressed image", false, 0,
+													 "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> precinctDimArg("c", "precinct_dims", "Precinct dimensions",
 													false, "", "string", cmd);
-
 		TCLAP::ValueArg<std::string> commentArg("C", "comment", "Add a comment", false, "",
 												"string", cmd);
 		TCLAP::ValueArg<std::string> imageOffsetArg("d", "image_offset",
@@ -663,7 +662,8 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			"Number of compress repetitions, for either a folder or a single file", false, 0,
 			"unsigned integer", cmd);
 		TCLAP::SwitchArg ephArg("E", "EPH", "Add EPH markers", cmd);
-
+		TCLAP::SwitchArg applyICCArg("f", "apply_icc",
+									 "Apply ICC profile before compression", cmd);
 		TCLAP::ValueArg<std::string> rawFormatArg("F", "raw", "raw image format parameters", false,
 												  "", "string", cmd);
 		TCLAP::ValueArg<std::string> pluginPathArg("g", "plugin_path", "Plugin path", false, "",
@@ -726,7 +726,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 												cmd);
 		TCLAP::ValueArg<uint32_t> cinema2KArg("w", "cinema2K", "Digital cinema 2K profile", false,
 											  24, "unsigned integer", cmd);
-		TCLAP::ValueArg<uint32_t> cinema4KArg("x", "cinema4k", "Digital cinema 2K profile", false,
+		TCLAP::ValueArg<uint32_t> cinema4KArg("x", "cinema4k", "Digital cinema 4K profile", false,
 											  24, "unsigned integer", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
 		TCLAP::ValueArg<std::string> inDirArg("y", "in_dir", "Image directory", false, "", "string",
@@ -735,12 +735,8 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 										 "unsigned integer", cmd);
 		TCLAP::ValueArg<uint16_t> rsizArg("Z", "rsiz", "rsiz", false, 0, "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> IMFArg("z", "IMF", "IMF profile", false, "", "string", cmd);
-
 		TCLAP::ValueArg<std::string> BroadcastArg("U", "broadcast", "Broadcast profile", false, "",
 												  "string", cmd);
-
-		TCLAP::SwitchArg applyICCArg("f", "apply_icc",
-									 "Apply ICC profile before compression, f present", cmd);
 		cmd.parse(argc, argv);
 		if(logfileArg.isSet())
 		{
@@ -1288,7 +1284,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			}
 			parameters->numgbits = (uint8_t)guardBits.getValue();
 		}
-		// profiles
+		// cinema/broadcast profiles
 		if(!isHT)
 		{
 			if(cinema2KArg.isSet())
@@ -1512,6 +1508,20 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		{
 			parameters->rsiz |= GRK_JPH_RSIZ_FLAG;
 		}
+
+		if (maxBandwidthArg.isSet() && !compressionRatiosArg.isSet() && !qualityArg.isSet()) {
+			auto bandwidth = maxBandwidthArg.getValue();
+			if (parameters->max_cs_size != 0) {
+				if (bandwidth < parameters->max_cs_size) {
+					parameters->max_cs_size = bandwidth;
+					parameters->max_comp_size = uint32_t(bandwidth/1.25 + 0.5);
+				}
+			} else {
+				parameters->max_cs_size = bandwidth;
+				parameters->max_comp_size = uint32_t(bandwidth/1.25 + 0.5);
+			}
+		}
+
 		if(captureResArg.isSet())
 		{
 			if(sscanf(captureResArg.getValue().c_str(), "%lf,%lf", parameters->capture_resolution,

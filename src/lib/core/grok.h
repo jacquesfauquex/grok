@@ -991,11 +991,6 @@ typedef struct _grk_cparameters
 	/** output file format*/
 	GRK_SUPPORTED_FILE_FMT cod_format;
 	grk_raw_cparameters raw_cp;
-	/**
-	 * Maximum size (in bytes) for each component.
-	 * If == 0, component size limitation is not considered
-	 * */
-	uint32_t max_comp_size;
 	/** Tile part generation*/
 	bool enableTilePartGeneration;
 	/** new tile part progression divider */
@@ -1012,6 +1007,11 @@ typedef struct _grk_cparameters
 	 * and a warning is issued.
 	 * */
 	uint64_t max_cs_size;
+	/**
+	 * Maximum size (in bytes) for each component.
+	 * If == 0, component size limitation is not considered
+	 * */
+	uint32_t max_comp_size;
 	/** RSIZ value
 	 To be used to combine GRK_PROFILE_*, GRK_EXTENSION_* and (sub)levels values. */
 	uint16_t rsiz;

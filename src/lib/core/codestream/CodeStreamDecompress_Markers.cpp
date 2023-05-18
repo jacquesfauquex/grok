@@ -816,7 +816,7 @@ bool CodeStreamDecompress::read_mco(uint8_t* headerData, uint16_t header_size)
 
 	if(nb_stages > 1)
 	{
-		Logger::logger_.warn("Cannot take in charge multiple transformation stages.");
+		Logger::logger_.warn("Multiple transformation stages not supported.");
 		return true;
 	}
 
@@ -938,7 +938,7 @@ bool CodeStreamDecompress::read_cbd(uint8_t* headerData, uint16_t header_size)
 
 	if(numComps != getHeaderImage()->numcomps)
 	{
-		Logger::logger_.error("Crror reading CBD marker");
+		Logger::logger_.error("Error reading CBD marker");
 		return false;
 	}
 
