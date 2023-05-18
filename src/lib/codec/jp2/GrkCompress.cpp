@@ -305,7 +305,7 @@ static void compress_help_display(void)
 	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
 	fprintf(stdout, "[-W|-logfile] <log file name>\n"
 					"    log to file. File name will be set to \"log file name\"\n");
-	fprintf(stdout, "[-x|-cinema4k] <24|48>\n");
+	fprintf(stdout, "[-x|-cinema4K] <24|48>\n");
 	fprintf(stdout, "    Digital Cinema 4K profile compliant code stream.\n");
 	fprintf(stdout, "   Need to specify the frames per second.\n");
 	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
@@ -449,10 +449,7 @@ static bool validateCinema(TCLAP::ValueArg<uint32_t>* arg, uint16_t profile,
 			parameters->max_comp_size = GRK_CINEMA_48_COMP;
 			parameters->max_cs_size = GRK_CINEMA_48_CS;
 		}
-		if(profile == GRK_PROFILE_CINEMA_2K)
-			parameters->numgbits = 1;
-		else
-			parameters->numgbits = 2;
+		parameters->numgbits = (profile == GRK_PROFILE_CINEMA_2K) ? 1 : 2;
 	}
 	return true;
 }
@@ -726,7 +723,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 												cmd);
 		TCLAP::ValueArg<uint32_t> cinema2KArg("w", "cinema2K", "Digital cinema 2K profile", false,
 											  24, "unsigned integer", cmd);
-		TCLAP::ValueArg<uint32_t> cinema4KArg("x", "cinema4k", "Digital cinema 4K profile", false,
+		TCLAP::ValueArg<uint32_t> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile", false,
 											  24, "unsigned integer", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
 		TCLAP::ValueArg<std::string> inDirArg("y", "in_dir", "Image directory", false, "", "string",
@@ -1119,6 +1116,8 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 
 		if(resolutionArg.isSet())
 			parameters->numresolution = (uint8_t)resolutionArg.getValue();
+		else if (cinema4KArg.isSet())
+			parameters->numresolution = GRK_CINEMA_4K_DEFAULT_NUM_RESOLUTIONS;
 
 		if(precinctDimArg.isSet())
 		{
@@ -1292,15 +1291,13 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(!validateCinema(&cinema2KArg, GRK_PROFILE_CINEMA_2K, parameters))
 					return 1;
 				parameters->writeTLM = true;
-				spdlog::warn("CINEMA 2K profile activated");
-				spdlog::warn("Other options specified may be overridden");
+				spdlog::warn("Cinema 2K profile activated. Other options specified may be overridden");
 			}
 			else if(cinema4KArg.isSet())
 			{
 				if(!validateCinema(&cinema4KArg, GRK_PROFILE_CINEMA_4K, parameters))
 					return 1;
-				spdlog::warn(" CINEMA 4K profile activated\n"
-							 "Other options specified may be overridden");
+				spdlog::warn("Cinema 4K profile activated. Other options specified may be overridden");
 				parameters->writeTLM = true;
 			}
 			else if(BroadcastArg.isSet())
@@ -1358,7 +1355,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					return 1;
 				}
 				parameters->rsiz = (uint16_t)(profile | mainlevel);
-				spdlog::info(
+				spdlog::warn(
 					"Broadcast profile activated. Other options specified may be overridden");
 				parameters->framerate = (uint16_t)framerate;
 				if(framerate > 0)
@@ -1465,7 +1462,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					return 1;
 				}
 				parameters->rsiz = (uint16_t)(profile | (sublevel << 4) | mainlevel);
-				spdlog::info("IMF profile activated. Other options specified may be overridden");
+				spdlog::warn("IMF profile activated. Other options specified may be overridden");
 
 				parameters->framerate = (uint16_t)framerate;
 				if(framerate > 0 && sublevel > 0 && sublevel <= 9)
@@ -1491,17 +1488,11 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(rsizArg.isSet())
 			{
 				if(cinema2KArg.isSet() || cinema4KArg.isSet())
-				{
 					grk::warningCallback("Cinema profile set - rsiz parameter ignored.", nullptr);
-				}
 				else if(IMFArg.isSet())
-				{
 					grk::warningCallback("IMF profile set - rsiz parameter ignored.", nullptr);
-				}
 				else
-				{
 					parameters->rsiz = rsizArg.getValue();
-				}
 			}
 		}
 		else
@@ -1514,11 +1505,11 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if (parameters->max_cs_size != 0) {
 				if (bandwidth < parameters->max_cs_size) {
 					parameters->max_cs_size = bandwidth;
-					parameters->max_comp_size = uint32_t(bandwidth/1.25 + 0.5);
+					parameters->max_comp_size = uint32_t(double(bandwidth)/1.25 + 0.5);
 				}
 			} else {
 				parameters->max_cs_size = bandwidth;
-				parameters->max_comp_size = uint32_t(bandwidth/1.25 + 0.5);
+				parameters->max_comp_size = uint32_t(double(bandwidth)/1.25 + 0.5);
 			}
 		}
 

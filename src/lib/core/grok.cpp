@@ -480,11 +480,11 @@ void GRK_CALLCONV grk_compress_set_default_params(grk_cparameters* parameters)
 	/* default coding parameters */
 	parameters->rsiz = GRK_PROFILE_NONE;
 	parameters->max_comp_size = 0;
-	parameters->numresolution = GRK_COMP_PARAM_DEFAULT_NUMRESOLUTION;
+	parameters->numresolution = GRK_DEFAULT_NUMRESOLUTION;
 	parameters->cblockw_init = GRK_COMP_PARAM_DEFAULT_CBLOCKW;
 	parameters->cblockh_init = GRK_COMP_PARAM_DEFAULT_CBLOCKH;
 	parameters->numgbits = 2;
-	parameters->prog_order = GRK_COMP_PARAM_DEFAULT_PROG_ORDER;
+	parameters->prog_order = GRK_DEFAULT_PROG_ORDER;
 	parameters->roi_compno = -1; /* no ROI */
 	parameters->subsampling_dx = 1;
 	parameters->subsampling_dy = 1;

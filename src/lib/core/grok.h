@@ -1314,6 +1314,8 @@ GRK_API bool GRK_CALLCONV grk_set_MCT(grk_cparameters* parameters, float* encodi
 #define GRK_CINEMA_24_COMP 1041666U /** Maximum size per color component @ 24fps */
 #define GRK_CINEMA_48_COMP 520833U /** Maximum size per color component @ 48fps */
 
+#define GRK_CINEMA_4K_DEFAULT_NUM_RESOLUTIONS 7
+
 /*
  *
  * CIE Lab #defines

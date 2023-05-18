@@ -92,7 +92,7 @@ void Profile::set_imf_parameters(grk_cparameters* parameters, GrkImage* image)
 	parameters->newTilePartProgressionDivider = 'C';
 	parameters->enableTilePartGeneration = true;
 
-	if(parameters->prog_order == GRK_COMP_PARAM_DEFAULT_PROG_ORDER)
+	if(parameters->prog_order == GRK_DEFAULT_PROG_ORDER)
 		parameters->prog_order = GRK_CPRL;
 
 	if(profile == GRK_PROFILE_IMF_2K || profile == GRK_PROFILE_IMF_4K ||
@@ -101,7 +101,7 @@ void Profile::set_imf_parameters(grk_cparameters* parameters, GrkImage* image)
 		parameters->irreversible = true;
 
 	/* Adjust the number of resolutions if set to its defaults */
-	if(parameters->numresolution == GRK_COMP_PARAM_DEFAULT_NUMRESOLUTION && image->x0 == 0 &&
+	if(parameters->numresolution == GRK_DEFAULT_NUMRESOLUTION && image->x0 == 0 &&
 	   image->y0 == 0)
 	{
 		const int max_NL = Profile::get_imf_max_NL(parameters, image);
@@ -689,7 +689,7 @@ void Profile::set_broadcast_parameters(grk_cparameters* parameters)
 		parameters->irreversible = true;
 
 	/* Adjust the number of resolutions if set to its defaults */
-	if(parameters->numresolution == GRK_COMP_PARAM_DEFAULT_NUMRESOLUTION)
+	if(parameters->numresolution == GRK_DEFAULT_NUMRESOLUTION)
 		parameters->numresolution = 5;
 
 	/* Set defaults precincts */
@@ -1057,7 +1057,7 @@ void Profile::set_cinema_parameters(grk_cparameters* parameters, GrkImage* image
 				Logger::logger_.warn("JPEG 2000 profile 3 (2k digital cinema) requires:\n"
 						 "Number of decomposition levels <= 5\n"
 						 "-> Number of decomposition levels forced to 5 (rather than %u)",
-						 parameters->numresolution + 1);
+						 parameters->numresolution - 1);
 				parameters->numresolution = 6;
 			}
 			break;
@@ -1067,15 +1067,15 @@ void Profile::set_cinema_parameters(grk_cparameters* parameters, GrkImage* image
 				Logger::logger_.warn("JPEG 2000 profile 4 (4k digital cinema) requires:\n"
 						 "Number of decomposition levels >= 1 && <= 6\n"
 						 "-> Number of decomposition levels forced to 1 (rather than %u)",
-						 parameters->numresolution + 1);
-				parameters->numresolution = 1;
+						 0);
+				parameters->numresolution = 2;
 			}
 			else if(parameters->numresolution > 7)
 			{
 				Logger::logger_.warn("JPEG 2000 profile 4 (4k digital cinema) requires:\n"
 						 "Number of decomposition levels >= 1 && <= 6\n"
 						 "-> Number of decomposition levels forced to 6 (rather than %u)",
-						 parameters->numresolution + 1);
+						 parameters->numresolution - 1);
 				parameters->numresolution = 7;
 			}
 			break;
