@@ -163,8 +163,6 @@ static void compress_help_display(void)
 	fprintf(stdout, "    or greater than 1024, no code-block with more than 4096 coefficients.\n");
 	fprintf(stdout, "    The maximum value permitted is `64,64`. \n");
 	fprintf(stdout, "    Default: `64,64`.\n");
-	fprintf(stdout, "[-B|-max_bandwidth] <bandwidth>\n");
-	fprintf(stdout, "    Maximum size (in bytes) of compressed image \n");
 	fprintf(stdout,
 			"[-c|-precinct_dims] [<prec width>,<prec height>],[<prec width>,<prec height>],...\n");
 	fprintf(stdout, "    Precinct dimensions. Dimensions specified must be powers of 2. \n");
@@ -299,15 +297,15 @@ static void compress_help_display(void)
 	fprintf(stdout, "    X >= 0 and X <= 11.\n");
 	fprintf(stdout, "    framerate > 0 may be specified to enhance checks and set maximum bit rate "
 					"when Y > 0.\n");
-	fprintf(stdout, "[-w|-cinema2K] <24|48>\n");
+	fprintf(stdout, "[-w|-cinema2K] <24(,bandwidth)|48(,bandwidth)>\n");
 	fprintf(stdout, "    Digital Cinema 2K profile compliant code stream.\n");
-	fprintf(stdout, "   Need to specify the frames per second.\n");
+	fprintf(stdout, "   Need to specify frames per second, and optionally bandwidth in Mb/s. Eg: -x 24,200000000\n");
 	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
 	fprintf(stdout, "[-W|-logfile] <log file name>\n"
 					"    log to file. File name will be set to \"log file name\"\n");
-	fprintf(stdout, "[-x|-cinema4K] <24|48>\n");
+	fprintf(stdout, "[-x|-cinema4K] <24(,bandwidth)|48(,bandwidth)>\n");
 	fprintf(stdout, "    Digital Cinema 4K profile compliant code stream.\n");
-	fprintf(stdout, "   Need to specify the frames per second.\n");
+	fprintf(stdout, "   Need to specify frames per second, and optionally bandwidth in Mb/s. Eg: -x 24,200000000\n");
 	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
 	fprintf(stdout, "[-y|-in_dir] <dir>\n");
 	fprintf(stdout, "    Uncompressed file directory\n");
@@ -328,7 +326,7 @@ static void compress_help_display(void)
 					"when Y > 0.\n");
 	fprintf(stdout, "[-Z|-rsiz] <rsiz>\n");
 	fprintf(stdout, "    Profile, main level, sub level and version.\n");
-	fprintf(stdout, "   Note: this flag will be ignored if cinema profile flags are used.\n");
+	fprintf(stdout, "   Note: this flag will be ignored if one of the cinema profile flags is used.\n");
 }
 
 static GRK_PROG_ORDER getProgression(const char progression[4])
@@ -424,12 +422,28 @@ class GrokOutput : public TCLAP::StdOutput
 		compress_help_display();
 	}
 };
-static bool validateCinema(TCLAP::ValueArg<uint32_t>* arg, uint16_t profile,
+static void parse_cs( const std::string& str, std::vector<std::string>& result ) {
+    std::stringstream ss(str);
+    while (ss.good()) {
+        std::string substr;
+        std::getline(ss, substr, ',');
+        result.push_back(substr);
+    }
+}
+
+
+static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 						   grk_cparameters* parameters)
 {
 	if(arg->isSet())
 	{
-		uint16_t fps = (uint16_t)arg->getValue();
+		auto val = arg->getValue();
+		std::vector<std::string> args;
+		parse_cs(val,args);
+		uint16_t fps = (uint16_t)std::stoi(args[0]);
+		int bandwidth = 0;
+		if (args.size() > 1)
+			bandwidth = std::stoi(args[1]) / ((int)fps * 8);
 		if(fps != 24 && fps != 48)
 		{
 			spdlog::warn("Incorrect digital cinema frame rate {} : "
@@ -441,13 +455,23 @@ static bool validateCinema(TCLAP::ValueArg<uint32_t>* arg, uint16_t profile,
 		parameters->framerate = fps;
 		if(fps == 24)
 		{
-			parameters->max_comp_size = GRK_CINEMA_24_COMP;
-			parameters->max_cs_size = GRK_CINEMA_24_CS;
+			if (bandwidth > 0 && bandwidth <= GRK_CINEMA_24_COMP) {
+				parameters->max_cs_size = (uint64_t)bandwidth;
+				parameters->max_comp_size = uint64_t(double(bandwidth)/1.25 + 0.5);
+			} else {
+				parameters->max_comp_size = GRK_CINEMA_24_COMP;
+				parameters->max_cs_size = GRK_CINEMA_24_CS;
+			}
 		}
 		else if(fps == 48)
 		{
-			parameters->max_comp_size = GRK_CINEMA_48_COMP;
-			parameters->max_cs_size = GRK_CINEMA_48_CS;
+			if (bandwidth > 0 && bandwidth <= GRK_CINEMA_48_COMP) {
+				parameters->max_cs_size = (uint64_t)bandwidth;
+				parameters->max_comp_size = uint64_t(double(bandwidth)/1.25 + 0.5);
+			} else {
+				parameters->max_comp_size = GRK_CINEMA_48_COMP;
+				parameters->max_cs_size = GRK_CINEMA_48_CS;
+			}
 		}
 		parameters->numgbits = (profile == GRK_PROFILE_CINEMA_2K) ? 1 : 2;
 	}
@@ -642,9 +666,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 													 "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> codeBlockDimArg(
 			"b", "code_block_dims", "Code block dimensions", false, "", "string", cmd);
-		TCLAP::ValueArg<uint64_t> maxBandwidthArg("B", "max_bandwidth",
-													 "Maximum size (in bytes) of compressed image", false, 0,
-													 "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> precinctDimArg("c", "precinct_dims", "Precinct dimensions",
 													false, "", "string", cmd);
 		TCLAP::ValueArg<std::string> commentArg("C", "comment", "Add a comment", false, "",
@@ -721,10 +742,10 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		TCLAP::SwitchArg transferExifTagsArg("V", "transfer_exif_tags", "Transfer Exif tags", cmd);
 		TCLAP::ValueArg<std::string> logfileArg("W", "logfile", "Log file", false, "", "string",
 												cmd);
-		TCLAP::ValueArg<uint32_t> cinema2KArg("w", "cinema2K", "Digital cinema 2K profile", false,
-											  24, "unsigned integer", cmd);
-		TCLAP::ValueArg<uint32_t> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile", false,
-											  24, "unsigned integer", cmd);
+		TCLAP::ValueArg<std::string> cinema2KArg("w", "cinema2K", "Digital cinema 2K profile", false,
+											  "24", "string", cmd);
+		TCLAP::ValueArg<std::string> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile", false,
+											  "24", "string", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
 		TCLAP::ValueArg<std::string> inDirArg("y", "in_dir", "Image directory", false, "", "string",
 											  cmd);
@@ -1499,20 +1520,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		{
 			parameters->rsiz |= GRK_JPH_RSIZ_FLAG;
 		}
-
-		if (maxBandwidthArg.isSet() && !compressionRatiosArg.isSet() && !qualityArg.isSet()) {
-			auto bandwidth = maxBandwidthArg.getValue();
-			if (parameters->max_cs_size != 0) {
-				if (bandwidth < parameters->max_cs_size) {
-					parameters->max_cs_size = bandwidth;
-					parameters->max_comp_size = uint32_t(double(bandwidth)/1.25 + 0.5);
-				}
-			} else {
-				parameters->max_cs_size = bandwidth;
-				parameters->max_comp_size = uint32_t(double(bandwidth)/1.25 + 0.5);
-			}
-		}
-
 		if(captureResArg.isSet())
 		{
 			if(sscanf(captureResArg.getValue().c_str(), "%lf,%lf", parameters->capture_resolution,

@@ -1011,7 +1011,7 @@ typedef struct _grk_cparameters
 	 * Maximum size (in bytes) for each component.
 	 * If == 0, component size limitation is not considered
 	 * */
-	uint32_t max_comp_size;
+	uint64_t max_comp_size;
 	/** RSIZ value
 	 To be used to combine GRK_PROFILE_*, GRK_EXTENSION_* and (sub)levels values. */
 	uint16_t rsiz;
@@ -1309,10 +1309,11 @@ GRK_API bool GRK_CALLCONV grk_set_MCT(grk_cparameters* parameters, float* encodi
 /**
  * JPEG 2000 cinema profile code stream and component size limits
  * */
-#define GRK_CINEMA_24_CS 1302083U /** Maximum code stream length @ 24fps */
-#define GRK_CINEMA_48_CS 651041U /** Maximum code stream length @ 48fps */
-#define GRK_CINEMA_24_COMP 1041666U /** Maximum size per color component @ 24fps */
-#define GRK_CINEMA_48_COMP 520833U /** Maximum size per color component @ 48fps */
+#define GRK_CINEMA_24_CS 1302083 /** Maximum code stream length @ 24fps */
+#define GRK_CINEMA_24_COMP 1041666 /** Maximum size per color component @ 24fps */
+
+#define GRK_CINEMA_48_CS 651041 /** Maximum code stream length @ 48fps */
+#define GRK_CINEMA_48_COMP 520833 /** Maximum size per color component @ 48fps */
 
 #define GRK_CINEMA_4K_DEFAULT_NUM_RESOLUTIONS 7
 
