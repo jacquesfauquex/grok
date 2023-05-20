@@ -65,7 +65,8 @@ void BitIO::bytein(void)
 		if(marker != J2K_MS_EPH && marker != J2K_MS_SOP)
 			Logger::logger_.warn("Invalid marker 0x%x detected in packet header", marker);
 		else
-			Logger::logger_.warn("Unexpected SOP/EPH marker 0x%x detected in packet header", marker);
+			Logger::logger_.warn("Unexpected SOP/EPH marker 0x%x detected in packet header",
+								 marker);
 
 		throw InvalidMarkerException(marker);
 	}

@@ -35,7 +35,8 @@ void GrkImage::print(void) const
 	for(uint16_t i = 0; i < numcomps; ++i)
 	{
 		auto comp = comps + i;
-		Logger::logger_.info("component %d bounds : [%u,%u,%u,%u]", i, comp->x0, comp->y0, comp->w, comp->h);
+		Logger::logger_.info("component %d bounds : [%u,%u,%u,%u]", i, comp->x0, comp->y0, comp->w,
+							 comp->h);
 	}
 }
 
@@ -196,9 +197,10 @@ bool GrkImage::subsampleAndReduce(uint32_t reduce)
 		comp_x1 = ceildivpow2<uint32_t>(comp_x1, reduce);
 		if(comp_x1 <= comp->x0)
 		{
-			Logger::logger_.error("subsampleAndReduce: component %u: x1 (%u) is <= x0 (%u). Subsampled and "
-					  "reduced image is invalid",
-					  compno, comp_x1, comp->x0);
+			Logger::logger_.error(
+				"subsampleAndReduce: component %u: x1 (%u) is <= x0 (%u). Subsampled and "
+				"reduced image is invalid",
+				compno, comp_x1, comp->x0);
 			return false;
 		}
 		comp->w = (uint32_t)(comp_x1 - comp->x0);
@@ -208,9 +210,10 @@ bool GrkImage::subsampleAndReduce(uint32_t reduce)
 		comp_y1 = ceildivpow2<uint32_t>(comp_y1, reduce);
 		if(comp_y1 <= comp->y0)
 		{
-			Logger::logger_.error("subsampleAndReduce: component %u: y1 (%u) is <= y0 (%u).  Subsampled and "
-					  "reduced image is invalid",
-					  compno, comp_y1, comp->y0);
+			Logger::logger_.error(
+				"subsampleAndReduce: component %u: y1 (%u) is <= y0 (%u).  Subsampled and "
+				"reduced image is invalid",
+				compno, comp_y1, comp->y0);
 			return false;
 		}
 		comp->h = (uint32_t)(comp_y1 - comp->y0);
@@ -300,7 +303,7 @@ bool GrkImage::allocData(grk_image_comp* comp, bool clear)
 	if(!data)
 	{
 		grk::Logger::logger_.error("Failed to allocate aligned memory buffer of dimensions %u x %u",
-					   comp->stride, comp->h);
+								   comp->stride, comp->h);
 		return false;
 	}
 	if(clear)
@@ -517,7 +520,8 @@ void GrkImage::apply_channel_definition()
 
 		if(channel >= numcomps)
 		{
-			Logger::logger_.warn("apply_channel_definition: channel=%u, numcomps=%u", channel, numcomps);
+			Logger::logger_.warn("apply_channel_definition: channel=%u, numcomps=%u", channel,
+								 numcomps);
 			continue;
 		}
 		comps[channel].type = (GRK_CHANNEL_TYPE)info[i].typ;
@@ -529,7 +533,8 @@ void GrkImage::apply_channel_definition()
 
 		if(info[i].typ == GRK_CHANNEL_TYPE_COLOUR && asoc > numcomps)
 		{
-			Logger::logger_.warn("apply_channel_definition: association=%u > numcomps=%u", asoc, numcomps);
+			Logger::logger_.warn("apply_channel_definition: association=%u > numcomps=%u", asoc,
+								 numcomps);
 			continue;
 		}
 		uint16_t asoc_index = (uint16_t)(asoc - 1);
@@ -576,15 +581,16 @@ bool GrkImage::check_color(void)
 		{
 			if(info[i].channel >= num_channels)
 			{
-				Logger::logger_.error("Invalid channel index %u (>= %u).", info[i].channel, num_channels);
+				Logger::logger_.error("Invalid channel index %u (>= %u).", info[i].channel,
+									  num_channels);
 				return false;
 			}
 			if(info[i].asoc == GRK_CHANNEL_ASSOC_UNASSOCIATED)
 				continue;
 			if(info[i].asoc > 0 && (uint32_t)(info[i].asoc - 1) >= num_channels)
 			{
-				Logger::logger_.error("Invalid component association %u  (>= %u).", info[i].asoc - 1,
-						  num_channels);
+				Logger::logger_.error("Invalid component association %u  (>= %u).",
+									  info[i].asoc - 1, num_channels);
 				return false;
 			}
 		}
@@ -619,7 +625,7 @@ bool GrkImage::check_color(void)
 			if(component_mapping[i].component_index >= numcomps)
 			{
 				Logger::logger_.error("Invalid component index %u (>= %u).",
-						  component_mapping[i].component_index, numcomps);
+									  component_mapping[i].component_index, numcomps);
 				is_sane = false;
 				goto cleanup;
 			}
@@ -642,7 +648,8 @@ bool GrkImage::check_color(void)
 			}
 			if(palette_column >= num_channels)
 			{
-				Logger::logger_.error("Invalid component/palette index for direct mapping %u.", palette_column);
+				Logger::logger_.error("Invalid component/palette index for direct mapping %u.",
+									  palette_column);
 				is_sane = false;
 				goto cleanup;
 			}
@@ -657,7 +664,8 @@ bool GrkImage::check_color(void)
 			{
 				/* I.5.3.5 PCOL: If the value of the MTYP field for this channel is 0, then
 				 * the value of this field shall be 0. */
-				Logger::logger_.error("Direct use at #%u however palette_column=%u.", i, palette_column);
+				Logger::logger_.error("Direct use at #%u however palette_column=%u.", i,
+									  palette_column);
 				is_sane = false;
 				goto cleanup;
 			}
@@ -725,23 +733,24 @@ bool GrkImage::apply_palette_clr()
 		auto comp = comps + compno;
 		if(compno >= numcomps)
 		{
-			Logger::logger_.error("apply_palette_clr: component mapping component number %u for channel %u "
-					  "must be less than number of image components %u",
-					  compno, channel, numcomps);
+			Logger::logger_.error(
+				"apply_palette_clr: component mapping component number %u for channel %u "
+				"must be less than number of image components %u",
+				compno, channel, numcomps);
 			return false;
 		}
 		if(comp->data == nullptr)
 		{
 			Logger::logger_.error("comps[%u].data == nullptr"
-					  " in apply_palette_clr().",
-					  compno);
+								  " in apply_palette_clr().",
+								  compno);
 			return false;
 		}
 		if(comp->prec > pal->num_entries)
 		{
 			Logger::logger_.error("Precision %u of component %u is greater than "
-					  "number of palette entries %u",
-					  compno, comps[compno].prec, pal->num_entries);
+								  "number of palette entries %u",
+								  compno, comps[compno].prec, pal->num_entries);
 			return false;
 		}
 		uint16_t paletteColumn = mapping->palette_column;
@@ -750,17 +759,19 @@ bool GrkImage::apply_palette_clr()
 			case 0:
 				if(paletteColumn != 0)
 				{
-					Logger::logger_.error("apply_palette_clr: channel %u with direct component mapping: "
-							  "non-zero palette column %u not allowed",
-							  channel, paletteColumn);
+					Logger::logger_.error(
+						"apply_palette_clr: channel %u with direct component mapping: "
+						"non-zero palette column %u not allowed",
+						channel, paletteColumn);
 					return false;
 				}
 				break;
 			case 1:
 				if(comp->sgnd)
 				{
-					Logger::logger_.error("apply_palette_clr: channel %u with non-direct component mapping: "
-							  "cannot be signed");
+					Logger::logger_.error(
+						"apply_palette_clr: channel %u with non-direct component mapping: "
+						"cannot be signed");
 					return false;
 				}
 				break;
@@ -857,16 +868,17 @@ bool GrkImage::allocCompositeData(void)
 		auto destComp = comps + i;
 		if(destComp->w == 0 || destComp->h == 0)
 		{
-			Logger::logger_.error("Output component %u has invalid dimensions %u x %u", i, destComp->w,
-					  destComp->h);
+			Logger::logger_.error("Output component %u has invalid dimensions %u x %u", i,
+								  destComp->w, destComp->h);
 			return false;
 		}
 		if(!destComp->data)
 		{
 			if(!GrkImage::allocData(destComp, true))
 			{
-				Logger::logger_.error("Failed to allocate pixel data for component %u, with dimensions %u x %u",
-						  i, destComp->w, destComp->h);
+				Logger::logger_.error(
+					"Failed to allocate pixel data for component %u, with dimensions %u x %u", i,
+					destComp->w, destComp->h);
 				return false;
 			}
 		}
@@ -982,7 +994,8 @@ bool GrkImage::compositeInterleaved(const Tile* src, uint32_t yBegin, uint32_t y
 	{
 		if(!(src->comps + i)->getWindow()->getResWindowBufferHighestSimple().buf_)
 		{
-			Logger::logger_.warn("GrkImage::compositeInterleaved: null data for source component %u", i);
+			Logger::logger_.warn(
+				"GrkImage::compositeInterleaved: null data for source component %u", i);
 			return false;
 		}
 	}
@@ -1045,7 +1058,8 @@ bool GrkImage::compositeInterleaved(const GrkImage* src)
 	{
 		if(!(src->comps + i)->data)
 		{
-			Logger::logger_.warn("GrkImage::compositeInterleaved: null data for source component %u", i);
+			Logger::logger_.warn(
+				"GrkImage::compositeInterleaved: null data for source component %u", i);
 			return false;
 		}
 	}
@@ -1096,20 +1110,23 @@ bool GrkImage::compositePlanar(const GrkImage* src)
 		grk_rect32 destWin;
 		if(!generateCompositeBounds(srcComp, compno, &destWin))
 		{
-			Logger::logger_.warn("GrkImage::compositePlanar: cannot generate composite bounds for component %u",
-					 compno);
+			Logger::logger_.warn(
+				"GrkImage::compositePlanar: cannot generate composite bounds for component %u",
+				compno);
 			continue;
 		}
 		auto destComp = comps + compno;
 		if(!destComp->data)
 		{
-			Logger::logger_.warn("GrkImage::compositePlanar: null data for destination component %u", compno);
+			Logger::logger_.warn(
+				"GrkImage::compositePlanar: null data for destination component %u", compno);
 			continue;
 		}
 
 		if(!srcComp->data)
 		{
-			Logger::logger_.warn("GrkImage::compositePlanar: null data for source component %u", compno);
+			Logger::logger_.warn("GrkImage::compositePlanar: null data for source component %u",
+								 compno);
 			continue;
 		}
 		size_t srcIndex = 0;

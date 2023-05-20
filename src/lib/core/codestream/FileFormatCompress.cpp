@@ -814,7 +814,8 @@ bool FileFormatCompress::init(grk_cparameters* parameters, GrkImage* image)
 			enumcs = GRK_ENUM_CLRSPC_EYCC; /* YUV */
 		else
 		{
-			Logger::logger_.error("Unsupported colour space enumeration %u", inputImage_->color_space);
+			Logger::logger_.error("Unsupported colour space enumeration %u",
+								  inputImage_->color_space);
 			return false;
 		}
 	}

@@ -117,8 +117,8 @@ bool TileCodingParams::advanceTilePartCounter(uint16_t tileIndex, uint8_t tilePa
 	if(uint8_t(tilePartCounter_) != tilePartIndex)
 	{
 		Logger::logger_.error("Invalid tile part index for tile number %u. "
-				  "Got %u, expected %u",
-				  tileIndex, tilePartIndex, tilePartCounter_);
+							  "Got %u, expected %u",
+							  tileIndex, tilePartIndex, tilePartCounter_);
 		return false;
 	}
 	tilePartCounter_++;
@@ -287,7 +287,7 @@ bool DecompressorState::findNextSOT(CodeStreamDecompress* codeStream)
 			if(!codeStream->readMarker())
 			{
 				Logger::logger_.warn("findNextTile: Not enough data to read another marker.\n"
-						 "Tile may be truncated.");
+									 "Tile may be truncated.");
 				return true;
 			}
 		}
@@ -295,8 +295,8 @@ bool DecompressorState::findNextSOT(CodeStreamDecompress* codeStream)
 		{
 			setState(DECOMPRESS_STATE_NO_EOC);
 			Logger::logger_.warn("findNextTile: expected EOC or SOT "
-					 "but found invalid marker 0x%x.",
-					 codeStream->getCurrentMarker());
+								 "but found invalid marker 0x%x.",
+								 codeStream->getCurrentMarker());
 			throw DecodeUnknownMarkerAtEndOfTileException();
 		}
 
@@ -316,9 +316,9 @@ bool DecompressorState::findNextSOT(CodeStreamDecompress* codeStream)
 				auto bytesLeft = stream->numBytesLeft();
 				setState(DECOMPRESS_STATE_NO_EOC);
 				Logger::logger_.warn("findNextTile: expected EOC or SOT "
-						 "but found marker 0x%x.\nIgnoring %u bytes "
-						 "remaining in the stream.",
-						 codeStream->getCurrentMarker(), bytesLeft + 2);
+									 "but found marker 0x%x.\nIgnoring %u bytes "
+									 "remaining in the stream.",
+									 codeStream->getCurrentMarker(), bytesLeft + 2);
 				throw DecodeUnknownMarkerAtEndOfTileException();
 			}
 			break;

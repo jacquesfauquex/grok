@@ -91,8 +91,9 @@ void PacketParser::readHeader(void)
 				(uint16_t)(((uint16_t)currentData[4] << 8) | currentData[5]);
 			if(signalledPacketSequenceNumber != (packetSequenceNumber_))
 			{
-				Logger::logger_.warn("SOP marker packet counter %u does not match expected counter %u",
-						 signalledPacketSequenceNumber, packetSequenceNumber_);
+				Logger::logger_.warn(
+					"SOP marker packet counter %u does not match expected counter %u",
+					signalledPacketSequenceNumber, packetSequenceNumber_);
 				headerError_ = true;
 				throw CorruptPacketHeaderException();
 			}
@@ -108,7 +109,7 @@ void PacketParser::readHeader(void)
 		if(tileProcessor_->getIndex() >= cp->ppm_marker->packetHeaders.size())
 		{
 			Logger::logger_.error("PPM marker has no packed packet header data for tile %u",
-					  tileProcessor_->getIndex() + 1);
+								  tileProcessor_->getIndex() + 1);
 			headerError_ = true;
 			throw CorruptPacketHeaderException();
 		}
@@ -190,9 +191,10 @@ void PacketParser::readHeader(void)
 							++K_msbs;
 							if(K_msbs > maxBitPlanesGRK)
 							{
-								Logger::logger_.warn("More missing code block bit planes (%u)"
-										 " than supported number of bit planes (%u) in library.",
-										 K_msbs, maxBitPlanesGRK);
+								Logger::logger_.warn(
+									"More missing code block bit planes (%u)"
+									" than supported number of bit planes (%u) in library.",
+									K_msbs, maxBitPlanesGRK);
 								headerError_ = true;
 								throw CorruptPacketHeaderException();
 							}
@@ -202,9 +204,10 @@ void PacketParser::readHeader(void)
 						K_msbs--;
 						if(K_msbs > band->numbps)
 						{
-							Logger::logger_.warn("More missing code block bit planes (%u) than band bit planes "
-									 "(%u).",
-									 K_msbs, band->numbps);
+							Logger::logger_.warn(
+								"More missing code block bit planes (%u) than band bit planes "
+								"(%u).",
+								K_msbs, band->numbps);
 							headerError_ = true;
 							throw CorruptPacketHeaderException();
 						}
@@ -214,8 +217,9 @@ void PacketParser::readHeader(void)
 						}
 						if(cblk->numbps > maxBitPlanesGRK)
 						{
-							Logger::logger_.warn("Number of bit planes %u is larger than maximum %u",
-									 cblk->numbps, maxBitPlanesGRK);
+							Logger::logger_.warn(
+								"Number of bit planes %u is larger than maximum %u", cblk->numbps,
+								maxBitPlanesGRK);
 							headerError_ = true;
 							throw CorruptPacketHeaderException();
 						}
@@ -246,9 +250,10 @@ void PacketParser::readHeader(void)
 						{
 							if(blockPassesInPacket > (int32_t)maxPassesPerSegmentJ2K)
 							{
-								Logger::logger_.warn("Number of code block passes (%u) in packet is "
-										 "suspiciously large.",
-										 blockPassesInPacket);
+								Logger::logger_.warn(
+									"Number of code block passes (%u) in packet is "
+									"suspiciously large.",
+									blockPassesInPacket);
 								headerError_ = true;
 								throw CorruptPacketHeaderException();
 							}
@@ -322,8 +327,8 @@ void PacketParser::readHeader(void)
 	if(lengthFromMarker_ && lengthFromMarker_ != numSignalledBytes())
 	{
 		Logger::logger_.error("Corrupt PL marker reports %u bytes for packet;"
-				  " parsed bytes are in fact %u",
-				  lengthFromMarker_, numSignalledBytes());
+							  " parsed bytes are in fact %u",
+							  lengthFromMarker_, numSignalledBytes());
 		headerError_ = true;
 		throw CorruptPacketHeaderException();
 	}
@@ -390,8 +395,8 @@ void PacketParser::readData(void)
 				{
 					Logger::logger_.warn("Packet data is truncated or packet header is corrupt :");
 					Logger::logger_.warn("at component=%02d resolution=%02d precinct=%03d "
-							 "layer=%02d",
-							 compno_, resno_, precinctIndex_, layno_);
+										 "layer=%02d",
+										 compno_, resno_, precinctIndex_, layno_);
 					goto finish;
 				}
 				if(((seg->numBytesInPacket) > remainingTilePartBytes_))
@@ -409,9 +414,10 @@ void PacketParser::readData(void)
 					// sanity check on seg->numBytesInPacket
 					if(UINT_MAX - seg->numBytesInPacket < seg->len)
 					{
-						Logger::logger_.error("Segment packet length %u plus total segment length %u must be "
-								  "less than 2^32",
-								  seg->numBytesInPacket, seg->len);
+						Logger::logger_.error(
+							"Segment packet length %u plus total segment length %u must be "
+							"less than 2^32",
+							seg->numBytesInPacket, seg->len);
 						throw CorruptPacketDataException();
 					}
 					// correct for truncated packet

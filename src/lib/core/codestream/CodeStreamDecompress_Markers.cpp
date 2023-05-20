@@ -72,7 +72,7 @@ bool CodeStreamDecompress::readSOTorEOC(void)
 	}
 	if(curr_marker_ != J2K_MS_SOT && curr_marker_ != J2K_MS_EOC)
 		Logger::logger_.warn("Expected SOT or EOC marker - read %s marker instead.",
-				 markerString(curr_marker_).c_str());
+							 markerString(curr_marker_).c_str());
 
 	return true;
 }
@@ -85,8 +85,9 @@ bool CodeStreamDecompress::readCurrentMarkerBody(uint16_t* markerLength)
 	}
 	else if(*markerLength < MARKER_LENGTH_BYTES)
 	{
-		Logger::logger_.error("Marker length %u for marker 0x%x is less than marker length bytes (2)",
-				  *markerLength, curr_marker_);
+		Logger::logger_.error(
+			"Marker length %u for marker 0x%x is less than marker length bytes (2)", *markerLength,
+			curr_marker_);
 		return false;
 	}
 	else if(*markerLength == MARKER_LENGTH_BYTES)
@@ -110,7 +111,8 @@ bool CodeStreamDecompress::readCurrentMarkerBody(uint16_t* markerLength)
 	}
 	if(!(decompressorState_.getState() & marker_handler->states))
 	{
-		Logger::logger_.error("Marker 0x%x is not compliant with its expected position", curr_marker_);
+		Logger::logger_.error("Marker 0x%x is not compliant with its expected position",
+							  curr_marker_);
 		return false;
 	}
 
@@ -295,10 +297,10 @@ bool CodeStreamDecompress::parseTileParts(bool* canDecompress)
 		if((tcp->main_qcd_numStepSizes < 3 * (uint32_t)maxDecompositions + 1))
 		{
 			Logger::logger_.error("From Main QCD marker, "
-					  "number of step sizes (%u) is less than "
-					  "3* (maximum decompositions) + 1, "
-					  "where maximum decompositions = %u ",
-					  tcp->main_qcd_numStepSizes, maxDecompositions);
+								  "number of step sizes (%u) is less than "
+								  "3* (maximum decompositions) + 1, "
+								  "where maximum decompositions = %u ",
+								  tcp->main_qcd_numStepSizes, maxDecompositions);
 			return false;
 		}
 		// 2. Check Tile QCD
@@ -333,10 +335,10 @@ bool CodeStreamDecompress::parseTileParts(bool* canDecompress)
 			if((qcd_comp->numStepSizes < 3 * maxTileDecompositions + 1))
 			{
 				Logger::logger_.error("From Tile QCD marker, "
-						  "number of step sizes (%u) is less than"
-						  " 3* (maximum tile decompositions) + 1, "
-						  "where maximum tile decompositions = %u ",
-						  qcd_comp->numStepSizes, maxTileDecompositions);
+									  "number of step sizes (%u) is less than"
+									  " 3* (maximum tile decompositions) + 1, "
+									  "where maximum tile decompositions = %u ",
+									  qcd_comp->numStepSizes, maxTileDecompositions);
 
 				return false;
 			}
@@ -386,19 +388,21 @@ void CodeStreamDecompress::nextTLM(void)
 			if(actualTileLength != tilePartLengthInfo->length_)
 			{
 				Logger::logger_.warn("Tile %u: TLM marker tile part length %u differs from actual"
-						 " tile part length %u; %u,%u. Disabling TLM.",
-						 tilePartLengthInfo->tileIndex_, tilePartLengthInfo->length_,
-						 actualTileLength, decompressorState_.lastSotReadPosition, stream_->tell());
+									 " tile part length %u; %u,%u. Disabling TLM.",
+									 tilePartLengthInfo->tileIndex_, tilePartLengthInfo->length_,
+									 actualTileLength, decompressorState_.lastSotReadPosition,
+									 stream_->tell());
 				cp_.tlm_markers->invalidate();
 				// assert(false);
 			}
 			else if(currentTileProcessor_->getIndex() != tilePartLengthInfo->tileIndex_)
 			{
-				Logger::logger_.warn("Tile %u: TLM marker signalled tile index %u differs from actual"
-						 " tile index %u; %u,%u. Disabling TLM.",
-						 currentTileProcessor_->getIndex(), tilePartLengthInfo->tileIndex_,
-						 currentTileProcessor_->getIndex(), decompressorState_.lastSotReadPosition,
-						 stream_->tell());
+				Logger::logger_.warn(
+					"Tile %u: TLM marker signalled tile index %u differs from actual"
+					" tile index %u; %u,%u. Disabling TLM.",
+					currentTileProcessor_->getIndex(), tilePartLengthInfo->tileIndex_,
+					currentTileProcessor_->getIndex(), decompressorState_.lastSotReadPosition,
+					stream_->tell());
 				cp_.tlm_markers->invalidate();
 				// assert(false);
 			}
@@ -440,7 +444,7 @@ bool CodeStreamDecompress::read_poc(uint8_t* headerData, uint16_t header_size)
 	if(currentNumProgressions > GRK_J2K_MAXRLVLS)
 	{
 		Logger::logger_.error("read_poc: number of progressions %u exceeds Grok maximum number %u",
-				  currentNumProgressions, GRK_J2K_MAXRLVLS);
+							  currentNumProgressions, GRK_J2K_MAXRLVLS);
 		return false;
 	}
 
@@ -452,7 +456,8 @@ bool CodeStreamDecompress::read_poc(uint8_t* headerData, uint16_t header_size)
 		++headerData;
 		if(current_prog->resS >= maxNumResLevels)
 		{
-			Logger::logger_.error("read_poc: invalid POC start resolution number %u", current_prog->resS);
+			Logger::logger_.error("read_poc: invalid POC start resolution number %u",
+								  current_prog->resS);
 			return false;
 		}
 		/* CSpoc_i */
@@ -611,8 +616,9 @@ bool CodeStreamDecompress::read_ppt(uint8_t* headerData, uint16_t header_size)
 	auto cp = &(cp_);
 	if(cp->ppm_marker)
 	{
-		Logger::logger_.error("Error reading PPT marker: packet header have been previously found in the main "
-				  "header (PPM marker).");
+		Logger::logger_.error(
+			"Error reading PPT marker: packet header have been previously found in the main "
+			"header (PPM marker).");
 		return false;
 	}
 
@@ -770,13 +776,14 @@ bool CodeStreamDecompress::read_rgn(uint8_t* headerData, uint16_t header_size)
 	grk_read<uint32_t>(headerData++, &roi_sty, 1);
 	if(roi_sty != 0)
 	{
-		Logger::logger_.error("RGN marker RS value of %u is not supported by JPEG 2000 Part 1", roi_sty);
+		Logger::logger_.error("RGN marker RS value of %u is not supported by JPEG 2000 Part 1",
+							  roi_sty);
 		return false;
 	}
 	if(comp_no >= numComps)
 	{
-		Logger::logger_.error("bad component number in RGN (%u is >= number of components %u)", comp_no,
-				  numComps);
+		Logger::logger_.error("bad component number in RGN (%u is >= number of components %u)",
+							  comp_no, numComps);
 		return false;
 	}
 
@@ -1047,11 +1054,11 @@ bool CodeStreamDecompress::read_SQcd_SQcc(bool fromQCC, uint16_t comp_no, uint8_
 			if(tccp->numStepSizes > GRK_J2K_MAXBANDS)
 			{
 				Logger::logger_.warn("While reading QCD or QCC marker segment, "
-						 "number of step sizes (%u) is greater"
-						 " than GRK_J2K_MAXBANDS (%u).\n"
-						 "So, number of elements stored is limited to "
-						 "GRK_J2K_MAXBANDS (%u) and the rest are skipped.",
-						 tccp->numStepSizes, GRK_J2K_MAXBANDS, GRK_J2K_MAXBANDS);
+									 "number of step sizes (%u) is greater"
+									 " than GRK_J2K_MAXBANDS (%u).\n"
+									 "So, number of elements stored is limited to "
+									 "GRK_J2K_MAXBANDS (%u) and the rest are skipped.",
+									 tccp->numStepSizes, GRK_J2K_MAXBANDS, GRK_J2K_MAXBANDS);
 			}
 		}
 		if(mainQCD)
@@ -1150,9 +1157,10 @@ bool CodeStreamDecompress::read_SPCod_SPCoc(uint16_t compno, uint8_t* headerData
 	grk_read<uint8_t>(current_ptr++, &tccp->numresolutions);
 	if(tccp->numresolutions > GRK_J2K_MAX_DECOMP_LVLS)
 	{
-		Logger::logger_.error("Invalid number of decomposition levels : %u. The JPEG 2000 standard\n"
-				  "allows a maximum number of %u decomposition levels.",
-				  tccp->numresolutions, GRK_J2K_MAX_DECOMP_LVLS);
+		Logger::logger_.error(
+			"Invalid number of decomposition levels : %u. The JPEG 2000 standard\n"
+			"allows a maximum number of %u decomposition levels.",
+			tccp->numresolutions, GRK_J2K_MAX_DECOMP_LVLS);
 		return false;
 	}
 	++tccp->numresolutions;
@@ -1163,10 +1171,10 @@ bool CodeStreamDecompress::read_SPCod_SPCoc(uint16_t compno, uint8_t* headerData
 	if(cp->coding_params_.dec_.reduce_ >= tccp->numresolutions)
 	{
 		Logger::logger_.error("Error decoding component %u.\nThe number of resolutions "
-				  " to remove (%u) must be strictly less than the number "
-				  "of resolutions (%u) of this component.\n"
-				  "Please decrease the reduce parameter.",
-				  compno, cp->coding_params_.dec_.reduce_, tccp->numresolutions);
+							  " to remove (%u) must be strictly less than the number "
+							  "of resolutions (%u) of this component.\n"
+							  "Please decrease the reduce parameter.",
+							  compno, cp->coding_params_.dec_.reduce_, tccp->numresolutions);
 		return false;
 	}
 	/* SPcoc (E) */
@@ -1176,11 +1184,12 @@ bool CodeStreamDecompress::read_SPCod_SPCoc(uint16_t compno, uint8_t* headerData
 
 	if(tccp->cblkw > 8 || tccp->cblkh > 8 || (tccp->cblkw + tccp->cblkh) > 8)
 	{
-		Logger::logger_.error("Illegal code-block width/height (2^%u, 2^%u) found in COD/COC marker segment.\n"
-				  "Code-block dimensions must be powers of 2, must be in the range 4-1024, and "
-				  "their product must "
-				  "lie in the range 16-4096.",
-				  (uint32_t)tccp->cblkw + 2, (uint32_t)tccp->cblkh + 2);
+		Logger::logger_.error(
+			"Illegal code-block width/height (2^%u, 2^%u) found in COD/COC marker segment.\n"
+			"Code-block dimensions must be powers of 2, must be in the range 4-1024, and "
+			"their product must "
+			"lie in the range 16-4096.",
+			(uint32_t)tccp->cblkw + 2, (uint32_t)tccp->cblkh + 2);
 		return false;
 	}
 
@@ -1201,9 +1210,10 @@ bool CodeStreamDecompress::read_SPCod_SPCoc(uint16_t compno, uint8_t* headerData
 	uint8_t high_bits = (uint8_t)(tccp->cblk_sty >> 6U);
 	if(high_bits == 2)
 	{
-		Logger::logger_.error("Unrecognized code-block style byte 0x%x found in COD/COC marker segment. "
-				  "Most significant 2 bits can be 00, 01 or 11, but not 10",
-				  tccp->cblk_sty);
+		Logger::logger_.error(
+			"Unrecognized code-block style byte 0x%x found in COD/COC marker segment. "
+			"Most significant 2 bits can be 00, 01 or 11, but not 10",
+			tccp->cblk_sty);
 		return false;
 	}
 
@@ -1212,8 +1222,8 @@ bool CodeStreamDecompress::read_SPCod_SPCoc(uint16_t compno, uint8_t* headerData
 	if(tccp->qmfbid > 1)
 	{
 		Logger::logger_.error("Invalid qmfbid : %u. "
-				  "Should be either 0 or 1",
-				  tccp->qmfbid);
+							  "Should be either 0 or 1",
+							  tccp->qmfbid);
 		return false;
 	}
 	*header_size = (uint16_t)(*header_size - SPCod_SPCoc_len);
@@ -1693,9 +1703,10 @@ bool CodeStreamDecompress::read_cod(uint8_t* headerData, uint16_t header_size)
 	/* Only one COD per tile */
 	if(tcp->cod)
 	{
-		Logger::logger_.warn("Multiple COD markers detected for tile part %u."
-				 " The JPEG 2000 standard does not allow more than one COD marker per tile.",
-				 tcp->tilePartCounter_ - 1);
+		Logger::logger_.warn(
+			"Multiple COD markers detected for tile part %u."
+			" The JPEG 2000 standard does not allow more than one COD marker per tile.",
+			tcp->tilePartCounter_ - 1);
 	}
 	tcp->cod = true;
 
@@ -1903,8 +1914,8 @@ bool CodeStreamDecompress::read_qcc(uint8_t* headerData, uint16_t header_size)
 	if(comp_no >= getHeaderImage()->numcomps)
 	{
 		Logger::logger_.error("QCC component: component number: %u must be less than"
-				  " total number of components: %u",
-				  comp_no, getHeaderImage()->numcomps);
+							  " total number of components: %u",
+							  comp_no, getHeaderImage()->numcomps);
 		return false;
 	}
 
@@ -2032,8 +2043,9 @@ bool CodeStreamDecompress::read_com(uint8_t* headerData, uint16_t header_size)
 	}
 	if(cp_.num_comments == GRK_NUM_COMMENTS_SUPPORTED)
 	{
-		Logger::logger_.warn("CodeStreamDecompress::read_com: Only %u comments are supported. Ignoring",
-				 GRK_NUM_COMMENTS_SUPPORTED);
+		Logger::logger_.warn(
+			"CodeStreamDecompress::read_com: Only %u comments are supported. Ignoring",
+			GRK_NUM_COMMENTS_SUPPORTED);
 		return true;
 	}
 
@@ -2043,9 +2055,10 @@ bool CodeStreamDecompress::read_com(uint8_t* headerData, uint16_t header_size)
 	cp_.isBinaryComment[numComments] = (commentType == 0);
 	if(commentType > 1)
 	{
-		Logger::logger_.warn("CodeStreamDecompress::read_com: Unrecognized comment type 0x%x. Assuming IS "
-				 "8859-15:1999 (Latin) values",
-				 commentType);
+		Logger::logger_.warn(
+			"CodeStreamDecompress::read_com: Unrecognized comment type 0x%x. Assuming IS "
+			"8859-15:1999 (Latin) values",
+			commentType);
 	}
 
 	headerData += 2;

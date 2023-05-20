@@ -299,13 +299,15 @@ static void compress_help_display(void)
 					"when Y > 0.\n");
 	fprintf(stdout, "[-w|-cinema2K] <24(,bandwidth)|48(,bandwidth)>\n");
 	fprintf(stdout, "    Digital Cinema 2K profile compliant code stream.\n");
-	fprintf(stdout, "   Need to specify frames per second, and optionally bandwidth in Mb/s. Eg: -x 24,200000000\n");
+	fprintf(stdout, "   Need to specify frames per second, and optionally bandwidth in Mb/s. Eg: "
+					"-x 24,200000000\n");
 	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
 	fprintf(stdout, "[-W|-logfile] <log file name>\n"
 					"    log to file. File name will be set to \"log file name\"\n");
 	fprintf(stdout, "[-x|-cinema4K] <24(,bandwidth)|48(,bandwidth)>\n");
 	fprintf(stdout, "    Digital Cinema 4K profile compliant code stream.\n");
-	fprintf(stdout, "   Need to specify frames per second, and optionally bandwidth in Mb/s. Eg: -x 24,200000000\n");
+	fprintf(stdout, "   Need to specify frames per second, and optionally bandwidth in Mb/s. Eg: "
+					"-x 24,200000000\n");
 	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
 	fprintf(stdout, "[-y|-batch_src] <dir>\n");
 	fprintf(stdout, "    Uncompressed file directory\n");
@@ -326,7 +328,8 @@ static void compress_help_display(void)
 					"when Y > 0.\n");
 	fprintf(stdout, "[-Z|-rsiz] <rsiz>\n");
 	fprintf(stdout, "    Profile, main level, sub level and version.\n");
-	fprintf(stdout, "   Note: this flag will be ignored if one of the cinema profile flags is used.\n");
+	fprintf(stdout,
+			"   Note: this flag will be ignored if one of the cinema profile flags is used.\n");
 }
 
 static GRK_PROG_ORDER getProgression(const char progression[4])
@@ -422,15 +425,16 @@ class GrokOutput : public TCLAP::StdOutput
 		compress_help_display();
 	}
 };
-static void parse_cs( const std::string& str, std::vector<std::string>& result ) {
-    std::stringstream ss(str);
-    while (ss.good()) {
-        std::string substr;
-        std::getline(ss, substr, ',');
-        result.push_back(substr);
-    }
+static void parse_cs(const std::string& str, std::vector<std::string>& result)
+{
+	std::stringstream ss(str);
+	while(ss.good())
+	{
+		std::string substr;
+		std::getline(ss, substr, ',');
+		result.push_back(substr);
+	}
 }
-
 
 static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 						   grk_cparameters* parameters)
@@ -439,10 +443,10 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 	{
 		auto val = arg->getValue();
 		std::vector<std::string> args;
-		parse_cs(val,args);
+		parse_cs(val, args);
 		uint16_t fps = (uint16_t)std::stoi(args[0]);
 		int bandwidth = 0;
-		if (args.size() > 1)
+		if(args.size() > 1)
 			bandwidth = std::stoi(args[1]) / ((int)fps * 8);
 		if(fps != 24 && fps != 48)
 		{
@@ -455,20 +459,26 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 		parameters->framerate = fps;
 		if(fps == 24)
 		{
-			if (bandwidth > 0 && bandwidth <= GRK_CINEMA_24_COMP) {
+			if(bandwidth > 0 && bandwidth <= GRK_CINEMA_24_COMP)
+			{
 				parameters->max_cs_size = (uint64_t)bandwidth;
-				parameters->max_comp_size = uint64_t(double(bandwidth)/1.25 + 0.5);
-			} else {
+				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25 + 0.5);
+			}
+			else
+			{
 				parameters->max_comp_size = GRK_CINEMA_24_COMP;
 				parameters->max_cs_size = GRK_CINEMA_24_CS;
 			}
 		}
 		else if(fps == 48)
 		{
-			if (bandwidth > 0 && bandwidth <= GRK_CINEMA_48_COMP) {
+			if(bandwidth > 0 && bandwidth <= GRK_CINEMA_48_COMP)
+			{
 				parameters->max_cs_size = (uint64_t)bandwidth;
-				parameters->max_comp_size = uint64_t(double(bandwidth)/1.25 + 0.5);
-			} else {
+				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25 + 0.5);
+			}
+			else
+			{
 				parameters->max_comp_size = GRK_CINEMA_48_COMP;
 				parameters->max_cs_size = GRK_CINEMA_48_CS;
 			}
@@ -680,8 +690,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			"Number of compress repetitions, for either a folder or a single file", false, 0,
 			"unsigned integer", cmd);
 		TCLAP::SwitchArg ephArg("E", "EPH", "Add EPH markers", cmd);
-		TCLAP::SwitchArg applyICCArg("f", "apply_icc",
-									 "Apply ICC profile before compression", cmd);
+		TCLAP::SwitchArg applyICCArg("f", "apply_icc", "Apply ICC profile before compression", cmd);
 		TCLAP::ValueArg<std::string> rawFormatArg("F", "raw", "raw image format parameters", false,
 												  "", "string", cmd);
 		TCLAP::ValueArg<std::string> pluginPathArg("g", "plugin_path", "Plugin path", false, "",
@@ -742,13 +751,13 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		TCLAP::SwitchArg transferExifTagsArg("V", "transfer_exif_tags", "Transfer Exif tags", cmd);
 		TCLAP::ValueArg<std::string> logfileArg("W", "logfile", "Log file", false, "", "string",
 												cmd);
-		TCLAP::ValueArg<std::string> cinema2KArg("w", "cinema2K", "Digital cinema 2K profile", false,
-											  "24", "string", cmd);
-		TCLAP::ValueArg<std::string> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile", false,
-											  "24", "string", cmd);
+		TCLAP::ValueArg<std::string> cinema2KArg("w", "cinema2K", "Digital cinema 2K profile",
+												 false, "24", "string", cmd);
+		TCLAP::ValueArg<std::string> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile",
+												 false, "24", "string", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
-		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "Image directory", false, "", "string",
-											  cmd);
+		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "Image directory", false, "",
+											  "string", cmd);
 		TCLAP::ValueArg<uint32_t> mctArg("Y", "MCT", "Multi component transform", false, 0,
 										 "unsigned integer", cmd);
 		TCLAP::ValueArg<uint16_t> rsizArg("Z", "rsiz", "rsiz", false, 0, "unsigned integer", cmd);
@@ -789,8 +798,8 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		else
 			spdlog::set_level(spdlog::level::level_enum::err);
 		grk_set_msg_handlers(parameters->verbose ? infoCallback : nullptr, nullptr,
-				parameters->verbose ? warningCallback : nullptr, nullptr, errorCallback,
-							 nullptr);
+							 parameters->verbose ? warningCallback : nullptr, nullptr,
+							 errorCallback, nullptr);
 
 		if(repetitionsArg.isSet())
 			parameters->repeats = repetitionsArg.getValue();
@@ -1137,7 +1146,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 
 		if(resolutionArg.isSet())
 			parameters->numresolution = (uint8_t)resolutionArg.getValue();
-		else if (cinema4KArg.isSet())
+		else if(cinema4KArg.isSet())
 			parameters->numresolution = GRK_CINEMA_4K_DEFAULT_NUM_RESOLUTIONS;
 
 		if(precinctDimArg.isSet())
@@ -1312,13 +1321,15 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(!validateCinema(&cinema2KArg, GRK_PROFILE_CINEMA_2K, parameters))
 					return 1;
 				parameters->writeTLM = true;
-				spdlog::warn("Cinema 2K profile activated. Other options specified may be overridden");
+				spdlog::warn(
+					"Cinema 2K profile activated. Other options specified may be overridden");
 			}
 			else if(cinema4KArg.isSet())
 			{
 				if(!validateCinema(&cinema4KArg, GRK_PROFILE_CINEMA_4K, parameters))
 					return 1;
-				spdlog::warn("Cinema 4K profile activated. Other options specified may be overridden");
+				spdlog::warn(
+					"Cinema 4K profile activated. Other options specified may be overridden");
 				parameters->writeTLM = true;
 			}
 			else if(BroadcastArg.isSet())
@@ -2220,7 +2231,7 @@ int GrkCompress::compress(const std::string& inputFile, CompressInitParams* init
 	memset(&callbackInfo, 0, sizeof(grk_plugin_compress_user_callback_info));
 	callbackInfo.compressor_parameters = &initParams->parameters;
 	callbackInfo.image = initParams->in_image;
-	if (initParams->stream_)
+	if(initParams->stream_)
 		callbackInfo.stream_params = *initParams->stream_;
 	callbackInfo.output_file_name = initParams->parameters.outfile;
 	callbackInfo.input_file_name = initParams->parameters.infile;

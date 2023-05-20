@@ -101,7 +101,8 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	{
 		if(tmp & 0x3000)
 		{
-			Logger::logger_.warn("SIZ marker segment's Rsiz word must have bits 12 and 13 equal to 0");
+			Logger::logger_.warn(
+				"SIZ marker segment's Rsiz word must have bits 12 and 13 equal to 0");
 			Logger::logger_.warn("unless the Part-2 flag (bit-15) is set.");
 		}
 		uint16_t profile = tmp & GRK_PROFILE_MASK;
@@ -140,16 +141,18 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 		image->numcomps = tmp;
 	else
 	{
-		Logger::logger_.error("SIZ marker: number of components %u is greater than maximum allowed number of "
-				  "components %u",
-				  tmp, maxNumComponentsJ2K);
+		Logger::logger_.error(
+			"SIZ marker: number of components %u is greater than maximum allowed number of "
+			"components %u",
+			tmp, maxNumComponentsJ2K);
 		return false;
 	}
 	if(image->numcomps != numComps)
 	{
-		Logger::logger_.error("SIZ marker: signalled number of components is not compatible with remaining "
-				  "number of components ( %u vs %u)",
-				  image->numcomps, numComps);
+		Logger::logger_.error(
+			"SIZ marker: signalled number of components is not compatible with remaining "
+			"number of components ( %u vs %u)",
+			image->numcomps, numComps);
 		return false;
 	}
 	if((image->x0 >= image->x1) || (image->y0 >= image->y1))
@@ -168,8 +171,8 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	if(cp->tx0 > image->x0 || cp->ty0 > image->y0)
 	{
 		Logger::logger_.error("SIZ marker: tile origin (%u,%u) cannot lie in the region"
-				  " to the right and bottom of image origin (%u,%u)",
-				  cp->tx0, cp->ty0, image->x0, image->y0);
+							  " to the right and bottom of image origin (%u,%u)",
+							  cp->tx0, cp->ty0, image->x0, image->y0);
 		return false;
 	}
 	uint32_t tx1 = satAdd<uint32_t>(cp->tx0, cp->t_width);
@@ -177,8 +180,9 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	if(tx1 <= image->x0 || ty1 <= image->y0)
 	{
 		Logger::logger_.error("SIZ marker: first tile (%u,%u,%u,%u) must overlap"
-				  " image (%u,%u,%u,%u)",
-				  cp->tx0, cp->ty0, tx1, ty1, image->x0, image->y0, image->x1, image->y1);
+							  " image (%u,%u,%u,%u)",
+							  cp->tx0, cp->ty0, tx1, ty1, image->x0, image->y0, image->x1,
+							  image->y1);
 		return false;
 	}
 	image->comps = new grk_image_comp[image->numcomps];
@@ -198,17 +202,19 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 		img_comp->dy = tmp; /* should be between 1 and 255 */
 		if(img_comp->dx == 0 || img_comp->dy == 0)
 		{
-			Logger::logger_.error("Invalid values for comp = %u : dx=%u dy=%u\n (should be positive "
-					  "according to the JPEG2000 standard)",
-					  i, img_comp->dx, img_comp->dy);
+			Logger::logger_.error(
+				"Invalid values for comp = %u : dx=%u dy=%u\n (should be positive "
+				"according to the JPEG2000 standard)",
+				i, img_comp->dx, img_comp->dy);
 			return false;
 		}
 
 		if(img_comp->prec == 0 || img_comp->prec > GRK_MAX_SUPPORTED_IMAGE_PRECISION)
 		{
-			Logger::logger_.error("Unsupported precision for comp = %u : prec=%u (this library only supports "
-					  "precisions between 1 and %u)",
-					  i, img_comp->prec, GRK_MAX_SUPPORTED_IMAGE_PRECISION);
+			Logger::logger_.error(
+				"Unsupported precision for comp = %u : prec=%u (this library only supports "
+				"precisions between 1 and %u)",
+				i, img_comp->prec, GRK_MAX_SUPPORTED_IMAGE_PRECISION);
 			return false;
 		}
 		++img_comp;
@@ -218,9 +224,10 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	uint32_t t_grid_height = ceildiv<uint32_t>(image->y1 - cp->ty0, cp->t_height);
 	if(t_grid_width == 0 || t_grid_height == 0)
 	{
-		Logger::logger_.error("Invalid grid of tiles: %u x %u. JPEG 2000 standard requires at least one tile "
-				  "in grid. ",
-				  t_grid_width, t_grid_height);
+		Logger::logger_.error(
+			"Invalid grid of tiles: %u x %u. JPEG 2000 standard requires at least one tile "
+			"in grid. ",
+			t_grid_width, t_grid_height);
 		return false;
 	}
 	if((uint64_t)t_grid_width * t_grid_height > (uint64_t)maxNumTilesJ2K)

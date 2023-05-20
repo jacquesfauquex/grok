@@ -58,10 +58,11 @@ void T2Decompress::decompressPackets(uint16_t tile_no, SparseBuffer* src,
 			}
 			catch([[maybe_unused]] TruncatedPacketHeaderException& tex)
 			{
-				Logger::logger_.warn("Truncated packet: tile=%u component=%02d resolution=%02d precinct=%03d "
-						 "layer=%02d",
-						 tile_no, currPi->getCompno(), currPi->getResno(),
-						 currPi->getPrecinctIndex(), currPi->getLayno());
+				Logger::logger_.warn(
+					"Truncated packet: tile=%u component=%02d resolution=%02d precinct=%03d "
+					"layer=%02d",
+					tile_no, currPi->getCompno(), currPi->getResno(), currPi->getPrecinctIndex(),
+					currPi->getLayno());
 				*stopProcessionPackets = true;
 				break;
 			}
@@ -70,19 +71,21 @@ void T2Decompress::decompressPackets(uint16_t tile_no, SparseBuffer* src,
 				// we can skip corrupt packet if PLT markers are present
 				if(!tileProcessor->packetLengthCache.getMarkers())
 				{
-					Logger::logger_.warn("Corrupt packet: tile=%u component=%02d resolution=%02d precinct=%03d "
-							 "layer=%02d",
-							 tile_no, currPi->getCompno(), currPi->getResno(),
-							 currPi->getPrecinctIndex(), currPi->getLayno());
+					Logger::logger_.warn(
+						"Corrupt packet: tile=%u component=%02d resolution=%02d precinct=%03d "
+						"layer=%02d",
+						tile_no, currPi->getCompno(), currPi->getResno(),
+						currPi->getPrecinctIndex(), currPi->getLayno());
 					*stopProcessionPackets = true;
 					break;
 				}
 				else
 				{
-					Logger::logger_.warn("Corrupt packet: tile=%u component=%02d resolution=%02d precinct=%03d "
-							 "layer=%02d",
-							 tile_no, currPi->getCompno(), currPi->getResno(),
-							 currPi->getPrecinctIndex(), currPi->getLayno());
+					Logger::logger_.warn(
+						"Corrupt packet: tile=%u component=%02d resolution=%02d precinct=%03d "
+						"layer=%02d",
+						tile_no, currPi->getCompno(), currPi->getResno(),
+						currPi->getPrecinctIndex(), currPi->getLayno());
 				}
 				// ToDo: skip corrupt packet if SOP marker is present
 			}

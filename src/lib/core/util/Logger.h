@@ -32,7 +32,6 @@ struct Logger : public ILogger
 		  warning_handler(nullptr), info_handler(nullptr)
 	{}
 
-
 	void info(const char* fmt, ...) override
 	{
 		if(!info_handler)
@@ -70,10 +69,10 @@ struct Logger : public ILogger
 
 	static Logger logger_;
 
-private:
+  private:
 	template<typename... Args>
 	void log_message(grk_msg_callback msg_handler, void* l_data, char const* const format,
-			 Args&... args) noexcept
+					 Args&... args) noexcept
 	{
 		const int message_size = 512;
 		if((format != nullptr))
@@ -85,6 +84,5 @@ private:
 		}
 	}
 };
-
 
 } // namespace grk

@@ -52,7 +52,7 @@ bool TileProcessor::subtractMarkerSegmentLength(uint16_t markerLen)
 	if(tilePartDataLength > 0 && tilePartDataLength < segmentLength)
 	{
 		Logger::logger_.error("Tile part data length %u smaller than marker segment length %u",
-				  tilePartDataLength, markerLen);
+							  tilePartDataLength, markerLen);
 		return false;
 	}
 	tilePartDataLength -= (uint64_t)segmentLength;
@@ -66,8 +66,9 @@ bool TileProcessor::setTilePartDataLength(uint16_t tilePart, uint32_t tilePartLe
 	{
 		if(tilePartLength < sot_marker_segment_len_minus_tile_data_len)
 		{
-			Logger::logger_.error("Tile part data length %u is smaller than for marker segment length %u",
-					  tilePartDataLength, sot_marker_segment_len_minus_tile_data_len);
+			Logger::logger_.error(
+				"Tile part data length %u is smaller than for marker segment length %u",
+				tilePartDataLength, sot_marker_segment_len_minus_tile_data_len);
 			return false;
 		}
 		tilePartDataLength = tilePartLength - sot_marker_segment_len_minus_tile_data_len;
@@ -76,9 +77,10 @@ bool TileProcessor::setTilePartDataLength(uint16_t tilePart, uint32_t tilePartLe
 		{
 			if(tilePartDataLength == 1)
 			{
-				Logger::logger_.warn("Tile %u: tile part %u data length %u is smaller than minimum size of 2 - "
-						 "room for single SOD marker. Ignoring.",
-						 getIndex(), tilePart, tilePartDataLength);
+				Logger::logger_.warn(
+					"Tile %u: tile part %u data length %u is smaller than minimum size of 2 - "
+					"room for single SOD marker. Ignoring.",
+					getIndex(), tilePart, tilePartDataLength);
 				tilePartDataLength = 0;
 			}
 			else
@@ -667,7 +669,8 @@ bool TileProcessor::needsMctDecompress(void)
 		return false;
 	if(tile->numcomps_ < 3)
 	{
-		Logger::logger_.warn("Number of components (%u) is less than 3 - skipping MCT.", tile->numcomps_);
+		Logger::logger_.warn("Number of components (%u) is less than 3 - skipping MCT.",
+							 tile->numcomps_);
 		return false;
 	}
 	if(!headerImage->componentsEqual(3, false))
@@ -1052,18 +1055,18 @@ bool TileProcessor::cacheTilePartPackets(CodeStreamDecompress* codeStream)
 		if(bytesLeftInStream == 0)
 		{
 			Logger::logger_.error("Tile %u, tile part %u: stream has been truncated and "
-					  "there is no tile data available",
-					  tileIndex_, tcp->tilePartCounter_ - 1);
+								  "there is no tile data available",
+								  tileIndex_, tcp->tilePartCounter_ - 1);
 			return false;
 		}
 		// check that there are enough bytes in stream to fill tile data
 		if(tilePartDataLength > bytesLeftInStream)
 		{
 			Logger::logger_.warn("Tile part length %lld greater than "
-					 "stream length %lld\n"
-					 "(tile: %u, tile part: %u). Tile has been truncated.",
-					 tilePartDataLength, stream_->numBytesLeft(), tileIndex_,
-					 tcp->tilePartCounter_ - 1);
+								 "stream length %lld\n"
+								 "(tile: %u, tile part: %u). Tile has been truncated.",
+								 tilePartDataLength, stream_->numBytesLeft(), tileIndex_,
+								 tcp->tilePartCounter_ - 1);
 
 			// sanitize tilePartDataLength
 			tilePartDataLength = (uint64_t)bytesLeftInStream;

@@ -334,8 +334,9 @@ bool T1::alloc(uint32_t width, uint32_t height)
 {
 	if(width == 0 || height == 0)
 	{
-		Logger::logger_.error("Unable to allocated memory for degenerate code block of dimensions %ux%u", width,
-				  height);
+		Logger::logger_.error(
+			"Unable to allocated memory for degenerate code block of dimensions %ux%u", width,
+			height);
 		return false;
 	}
 	uint32_t newflagssize;
@@ -1279,7 +1280,8 @@ bool T1::decompress_cblk(DecompressCodeblock* cblk, uint8_t* compressedData, uin
 	int32_t bpno_plus_one = (int32_t)(cblk->numbps);
 	if(bpno_plus_one >= (int32_t)maxBitPlanesGRK)
 	{
-		grk::Logger::logger_.error("unsupported number of bit planes: %u > %u", bpno_plus_one, maxBitPlanesGRK);
+		grk::Logger::logger_.error("unsupported number of bit planes: %u > %u", bpno_plus_one,
+								   maxBitPlanesGRK);
 		return false;
 	}
 	uint32_t passtype = 2;
@@ -1332,12 +1334,13 @@ bool T1::decompress_cblk(DecompressCodeblock* cblk, uint8_t* compressedData, uin
 	if(check_pterm)
 	{
 		if(mqc->bp + 2 < mqc->end)
-			grk::Logger::logger_.warn("PTERM check failure: %u remaining bytes in code block (%u used / %u)",
-						  (int)(mqc->end - mqc->bp) - 2, (int)(mqc->bp - mqc->start),
-						  (int)(mqc->end - mqc->start));
+			grk::Logger::logger_.warn(
+				"PTERM check failure: %u remaining bytes in code block (%u used / %u)",
+				(int)(mqc->end - mqc->bp) - 2, (int)(mqc->bp - mqc->start),
+				(int)(mqc->end - mqc->start));
 		else if(mqc->end_of_byte_stream_counter > 2)
 			grk::Logger::logger_.warn("PTERM check failure: %u synthesized 0xFF markers read",
-						  mqc->end_of_byte_stream_counter);
+									  mqc->end_of_byte_stream_counter);
 	}
 
 	return true;

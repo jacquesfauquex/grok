@@ -116,8 +116,8 @@ void PacketIter::printStaticState(void)
 	if(precinctInfoOPT_)
 	{
 		Logger::logger_.info("Packet Iterator Static State");
-		Logger::logger_.info("progression bounds [C-R-P-L] : [%u %u %u %u] ", prog.compE, prog.resE, prog.precE,
-				 prog.layE);
+		Logger::logger_.info("progression bounds [C-R-P-L] : [%u %u %u %u] ", prog.compE, prog.resE,
+							 prog.precE, prog.layE);
 		for(uint32_t resno = 0; resno < comps->numresolutions; resno++)
 		{
 			auto inf = precinctInfoOPT_ + resno;
@@ -130,7 +130,8 @@ void PacketIter::printDynamicState(void)
 	if(precinctInfoOPT_)
 	{
 		Logger::logger_.info("Packet Iterator Dynamic State");
-		Logger::logger_.info("progression state [C-R-P-L] : [%u %u (%u,%u) %u] ", compno, resno, x, y, layno);
+		Logger::logger_.info("progression state [C-R-P-L] : [%u %u (%u,%u) %u] ", compno, resno, x,
+							 y, layno);
 		Logger::logger_.info("precinct index: %" PRIu64 ".", precinctIndex);
 	}
 }

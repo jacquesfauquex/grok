@@ -1423,7 +1423,6 @@ typedef struct grk_plugin_compress_user_callback_info
 
 typedef uint64_t (*GRK_PLUGIN_COMPRESS_USER_CALLBACK)(grk_plugin_compress_user_callback_info* info);
 
-
 typedef struct grk_plugin_compress_batch_info
 {
 	const char* input_dir;

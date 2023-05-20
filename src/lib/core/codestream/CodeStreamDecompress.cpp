@@ -266,8 +266,8 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		if(start_x > image->x1)
 		{
 			Logger::logger_.error("Left position of the decompress region (%u)"
-					  " is outside of the image area (Xsiz=%u).",
-					  start_x, image->x1);
+								  " is outside of the image area (Xsiz=%u).",
+								  start_x, image->x1);
 			return false;
 		}
 		else
@@ -280,8 +280,8 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		if(start_y > image->y1)
 		{
 			Logger::logger_.error("Top position of the decompress region (%u)"
-					  " is outside of the image area (Ysiz=%u).",
-					  start_y, image->y1);
+								  " is outside of the image area (Ysiz=%u).",
+								  start_y, image->y1);
 			return false;
 		}
 		else
@@ -296,8 +296,8 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		if(end_x > image->x1)
 		{
 			Logger::logger_.warn("Right position of the decompress region (%u)"
-					 " is outside the image area (Xsiz=%u).",
-					 end_x, image->x1);
+								 " is outside the image area (Xsiz=%u).",
+								 end_x, image->x1);
 			tilesToDecompress.x1 = cp_.t_grid_width;
 			compositeImage->x1 = image->x1;
 		}
@@ -314,8 +314,8 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		if(end_y > image->y1)
 		{
 			Logger::logger_.warn("Bottom position of the decompress region (%u)"
-					 " is outside of the image area (Ysiz=%u).",
-					 end_y, image->y1);
+								 " is outside of the image area (Ysiz=%u).",
+								 end_y, image->y1);
 			tilesToDecompress.y1 = cp_.t_grid_height;
 			compositeImage->y1 = image->y1;
 		}
@@ -332,18 +332,19 @@ bool CodeStreamDecompress::setDecompressRegion(grk_rect_single region)
 		if(!compositeImage->subsampleAndReduce(cp_.coding_params_.dec_.reduce_))
 			return false;
 
-		Logger::logger_.info("decompress region canvas coordinates set to (%u,%u,%u,%u)", compositeImage->x0,
-				 compositeImage->y0, compositeImage->x1, compositeImage->y1);
+		Logger::logger_.info("decompress region canvas coordinates set to (%u,%u,%u,%u)",
+							 compositeImage->x0, compositeImage->y0, compositeImage->x1,
+							 compositeImage->y1);
 		auto scaledX0 = float(compositeImage->x0 - image->x0) / float(image->width());
 		auto scaledY0 = float(compositeImage->y0 - image->y0) / float(image->height());
 		auto scaledX1 = float(compositeImage->x1 - image->x0) / float(image->width());
 		auto scaledY1 = float(compositeImage->y1 - image->y0) / float(image->height());
-		Logger::logger_.info("Region scaled coordinates : (%f,%f,%f,%f)", scaledX0, scaledY0, scaledX1,
-				 scaledY1);
-		Logger::logger_.info("Region scaled coordinates in ROW-COLUMN format : \"{%f,%f},{%f,%f}\"", scaledY0,
-				 scaledX0, scaledY1, scaledX1);
-		Logger::logger_.info("image canvas coordinates :  (%u,%u,%u,%u)", image->x0, image->y0, image->x1,
-				 image->y1);
+		Logger::logger_.info("Region scaled coordinates : (%f,%f,%f,%f)", scaledX0, scaledY0,
+							 scaledX1, scaledY1);
+		Logger::logger_.info("Region scaled coordinates in ROW-COLUMN format : \"{%f,%f},{%f,%f}\"",
+							 scaledY0, scaledX0, scaledY1, scaledX1);
+		Logger::logger_.info("image canvas coordinates :  (%u,%u,%u,%u)", image->x0, image->y0,
+							 image->x1, image->y1);
 	}
 	compositeImage->validateColourSpace();
 	compositeImage->postReadHeader(&cp_);
@@ -394,7 +395,7 @@ bool CodeStreamDecompress::decompressTile(uint16_t tileIndex)
 	if(tileIndex >= numTilesToDecompress)
 	{
 		Logger::logger_.error("Tile index %u is greater than maximum tile index %u", tileIndex,
-				  numTilesToDecompress - 1);
+							  numTilesToDecompress - 1);
 		return false;
 	}
 
@@ -416,9 +417,10 @@ bool CodeStreamDecompress::decompressTile(uint16_t tileIndex)
 	}
 	else
 	{
-		Logger::logger_.warn("Decompress bounds <%u,%u,%u,%u> do not overlap with requested tile %u. "
-				 "Decompressing full image",
-				 imageBounds.x0, imageBounds.y0, imageBounds.x1, imageBounds.y1, tileIndex);
+		Logger::logger_.warn(
+			"Decompress bounds <%u,%u,%u,%u> do not overlap with requested tile %u. "
+			"Decompressing full image",
+			imageBounds.x0, imageBounds.y0, imageBounds.x1, imageBounds.y1, tileIndex);
 		croppedImageBounds = imageBounds;
 	}
 
@@ -527,7 +529,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 			if(!endOfCodeStream() && !findNextSOT(processor))
 			{
 				Logger::logger_.error("Failed to find next SOT marker or EOC after tile %u/%u",
-						  processor->getIndex(), numTilesToDecompress);
+									  processor->getIndex(), numTilesToDecompress);
 				success = false;
 				goto cleanup;
 			}
@@ -546,7 +548,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 				if(!processor->decompressT2T1(outputImage_))
 				{
 					Logger::logger_.error("Failed to decompress tile %u/%u", processor->getIndex(),
-							  numTilesToDecompress);
+										  numTilesToDecompress);
 					success = false;
 				}
 				else
@@ -626,7 +628,8 @@ bool CodeStreamDecompress::decompressTiles(void)
 	else if(numTilesDecompressed < numTilesToDecompress && cp_.wholeTileDecompress_)
 	{
 		uint32_t decompressed = numTilesDecompressed;
-		Logger::logger_.warn("Only %u out of %u tiles were decompressed", decompressed, numTilesToDecompress);
+		Logger::logger_.warn("Only %u out of %u tiles were decompressed", decompressed,
+							 numTilesToDecompress);
 	}
 cleanup:
 	if(executor)
@@ -694,8 +697,9 @@ bool CodeStreamDecompress::readHeaderProcedureImpl(void)
 
 	if(curr_marker_ != J2K_MS_SIZ)
 	{
-		Logger::logger_.error("Code-stream must contain a valid SIZ marker segment, immediately after the SOC "
-				  "marker ");
+		Logger::logger_.error(
+			"Code-stream must contain a valid SIZ marker segment, immediately after the SOC "
+			"marker ");
 		return false;
 	}
 
@@ -837,7 +841,7 @@ bool CodeStreamDecompress::decompressTile(void)
 	if(decompressorState_.tilesToDecompress_.numScheduled() != 1)
 	{
 		Logger::logger_.error("decompressTile: Unable to decompress tile "
-				  "since first tile SOT has not been detected");
+							  "since first tile SOT has not been detected");
 		return false;
 	}
 	outputImage_->hasMultipleTiles = false;
@@ -1021,7 +1025,7 @@ bool CodeStreamDecompress::readMarker(bool suppressWarning)
 	{
 		if(!suppressWarning)
 			Logger::logger_.warn("marker ID 0x%.4x does not match JPEG 2000 marker format 0xffxx",
-					 curr_marker_);
+								 curr_marker_);
 		throw InvalidMarkerException(curr_marker_);
 	}
 

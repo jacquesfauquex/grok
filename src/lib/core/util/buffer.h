@@ -279,8 +279,9 @@ struct grk_buf2d : protected grk_buf<T, A>, public grk_rect32
 				return true;
 			if(!grk_buf<T, A>::alloc(data_size_needed))
 			{
-				grk::Logger::logger_.error("Failed to allocate aligned memory buffer of dimensions %u x %u",
-							   stride, height());
+				grk::Logger::logger_.error(
+					"Failed to allocate aligned memory buffer of dimensions %u x %u", stride,
+					height());
 				return false;
 			}
 			if(clear)

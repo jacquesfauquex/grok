@@ -54,7 +54,7 @@ typedef struct minpf_platform_services
 
 	const char* pluginPath;
 	bool verbose;
-	grk::ILogger *logger;
+	grk::ILogger* logger;
 } minpf_platform_services;
 
 typedef int32_t (*minpf_exit_func)();

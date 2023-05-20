@@ -100,9 +100,10 @@ bool T2Compress::compressPacketSimulate(TileCodingParams* tcp, PacketIter* pi,
 
 	if(compno >= tile->numcomps_)
 	{
-		Logger::logger_.error("compress packet simulate: component number %u must be less than total number "
-				  "of components %u",
-				  compno, tile->numcomps_);
+		Logger::logger_.error(
+			"compress packet simulate: component number %u must be less than total number "
+			"of components %u",
+			compno, tile->numcomps_);
 		return false;
 	}
 	if(tileProcessor->getPacketTracker()->is_packet_encoded(compno, resno, precinctIndex, layno))
@@ -156,8 +157,8 @@ bool T2Compress::compressPacketSimulate(TileCodingParams* tcp, PacketIter* pi,
 	if(byteCount > UINT_MAX)
 	{
 		Logger::logger_.error("Tile part size exceeds standard maximum value of %u."
-				  "Please enable tile part generation to keep tile part size below max",
-				  UINT_MAX);
+							  "Please enable tile part generation to keep tile part size below max",
+							  UINT_MAX);
 		return false;
 	}
 	*packet_bytes_written = (uint32_t)byteCount;
@@ -213,9 +214,10 @@ bool T2Compress::compressHeader(BitIO* bio, Resolution* res, uint16_t layno, uin
 			auto band = res->tileBand + bandIndex;
 			if(precinctIndex >= band->precincts.size())
 			{
-				Logger::logger_.error("compress packet simulate: precinct index %u must be less than total "
-						  "number of precincts %u",
-						  precinctIndex, band->precincts.size());
+				Logger::logger_.error(
+					"compress packet simulate: precinct index %u must be less than total "
+					"number of precincts %u",
+					precinctIndex, band->precincts.size());
 				return false;
 			}
 			auto prc = band->precincts[precinctIndex];
@@ -234,8 +236,8 @@ bool T2Compress::compressHeader(BitIO* bio, Resolution* res, uint16_t layno, uin
 				cblk->setNumPassesInPacket(0, 0);
 				assert(band->numbps >= cblk->numbps);
 				if(cblk->numbps > band->numbps)
-					Logger::logger_.warn("Code block %u bps %u greater than band bps %u. Skipping.", cblkno,
-							 cblk->numbps, band->numbps);
+					Logger::logger_.warn("Code block %u bps %u greater than band bps %u. Skipping.",
+										 cblkno, cblk->numbps, band->numbps);
 				else
 					prc->getImsbTree()->setvalue(cblkno, band->numbps - cblk->numbps);
 			}
@@ -357,9 +359,10 @@ bool T2Compress::compressPacket(TileCodingParams* tcp, PacketIter* pi, BufferedS
 
 	if(compno >= tile->numcomps_)
 	{
-		Logger::logger_.error("compress packet simulate: component number %u must be less than total number "
-				  "of components %u",
-				  compno, tile->numcomps_);
+		Logger::logger_.error(
+			"compress packet simulate: component number %u must be less than total number "
+			"of components %u",
+			compno, tile->numcomps_);
 		return false;
 	}
 	if(tileProcessor->getPacketTracker()->is_packet_encoded(compno, resno, precinctIndex, layno))

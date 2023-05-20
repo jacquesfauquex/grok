@@ -122,12 +122,14 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 	// sanity check on image
 	if(image->numcomps < 1 || image->numcomps > maxNumComponentsJ2K)
 	{
-		Logger::logger_.error("Invalid number of components specified while setting up JP2 compressor");
+		Logger::logger_.error(
+			"Invalid number of components specified while setting up JP2 compressor");
 		return false;
 	}
 	if((image->x1 < image->x0) || (image->y1 < image->y0))
 	{
-		Logger::logger_.error("Invalid input image dimensions found while setting up JP2 compressor");
+		Logger::logger_.error(
+			"Invalid input image dimensions found while setting up JP2 compressor");
 		return false;
 	}
 	for(uint32_t i = 0; i < image->numcomps; ++i)
@@ -144,7 +146,8 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		}
 		if(comp->prec == 0)
 		{
-			Logger::logger_.error("Invalid component precision of 0 found while setting up JP2 compressor");
+			Logger::logger_.error(
+				"Invalid component precision of 0 found while setting up JP2 compressor");
 			return false;
 		}
 	}
@@ -180,7 +183,7 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 	if((parameters->numresolution == 0) || (parameters->numresolution > GRK_J2K_MAXRLVLS))
 	{
 		Logger::logger_.error("Invalid number of resolutions : %u not in range [1,%u]",
-				  parameters->numresolution, GRK_J2K_MAXRLVLS);
+							  parameters->numresolution, GRK_J2K_MAXRLVLS);
 		return false;
 	}
 
@@ -274,14 +277,14 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		if(parameters->rsiz == ((GRK_PROFILE_PART2) | (GRK_EXTENSION_NONE)))
 		{
 			Logger::logger_.warn("JPEG 2000 Part-2 profile defined\n"
-					 "but no Part-2 extension enabled.\n"
-					 "Profile set to NONE.");
+								 "but no Part-2 extension enabled.\n"
+								 "Profile set to NONE.");
 			parameters->rsiz = GRK_PROFILE_NONE;
 		}
 		else if(parameters->rsiz != ((GRK_PROFILE_PART2) | (GRK_EXTENSION_MCT)))
 		{
 			Logger::logger_.warn("Unsupported Part-2 extension enabled\n"
-					 "Profile set to NONE.");
+								 "Profile set to NONE.");
 			parameters->rsiz = GRK_PROFILE_NONE;
 		}
 	}
@@ -329,8 +332,9 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			}
 			if(cp_.comment_len[i] > GRK_MAX_COMMENT_LENGTH)
 			{
-				Logger::logger_.warn("Comment length %s is greater than maximum comment length %u. Ignoring",
-						 cp_.comment_len[i], GRK_MAX_COMMENT_LENGTH);
+				Logger::logger_.warn(
+					"Comment length %s is greater than maximum comment length %u. Ignoring",
+					cp_.comment_len[i], GRK_MAX_COMMENT_LENGTH);
 				continue;
 			}
 			cp_.isBinaryComment[i] = parameters->is_binary_comment[i];
@@ -364,8 +368,8 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 		if(numTiles > maxNumTilesJ2K)
 		{
 			Logger::logger_.error("Number of tiles %u is greater than max tiles %u"
-					  "allowed by the standard.",
-					  numTiles, maxNumTilesJ2K);
+								  "allowed by the standard.",
+								  numTiles, maxNumTilesJ2K);
 			return false;
 		}
 		cp_.t_grid_width = (uint16_t)tgw;
@@ -458,7 +462,8 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			{
 				grk_free(lTmpBuf);
 				lTmpBuf = nullptr;
-				Logger::logger_.error("Not enough memory to allocate compressor MCT coding matrix ");
+				Logger::logger_.error(
+					"Not enough memory to allocate compressor MCT coding matrix ");
 				return false;
 			}
 			memcpy(tcp->mct_coding_matrix_, parameters->mct_data, lMctSize);
@@ -469,7 +474,8 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 			{
 				grk_free(lTmpBuf);
 				lTmpBuf = nullptr;
-				Logger::logger_.error("Not enough memory to allocate compressor MCT decoding matrix ");
+				Logger::logger_.error(
+					"Not enough memory to allocate compressor MCT decoding matrix ");
 				return false;
 			}
 			if(GrkMatrix().matrix_inversion_f(lTmpBuf, (tcp->mct_decoding_matrix_),
@@ -520,8 +526,9 @@ bool CodeStreamCompress::init(grk_cparameters* parameters, GrkImage* image)
 					   (image->comps[0].dy != image->comps[1].dy) ||
 					   (image->comps[0].dy != image->comps[2].dy))
 					{
-						Logger::logger_.warn("Cannot perform MCT on components with different dimensions. "
-								 "Disabling MCT.");
+						Logger::logger_.warn(
+							"Cannot perform MCT on components with different dimensions. "
+							"Disabling MCT.");
 						tcp->mct = 0;
 					}
 				}
@@ -613,8 +620,8 @@ uint64_t CodeStreamCompress::compress(grk_plugin_tile* tile)
 	if(numTiles > maxNumTilesJ2K)
 	{
 		Logger::logger_.error("Number of tiles %u is greater than max tiles %u"
-				  "allowed by the standard.",
-				  numTiles, maxNumTilesJ2K);
+							  "allowed by the standard.",
+							  numTiles, maxNumTilesJ2K);
 		return 0;
 	}
 	auto numRequiredThreads =
@@ -839,8 +846,9 @@ bool CodeStreamCompress::writeTilePart(TileProcessor* tileProcessor)
 		//		tileProcessor->getIndex(), calculatedBytesWritten, actualBytes);
 		if(actualBytes != calculatedBytesWritten)
 		{
-			Logger::logger_.error("Error in tile length calculation. Please share uncompressed image\n"
-					  "and compression parameters on Github issue tracker");
+			Logger::logger_.error(
+				"Error in tile length calculation. Please share uncompressed image\n"
+				"and compression parameters on Github issue tracker");
 			return false;
 		}
 		tilePartBytesWritten = calculatedBytesWritten;
@@ -867,8 +875,9 @@ bool CodeStreamCompress::writeTileParts(TileProcessor* tileProcessor)
 	uint64_t numTileParts = getNumTilePartsForProgression(0, tileProcessor->getIndex());
 	if(numTileParts > maxTilePartsPerTileJ2K)
 	{
-		Logger::logger_.error("Number of tile parts %u for first POC exceeds maximum number of tile parts %u",
-				  numTileParts, maxTilePartsPerTileJ2K);
+		Logger::logger_.error(
+			"Number of tile parts %u for first POC exceeds maximum number of tile parts %u",
+			numTileParts, maxTilePartsPerTileJ2K);
 		return false;
 	}
 	tileProcessor->first_poc_tile_part_ = false;
@@ -885,8 +894,8 @@ bool CodeStreamCompress::writeTileParts(TileProcessor* tileProcessor)
 		if(numTileParts > maxTilePartsPerTileJ2K)
 		{
 			Logger::logger_.error("Number of tile parts %u exceeds maximum number of "
-					  "tile parts %u",
-					  numTileParts, maxTilePartsPerTileJ2K);
+								  "tile parts %u",
+								  numTileParts, maxTilePartsPerTileJ2K);
 			return false;
 		}
 		for(uint8_t tilepartno = 0; tilepartno < numTileParts; ++tilepartno)
@@ -986,7 +995,7 @@ bool CodeStreamCompress::compressValidation()
 	   (cp_.tcps->tccps->numresolutions > GRK_J2K_MAXRLVLS))
 	{
 		Logger::logger_.error("Invalid number of resolutions : %u not in range [1,%u]",
-				  cp_.tcps->tccps->numresolutions, GRK_J2K_MAXRLVLS);
+							  cp_.tcps->tccps->numresolutions, GRK_J2K_MAXRLVLS);
 		return false;
 	}
 	if(cp_.t_width == 0)
@@ -1030,8 +1039,9 @@ bool CodeStreamCompress::write_com()
 		}
 		if(comment_size > GRK_MAX_COMMENT_LENGTH)
 		{
-			Logger::logger_.warn("Comment length %s is greater than maximum comment length %u. Ignoring",
-					 comment_size, GRK_MAX_COMMENT_LENGTH);
+			Logger::logger_.warn(
+				"Comment length %s is greater than maximum comment length %u. Ignoring",
+				comment_size, GRK_MAX_COMMENT_LENGTH);
 			continue;
 		}
 		uint32_t totacom_size = (uint32_t)comment_size + 6;
@@ -1942,8 +1952,8 @@ bool CodeStreamCompress::getNumTileParts(uint16_t* numTilePartsForAllTiles, GrkI
 			if(newTotalTilePartsForTile > maxTilePartsPerTileJ2K)
 			{
 				Logger::logger_.error("Number of tile parts %u exceeds maximum number of "
-						  "tile parts %u",
-						  (uint16_t)newTotalTilePartsForTile, maxTilePartsPerTileJ2K);
+									  "tile parts %u",
+									  (uint16_t)newTotalTilePartsForTile, maxTilePartsPerTileJ2K);
 				return false;
 			}
 			totalTilePartsForTile = (uint8_t)newTotalTilePartsForTile;
@@ -1952,10 +1962,11 @@ bool CodeStreamCompress::getNumTileParts(uint16_t* numTilePartsForAllTiles, GrkI
 				(uint32_t)(*numTilePartsForAllTiles + numTilePartsForProgression);
 			if(newTotalTilePartsForAllTiles > maxTotalTilePartsJ2K)
 			{
-				Logger::logger_.error("Total number of tile parts %u for image exceeds JPEG 2000 maximum total "
-						  "number of "
-						  "tile parts %u",
-						  newTotalTilePartsForAllTiles, maxTotalTilePartsJ2K);
+				Logger::logger_.error(
+					"Total number of tile parts %u for image exceeds JPEG 2000 maximum total "
+					"number of "
+					"tile parts %u",
+					newTotalTilePartsForAllTiles, maxTotalTilePartsJ2K);
 				return false;
 			}
 			*numTilePartsForAllTiles = (uint16_t)newTotalTilePartsForAllTiles;

@@ -98,8 +98,9 @@ bool SOTMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 
 	if(num_tile_parts && (tp_index >= num_tile_parts))
 	{
-		Logger::logger_.error("Tile %u: Tile part index (%u) must be less than number of tile parts (%u)",
-				  index, tp_index, num_tile_parts);
+		Logger::logger_.error(
+			"Tile %u: Tile part index (%u) must be less than number of tile parts (%u)", index,
+			tp_index, num_tile_parts);
 		throw CorruptSOTMarkerException();
 	}
 
@@ -167,9 +168,10 @@ bool SOTMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	if(tcp->numTileParts_ != 0 && currentTilePart >= tcp->numTileParts_)
 	{
 		/* Fixes https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=2851 */
-		Logger::logger_.error("Current tile part number (%u) read from SOT marker is greater\n than total "
-				  "number of tile-parts (%u).",
-				  currentTilePart, tcp->numTileParts_);
+		Logger::logger_.error(
+			"Current tile part number (%u) read from SOT marker is greater\n than total "
+			"number of tile-parts (%u).",
+			currentTilePart, tcp->numTileParts_);
 		decompressState->lastTilePartInCodeStream = true;
 		return false;
 	}
@@ -182,24 +184,26 @@ bool SOTMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 		{
 			if(currentTilePart >= tcp->numTileParts_)
 			{
-				Logger::logger_.error("In SOT marker, TPSot (%u) is not valid with regards to the current "
-						  "number of tile-part (%u)",
-						  currentTilePart, tcp->numTileParts_);
+				Logger::logger_.error(
+					"In SOT marker, TPSot (%u) is not valid with regards to the current "
+					"number of tile-part (%u)",
+					currentTilePart, tcp->numTileParts_);
 				decompressState->lastTilePartInCodeStream = true;
 				return false;
 			}
 			if(numTileParts != tcp->numTileParts_)
 			{
 				Logger::logger_.error("Invalid number of tile parts for tile number %u. "
-						  "Got %u, expected %u as signalled in previous tile part(s).",
-						  tileIndex, numTileParts, tcp->numTileParts_);
+									  "Got %u, expected %u as signalled in previous tile part(s).",
+									  tileIndex, numTileParts, tcp->numTileParts_);
 				return false;
 			}
 		}
 		if(currentTilePart >= numTileParts)
 		{
-			Logger::logger_.error("In SOT marker, TPSot (%u) must be less than number of tile-parts (%u)",
-					  currentTilePart, numTileParts);
+			Logger::logger_.error(
+				"In SOT marker, TPSot (%u) must be less than number of tile-parts (%u)",
+				currentTilePart, numTileParts);
 			decompressState->lastTilePartInCodeStream = true;
 			return false;
 		}

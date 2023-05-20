@@ -57,7 +57,7 @@ typedef void (*PLUGIN_DEBUG_MQC_NEXT_PLANE)(grk_plugin_debug_mqc* mqc);
 typedef bool (*PLUGIN_INIT)(grk_plugin_init_info initInfo);
 
 typedef int32_t (*PLUGIN_ENCODE)(grk_cparameters* encoding_parameters,
-		GRK_PLUGIN_COMPRESS_USER_CALLBACK callback);
+								 GRK_PLUGIN_COMPRESS_USER_CALLBACK callback);
 
 typedef int32_t (*PLUGIN_BATCH_ENCODE)(grk_plugin_compress_batch_info info);
 

@@ -321,9 +321,10 @@ bool TileComponent::canCreateWindow(grk_rect32 windowBounds)
 	auto maxResolution = resolutions_ + numresolutions - 1;
 	if(!maxResolution->intersection(windowBounds).valid())
 	{
-		Logger::logger_.error("Decompress region (%u,%u,%u,%u) must overlap image bounds (%u,%u,%u,%u)",
-				  windowBounds.x0, windowBounds.y0, windowBounds.x1, windowBounds.y1,
-				  maxResolution->x0, maxResolution->y0, maxResolution->x1, maxResolution->y1);
+		Logger::logger_.error(
+			"Decompress region (%u,%u,%u,%u) must overlap image bounds (%u,%u,%u,%u)",
+			windowBounds.x0, windowBounds.y0, windowBounds.x1, windowBounds.y1, maxResolution->x0,
+			maxResolution->y0, maxResolution->x1, maxResolution->y1);
 		return false;
 	}
 

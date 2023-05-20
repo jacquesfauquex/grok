@@ -454,8 +454,8 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		TCLAP::ValueArg<std::string> logfileArg("W", "logfile", "Log file", false, "", "string",
 												cmd);
 		TCLAP::SwitchArg xmlArg("X", "xml", "xml metadata", cmd);
-		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "Image Directory", false, "", "string",
-											  cmd);
+		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "Image Directory", false, "",
+											  "string", cmd);
 		TCLAP::ValueArg<uint32_t> durationArg("z", "Duration", "Duration in seconds", false, 0,
 											  "unsigned integer", cmd);
 
@@ -465,8 +465,8 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		else
 			spdlog::set_level(spdlog::level::level_enum::err);
 		grk_set_msg_handlers(parameters->verbose_ ? infoCallback : nullptr, nullptr,
-				parameters->verbose_ ? warningCallback : nullptr, nullptr, errorCallback,
-							 nullptr);
+							 parameters->verbose_ ? warningCallback : nullptr, nullptr,
+							 errorCallback, nullptr);
 		bool useStdio = inputFileArg.isSet() && outForArg.isSet() && !outputFileArg.isSet();
 		// disable verbose mode so we don't write info or warnings to stdout
 		if(useStdio)

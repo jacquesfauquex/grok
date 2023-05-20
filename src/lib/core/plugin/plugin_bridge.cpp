@@ -56,8 +56,9 @@ void decompress_synch_plugin_with_host(TileProcessor* tcd)
 							// sanity check
 							if(cblk->getNumSegments() != 1)
 							{
-								Logger::logger_.info("Plugin does not handle code blocks with multiple "
-										 "segments. Image will be decompressed on CPU.");
+								Logger::logger_.info(
+									"Plugin does not handle code blocks with multiple "
+									"segments. Image will be decompressed on CPU.");
 								throw PluginDecodeUnsupportedException();
 							}
 							uint32_t maxPasses =
@@ -65,9 +66,10 @@ void decompress_synch_plugin_with_host(TileProcessor* tcd)
 								(uint32_t)((tcd->headerImage->comps[0].prec + BIBO_EXTRA_BITS) - 2);
 							if(cblk->getSegment(0)->numpasses > maxPasses)
 							{
-								Logger::logger_.info("Number of passes %u in segment exceeds BIBO maximum %u. "
-										 "Image will be decompressed on CPU.",
-										 cblk->getSegment(0)->numpasses, maxPasses);
+								Logger::logger_.info(
+									"Number of passes %u in segment exceeds BIBO maximum %u. "
+									"Image will be decompressed on CPU.",
+									cblk->getSegment(0)->numpasses, maxPasses);
 								throw PluginDecodeUnsupportedException();
 							}
 
@@ -160,8 +162,8 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 		{
 			if(band->stepsize != plugin_band->stepsize)
 			{
-				Logger::logger_.warn("grok band step size %u differs from plugin step size %u", band->stepsize,
-						 plugin_band->stepsize);
+				Logger::logger_.warn("grok band step size %u differs from plugin step size %u",
+									 band->stepsize, plugin_band->stepsize);
 			}
 			if(cblk->numPassesTotal != plugin_cblk->numPasses)
 				Logger::logger_.warn(
@@ -179,7 +181,7 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 			uint32_t grkNumPix = (uint32_t)cblk->area();
 			if(plugin_cblk->numPix != grkNumPix)
 				Logger::logger_.warn("grok numPix %u differs from plugin numPix %u", grkNumPix,
-						 plugin_cblk->numPix);
+									 plugin_cblk->numPix);
 		}
 
 		bool goodData = true;
@@ -194,8 +196,11 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 				totalRate = (cblk->passes + cblk->numPassesTotal - 1)->rate;
 				if(totalRatePlugin != totalRate)
 				{
-					Logger::logger_.warn("Total CPU rate %u differs from total plugin rate %u, component=%u,res=%u,band=%u, "
-							 "block=%u", totalRate, totalRatePlugin, compno, resno, bandIndex, cblkno);
+					Logger::logger_.warn("Total CPU rate %u differs from total plugin rate %u, "
+										 "component=%u,res=%u,band=%u, "
+										 "block=%u",
+										 totalRate, totalRatePlugin, compno, resno, bandIndex,
+										 cblkno);
 				}
 			}
 
@@ -203,9 +208,10 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 			{
 				if(cblk->paddedCompressedStream[p] != plugin_cblk->compressedData[p])
 				{
-					Logger::logger_.warn("data differs at position=%u, component=%u, res=%u, band=%u, "
-							 "block=%u, CPU rate =%u, plugin rate=%u",
-							 p, compno, resno, bandIndex, cblkno, totalRate, totalRatePlugin);
+					Logger::logger_.warn(
+						"data differs at position=%u, component=%u, res=%u, band=%u, "
+						"block=%u, CPU rate =%u, plugin rate=%u",
+						p, compno, resno, bandIndex, cblkno, totalRate, totalRatePlugin);
 					goodData = false;
 					break;
 				}
@@ -240,9 +246,10 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 						   fabs(pass->distortiondec) >
 					   0.01)
 					{
-						Logger::logger_.warn("distortion decrease for pass %u differs between plugin and CPU:  "
-								 "plugin: %u, CPU : %u",
-								 passno, pluginPass->distortionDecrease, pass->distortiondec);
+						Logger::logger_.warn(
+							"distortion decrease for pass %u differs between plugin and CPU:  "
+							"plugin: %u, CPU : %u",
+							passno, pluginPass->distortionDecrease, pass->distortiondec);
 					}
 				}
 				pass->distortiondec = pluginPass->distortionDecrease;
@@ -258,9 +265,11 @@ void compress_synch_with_plugin(TileProcessor* tcd, uint16_t compno, uint32_t re
 			{
 				if(pluginRate != pass->rate)
 				{
-					Logger::logger_.warn("CPU rate %u differs from plugin rate %u,pass=%u, component=%u,res=%u,band=%u, "
-							 "block=%u", pass->rate, pluginRate,
-							 passno, compno, resno, bandIndex, cblkno);
+					Logger::logger_.warn("CPU rate %u differs from plugin rate %u,pass=%u, "
+										 "component=%u,res=%u,band=%u, "
+										 "block=%u",
+										 pass->rate, pluginRate, passno, compno, resno, bandIndex,
+										 cblkno);
 				}
 			}
 			pass->rate = pluginRate;

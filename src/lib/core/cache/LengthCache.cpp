@@ -315,7 +315,8 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 	{
 		if(valid_)
 		{
-			Logger::logger_.warn("TLM: Cannot mix markers with and without tile part indices. Disabling TLM");
+			Logger::logger_.warn(
+				"TLM: Cannot mix markers with and without tile part indices. Disabling TLM");
 			valid_ = false;
 		}
 	}
@@ -345,7 +346,8 @@ bool TileLengthMarkers::read(uint8_t* headerData, uint16_t header_size)
 		{
 			if(valid_)
 			{
-				Logger::logger_.warn("TLM: tile part length %u is less than 14. Disabling TLM", Ptlm_i);
+				Logger::logger_.warn("TLM: tile part length %u is less than 14. Disabling TLM",
+									 Ptlm_i);
 				valid_ = false;
 			}
 		}
@@ -422,8 +424,9 @@ TilePartLengthInfo* TileLengthMarkers::next(bool peek)
 			auto rc = &curr_vec_->operator[](markerTilePartIndex_);
 			if(rc->tileIndex_ >= numSignalledTiles_)
 			{
-				Logger::logger_.error("TLM entry tile index %d must be less than signalled number of tiles %d",
-						  rc->tileIndex_, numSignalledTiles_);
+				Logger::logger_.error(
+					"TLM entry tile index %d must be less than signalled number of tiles %d",
+					rc->tileIndex_, numSignalledTiles_);
 				throw CorruptTLMException();
 			}
 			if(!peek)

@@ -29,4 +29,4 @@ struct ILogger
 	virtual void error(const char* fmt, ...) = 0;
 };
 
-}
+} // namespace grk
