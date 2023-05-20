@@ -147,7 +147,7 @@ static void compress_help_display(void)
 	fprintf(stdout, "-----------\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Required Parameters (except with -h):\n");
-	fprintf(stdout, "One of the two options [in_dir] or [in_file] must be used\n");
+	fprintf(stdout, "One of the two options [batch_src] or [in_file] must be used\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "[-a|-out_dir] <output directory>\n");
 	fprintf(stdout, "    Output directory where compressed files are stored.\n");
@@ -238,7 +238,7 @@ static void compress_help_display(void)
 	fprintf(stdout, "    Output file (supported extensions are j2k or jp2).\n");
 	fprintf(stdout, "[-O|-out_fmt] <J2K|J2C|JP2>\n");
 	fprintf(stdout, "    Output format for compressed files.\n");
-	fprintf(stdout, "    Required only if [in_dir] is used\n");
+	fprintf(stdout, "    Required only if [batch_src] is used\n");
 	fprintf(stdout, "[-p|-progression_order] <LRCP|RLCP|RPCL|PCRL|CPRL>\n");
 	fprintf(stdout, "    Progression order.\n");
 	fprintf(stdout, "    Default: LRCP.\n");
@@ -307,7 +307,7 @@ static void compress_help_display(void)
 	fprintf(stdout, "    Digital Cinema 4K profile compliant code stream.\n");
 	fprintf(stdout, "   Need to specify frames per second, and optionally bandwidth in Mb/s. Eg: -x 24,200000000\n");
 	fprintf(stdout, "    Only 24 or 48 fps are currently allowed.\n");
-	fprintf(stdout, "[-y|-in_dir] <dir>\n");
+	fprintf(stdout, "[-y|-batch_src] <dir>\n");
 	fprintf(stdout, "    Uncompressed file directory\n");
 	fprintf(stdout, "    When using this option [out_fmt] must be used\n");
 	fprintf(stdout, "[-Y|-MCT] <0|1|2>\n");
@@ -747,7 +747,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		TCLAP::ValueArg<std::string> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile", false,
 											  "24", "string", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
-		TCLAP::ValueArg<std::string> inDirArg("y", "in_dir", "Image directory", false, "", "string",
+		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "Image directory", false, "", "string",
 											  cmd);
 		TCLAP::ValueArg<uint32_t> mctArg("Y", "MCT", "Multi component transform", false, 0,
 										 "unsigned integer", cmd);
@@ -1780,18 +1780,18 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 	{
 		if(!(parameters->infile[0] == 0))
 		{
-			spdlog::error("options -in_dir and -in_file cannot be used together ");
+			spdlog::error("options -batch_src and -in_file cannot be used together ");
 			return 1;
 		}
 		if(!inputFolder->set_out_format)
 		{
-			spdlog::error("When -in_dir is used, -out_fmt <FORMAT> must be used ");
+			spdlog::error("When -batch_src is used, -out_fmt <FORMAT> must be used ");
 			spdlog::error("Only one format allowed! Valid formats are j2k and jp2");
 			return 1;
 		}
 		if(!((parameters->outfile[0] == 0)))
 		{
-			spdlog::error("options -in_dir and -out_file cannot be used together ");
+			spdlog::error("options -batch_src and -out_file cannot be used together ");
 			spdlog::error("Specify OutputFormat using -out_fmt<FORMAT> ");
 			return 1;
 		}

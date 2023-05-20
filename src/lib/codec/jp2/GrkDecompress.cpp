@@ -116,13 +116,13 @@ static void decompress_help_display(void)
 					"Parameters:\n"
 					"-----------\n"
 					"\n"
-					"  [-y | -in_dir] <directory> \n"
+					"  [-y | -batch_src] <directory> \n"
 					"   Compressed image file directory\n"
 					"  [-O | -out_fmt] <PBM|PGM|PPM|PNM|PAM|PGX|PNG|BMP|TIF|RAW|RAWL>\n"
-					"    REQUIRED only if [in_dir] option is used\n"
+					"    REQUIRED only if [batch_src] option is used\n"
 					"   Output format for decompressed images.\n");
 	fprintf(stdout, "  [-i | -in_file] <compressed file>\n"
-					"    REQUIRED only if [in_dir] option is not specified\n"
+					"    REQUIRED only if [batch_src] option is not specified\n"
 					"    Currently accepts J2K and JP2 files. The file type\n"
 					"    is identified by parsing the beginning of the file.\n");
 	fprintf(stdout, "  [-o | -out_file] <decompressed file>\n"
@@ -454,7 +454,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		TCLAP::ValueArg<std::string> logfileArg("W", "logfile", "Log file", false, "", "string",
 												cmd);
 		TCLAP::SwitchArg xmlArg("X", "xml", "xml metadata", cmd);
-		TCLAP::ValueArg<std::string> inDirArg("y", "in_dir", "Image Directory", false, "", "string",
+		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "Image Directory", false, "", "string",
 											  cmd);
 		TCLAP::ValueArg<uint32_t> durationArg("z", "Duration", "Duration in seconds", false, 0,
 											  "unsigned integer", cmd);
@@ -707,19 +707,19 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 	{
 		if(!(parameters->infile[0] == 0))
 		{
-			spdlog::error("options -in_dir and -i cannot be used together.");
+			spdlog::error("options -batch_src and -i cannot be used together.");
 			return 1;
 		}
 		if(!inputFolder->set_out_format)
 		{
-			spdlog::error("When -in_dir is used, -out_fmt <FORMAT> must be used.");
+			spdlog::error("When -batch_src is used, -out_fmt <FORMAT> must be used.");
 			spdlog::error("Only one format allowed.\n"
 						  "Valid format are PGM, PPM, PNM, PGX, BMP, TIF and RAW.");
 			return 1;
 		}
 		if(!((parameters->outfile[0] == 0)))
 		{
-			spdlog::error("options -in_dir and -o cannot be used together.");
+			spdlog::error("options -batch_src and -o cannot be used together.");
 			return 1;
 		}
 	}

@@ -87,7 +87,7 @@ Output information and warnings about encoding to console (errors are always out
 
 `-i, -in_file [file]`
 
-Input file. Either this argument or the `-in_dir` argument described below is required.  See above for supported input formats.
+Input file. Either this argument or the `-batch_src` argument described below is required.  See above for supported input formats.
 
 * `PNG` requires `libpng` while `TIF/TIFF` requires `libtiff`
 * `JPG` requires `libjpeg` (or `libjpeg-turbo`), and only 8 bit precision is supported
@@ -99,17 +99,17 @@ Input file. Either this argument or the `-in_dir` argument described below is re
 
 Output file. Required when using `-i` option. Valid output image extensions are `J2K`, `JP2` and `J2C`.
 
-`-y, -in_dir [input directory]`
+`-y, -batch_src [input directory]`
 
 Path to the folder where the images to be compressed are stored. Either this argument or the `-i` argument described above is required. When image files are in the same directory as the executable, this can be indicated by a dot `.` argument. When using this option, output format must be specified using `-O`. 
 
 `-a, -out_dir [output directory]`
 
-Output directory where compressed files are stored. Only relevant when the `-in_dir` flag is set. Default: same directory as specified by `-y`.
+Output directory where compressed files are stored. Only relevant when the `-batch_src` flag is set. Default: same directory as specified by `-y`.
 
 `-O, -out_fmt [J2K|J2C|JP2]`
 
-Output format used to compress the images read from the directory specified with `-in_dir`. Required when `-in_dir` option is used. Supported formats are `J2K`, `J2C`, and `JP2`.
+Output format used to compress the images read from the directory specified with `-batch_src`. Required when `-batch_src` option is used. Supported formats are `J2K`, `J2C`, and `JP2`.
 
 `-K, -in_fmt [pbm|pgm|ppm|pnm|pam|pgx|png|bmp|tif|raw|rawl|jpg]`
 

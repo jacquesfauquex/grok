@@ -79,7 +79,7 @@ static void decompress_help_display(void)
 	fprintf(stdout, "Parameters:\n");
 	fprintf(stdout, "-----------\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "  -in_dir <directory>\n");
+	fprintf(stdout, "  -batch_src <directory>\n");
 	fprintf(stdout, "   Image file Directory path \n");
 	fprintf(stdout, "  -i <compressed file>\n");
 	fprintf(stdout, "    REQUIRED only if an Input image directory not specified\n");
@@ -163,7 +163,7 @@ static int parseCommandLine(int argc, char** argv, grk_decompress_parameters* pa
 		TCLAP::ValueArg<std::string> outputArg("o", "output", "output file", false, "", "string",
 											   cmd);
 
-		TCLAP::ValueArg<std::string> inDirArg("y", "in_dir", "image directory", false, "", "string",
+		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "image directory", false, "", "string",
 											  cmd);
 
 		TCLAP::SwitchArg verboseArg("v", "verbose", "verbose", cmd);
@@ -220,19 +220,19 @@ static int parseCommandLine(int argc, char** argv, grk_decompress_parameters* pa
 	{
 		if(!(parameters->infile[0] == 0))
 		{
-			spdlog::error("options -in_dir and -i cannot be used together.");
+			spdlog::error("options -batch_src and -i cannot be used together.");
 			return 1;
 		}
 		if(!inputFolder->set_out_format)
 		{
-			spdlog::error("When -in_dir is used, -out_fmt <FORMAT> must be used.");
+			spdlog::error("When -batch_src is used, -out_fmt <FORMAT> must be used.");
 			spdlog::error("Only one format allowed.\n"
 						  "Valid format are PGM, PPM, PNM, PGX, BMP, TIF and RAW.");
 			return 1;
 		}
 		if(!(parameters->outfile[0] == 0))
 		{
-			spdlog::error("options -in_dir and -o cannot be used together");
+			spdlog::error("options -batch_src and -o cannot be used together");
 			return 1;
 		}
 	}

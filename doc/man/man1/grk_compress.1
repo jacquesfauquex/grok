@@ -124,7 +124,7 @@ Default is false i.e.\ console is silent by default.
 \f[C]-i, -in_file [file]\f[R]
 .PP
 Input file.
-Either this argument or the \f[C]-in_dir\f[R] argument described below
+Either this argument or the \f[C]-batch_src\f[R] argument described below
 is required.
 See above for supported input formats.
 .IP \[bu] 2
@@ -154,7 +154,7 @@ Required when using \f[C]-i\f[R] option.
 Valid output image extensions are \f[C]J2K\f[R], \f[C]JP2\f[R] and
 \f[C]J2C\f[R].
 .PP
-\f[C]-y, -in_dir [input directory]\f[R]
+\f[C]-y, -batch_src [input directory]\f[R]
 .PP
 Path to the folder where the images to be compressed are stored.
 Either this argument or the \f[C]-i\f[R] argument described above is
@@ -167,14 +167,14 @@ When using this option, output format must be specified using
 \f[C]-a, -out_dir [output directory]\f[R]
 .PP
 Output directory where compressed files are stored.
-Only relevant when the \f[C]-in_dir\f[R] flag is set.
+Only relevant when the \f[C]-batch_src\f[R] flag is set.
 Default: same directory as specified by \f[C]-y\f[R].
 .PP
 \f[C]-O, -out_fmt [J2K|J2C|JP2]\f[R]
 .PP
 Output format used to compress the images read from the directory
-specified with \f[C]-in_dir\f[R].
-Required when \f[C]-in_dir\f[R] option is used.
+specified with \f[C]-batch_src\f[R].
+Required when \f[C]-batch_src\f[R] option is used.
 Supported formats are \f[C]J2K\f[R], \f[C]J2C\f[R], and \f[C]JP2\f[R].
 .PP
 \f[C]-K, -in_fmt [pbm|pgm|ppm|pnm|pam|pgx|png|bmp|tif|raw|rawl|jpg]\f[R]
