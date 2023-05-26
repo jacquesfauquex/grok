@@ -855,19 +855,7 @@ int GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initP
 		// if plugin successfully begins batch compress, then wait for batch to complete
 		if(success == 0)
 		{
-			uint32_t slice = 100; // ms
-			uint32_t slicesPerSecond = 1000 / slice;
-			uint32_t seconds = initParams->parameters.duration;
-			if(!seconds)
-				seconds = UINT_MAX;
-			for(uint32_t i = 0U; i < seconds * slicesPerSecond; ++i)
-			{
-				batch_sleep(1);
-				if(grk_plugin_is_batch_complete())
-				{
-					break;
-				}
-			}
+			grk_plugin_wait_for_batch_complete();
 			grk_plugin_stop_batch_decompress();
 		}
 	}

@@ -63,7 +63,7 @@ typedef int32_t (*PLUGIN_BATCH_ENCODE)(grk_plugin_compress_batch_info info);
 
 typedef void (*PLUGIN_STOP_BATCH_ENCODE)(void);
 
-typedef bool (*PLUGIN_IS_BATCH_COMPLETE)(void);
+typedef void (*PLUGIN_WAIT_FOR_BATCH_COMPLETE)(void);
 
 ////////////////////
 // decompressor interface

@@ -1454,9 +1454,9 @@ GRK_API int32_t GRK_CALLCONV grk_plugin_compress(grk_cparameters* compress_param
 GRK_API int32_t GRK_CALLCONV grk_plugin_batch_compress(grk_plugin_compress_batch_info info);
 
 /**
- * Check if batch job is complete
+ * Wait for batch job to complete
  */
-GRK_API bool GRK_CALLCONV grk_plugin_is_batch_complete(void);
+GRK_API void GRK_CALLCONV grk_plugin_wait_for_batch_complete(void);
 
 /**
  * Stop batch compress

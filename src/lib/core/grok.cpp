@@ -641,7 +641,7 @@ static const char* plugin_init_method_name = "plugin_init";
 static const char* plugin_encode_method_name = "plugin_encode";
 static const char* plugin_batch_encode_method_name = "plugin_batch_encode";
 static const char* plugin_stop_batch_encode_method_name = "plugin_stop_batch_encode";
-static const char* plugin_is_batch_complete_method_name = "plugin_is_batch_complete";
+static const char* plugin_wait_for_batch_complete_method_name = "plugin_wait_for_batch_complete";
 static const char* plugin_decode_method_name = "plugin_decompress";
 static const char* plugin_init_batch_decode_method_name = "plugin_init_batch_decompress";
 static const char* plugin_batch_decode_method_name = "plugin_batch_decompress";
@@ -767,21 +767,20 @@ int32_t GRK_CALLCONV grk_plugin_batch_compress(grk_plugin_compress_batch_info in
 	return -1;
 }
 
-PLUGIN_IS_BATCH_COMPLETE funcPluginIsBatchComplete = nullptr;
-GRK_API bool GRK_CALLCONV grk_plugin_is_batch_complete(void)
+PLUGIN_WAIT_FOR_BATCH_COMPLETE funcPluginWaitForBatchComplete = nullptr;
+GRK_API void GRK_CALLCONV grk_plugin_wait_for_batch_complete(void)
 {
 	if(!pluginLoaded)
-		return true;
+		return;
 	auto mgr = minpf_get_plugin_manager();
 	if(mgr && mgr->num_libraries > 0)
 	{
-		if(!funcPluginIsBatchComplete)
-			funcPluginIsBatchComplete = (PLUGIN_IS_BATCH_COMPLETE)minpf_get_symbol(
-				mgr->dynamic_libraries[0], plugin_is_batch_complete_method_name);
-		if(funcPluginIsBatchComplete)
-			return funcPluginIsBatchComplete();
+		if(!funcPluginWaitForBatchComplete)
+			funcPluginWaitForBatchComplete = (PLUGIN_WAIT_FOR_BATCH_COMPLETE)minpf_get_symbol(
+				mgr->dynamic_libraries[0], plugin_wait_for_batch_complete_method_name);
+		if(funcPluginWaitForBatchComplete)
+			funcPluginWaitForBatchComplete();
 	}
-	return true;
 }
 void GRK_CALLCONV grk_plugin_stop_batch_compress(void)
 {
