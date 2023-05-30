@@ -1136,37 +1136,21 @@ void Profile::set_cinema_parameters(grk_cparameters* parameters, GrkImage* image
 	{
 		/* No rate has been introduced for code stream, so 24 fps is assumed */
 		parameters->max_cs_size = GRK_CINEMA_24_CS;
+		parameters->framerate = 24;
 		Logger::logger_.warn(
 			"JPEG 2000 profiles 3 and 4 (2k and 4k digital cinema) require:\n"
 			"Maximum 1302083 compressed bytes @ 24fps for code stream.\n"
 			"As no rate has been given for entire code stream, this limit will be used.");
 	}
-	else if(parameters->max_cs_size > GRK_CINEMA_24_CS)
-	{
-		Logger::logger_.warn(
-			"JPEG 2000 profiles 3 and 4 (2k and 4k digital cinema) require:\n"
-			"Maximum 1302083 compressed bytes @ 24fps for code stream.\n"
-			"The specified rate exceeds this limit, so rate will be forced to 1302083 bytes.");
-		parameters->max_cs_size = GRK_CINEMA_24_CS;
-	}
-
 	if(parameters->max_comp_size == 0)
 	{
 		/* No rate has been introduced for each component, so 24 fps is assumed */
 		parameters->max_comp_size = GRK_CINEMA_24_COMP;
+		parameters->framerate = 24;
 		Logger::logger_.warn("JPEG 2000 profiles 3 and 4 (2k and 4k digital cinema) require:\n"
 							 "Maximum 1041666 compressed bytes @ 24fps per component.\n"
 							 "As no rate has been given, this limit will be used.");
 	}
-	else if(parameters->max_comp_size > GRK_CINEMA_24_COMP)
-	{
-		Logger::logger_.warn(
-			"JPEG 2000 profiles 3 and 4 (2k and 4k digital cinema) require:\n"
-			"Maximum 1041666 compressed bytes @ 24fps per component.\n"
-			"The specified rate exceeds this limit, so rate will be forced to 1041666 bytes.");
-		parameters->max_comp_size = GRK_CINEMA_24_COMP;
-	}
-
 	parameters->layer_rate[0] =
 		((double)image->numcomps * image->comps[0].w * image->comps[0].h * image->comps[0].prec) /
 		((double)parameters->max_cs_size * 8 * image->comps[0].dx * image->comps[0].dy);

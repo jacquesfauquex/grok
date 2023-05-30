@@ -448,13 +448,6 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 		int bandwidth = 0;
 		if(args.size() > 1)
 			bandwidth = std::stoi(args[1]) / ((int)fps * 8);
-		if(fps != 24 && fps != 48)
-		{
-			spdlog::warn("Incorrect digital cinema frame rate {} : "
-						 "      must be either 24 or 48. Ignoring",
-						 fps);
-			return false;
-		}
 		parameters->rsiz = profile;
 		parameters->framerate = fps;
 		if(fps == 24)
@@ -462,7 +455,7 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 			if(bandwidth > 0)
 			{
 				parameters->max_cs_size = (uint64_t)bandwidth;
-				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25 + 0.5);
+				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25);
 			}
 			else
 			{
@@ -475,13 +468,20 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 			if(bandwidth > 0)
 			{
 				parameters->max_cs_size = (uint64_t)bandwidth;
-				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25 + 0.5);
+				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25);
 			}
 			else
 			{
 				parameters->max_comp_size = GRK_CINEMA_48_COMP;
 				parameters->max_cs_size = GRK_CINEMA_48_CS;
 			}
+		} else {
+			bandwidth = GRK_CINEMA_DCI_MAX_BANDWIDTH;
+			if(args.size() > 1)
+				bandwidth = std::stoi(args[1]);
+			bandwidth /= (int)fps * 8;
+			parameters->max_cs_size = (uint64_t)bandwidth;
+			parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25);
 		}
 		parameters->numgbits = (profile == GRK_PROFILE_CINEMA_2K) ? 1 : 2;
 	}

@@ -1309,6 +1309,9 @@ GRK_API bool GRK_CALLCONV grk_set_MCT(grk_cparameters* parameters, float* encodi
 /**
  * JPEG 2000 cinema profile code stream and component size limits
  * */
+
+#define GRK_CINEMA_DCI_MAX_BANDWIDTH 250000000
+
 #define GRK_CINEMA_24_CS 1302083 /** Maximum code stream length @ 24fps */
 #define GRK_CINEMA_24_COMP 1041666 /** Maximum size per color component @ 24fps */
 
