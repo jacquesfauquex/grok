@@ -459,7 +459,7 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 		parameters->framerate = fps;
 		if(fps == 24)
 		{
-			if(bandwidth > 0 && bandwidth <= GRK_CINEMA_24_COMP)
+			if(bandwidth > 0)
 			{
 				parameters->max_cs_size = (uint64_t)bandwidth;
 				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25 + 0.5);
@@ -472,7 +472,7 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 		}
 		else if(fps == 48)
 		{
-			if(bandwidth > 0 && bandwidth <= GRK_CINEMA_48_COMP)
+			if(bandwidth > 0)
 			{
 				parameters->max_cs_size = (uint64_t)bandwidth;
 				parameters->max_comp_size = uint64_t(double(bandwidth) / 1.25 + 0.5);
