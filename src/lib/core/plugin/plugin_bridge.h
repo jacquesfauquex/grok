@@ -30,7 +30,7 @@
  So,  worst-case scenario is lossless with colour transform : need to add 5 more bits to prec to
  avoid overflow
  */
-#define BIBO_EXTRA_BITS 5
+#define BIBO_EXTRA_BITS 7
 
 namespace grk
 {
