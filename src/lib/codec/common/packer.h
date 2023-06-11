@@ -133,6 +133,7 @@ public:
 	{
 		uint64_t length = (uint64_t)srcWidth * numPlanes;
 		uint64_t lengthTrunc = (uint64_t)(length & (uint64_t)(~7));
+		uint64_t lengthLeftover = length & 7;
 		for(size_t i = 0; i < h; i++) {
 			uint32_t next = 0;
 			auto destPtr = dest;
@@ -144,7 +145,8 @@ public:
 				*destPtr++ = (uint8_t)((src0 << 7) | (src1 << 6) | (src2 << 5) | (src3 << 4) | (src4 << 3) |
 									(src5 << 2) | (src6 << 1) | src7);
 			}
-			if (ct < length){
+			if (lengthLeftover){
+				ct = 0;
 				NEXT_PACK()
 				uint32_t src0 = next;
 				uint32_t src1 = 0U;
@@ -154,28 +156,27 @@ public:
 				uint32_t src5 = 0U;
 				uint32_t src6 = 0U;
 
-				ct = length & 7;
-				if(ct > 1U)
+				if(ct < lengthLeftover)
 				{
 					NEXT_PACK()
 					src1 = next;
-					if(ct > 2U)
+					if(ct < lengthLeftover)
 					{
 						NEXT_PACK()
 						src2 = next;
-						if(ct > 3U)
+						if(ct < lengthLeftover)
 						{
 							NEXT_PACK()
 							src3 = next;
-							if(ct > 4U)
+							if(ct < lengthLeftover)
 							{
 								NEXT_PACK()
 								src4 = next;
-								if(ct > 5U)
+								if(ct < lengthLeftover)
 								{
 									NEXT_PACK()
 									src5 = next;
-									if(ct > 6U) {
+									if(ct < lengthLeftover) {
 										NEXT_PACK()
 										src6 = next;
 									}
@@ -208,6 +209,7 @@ public:
 	{
 		uint64_t length = (uint64_t)srcWidth * numPlanes;
 		uint64_t lengthTrunc = (uint64_t)(length & (uint64_t)(~3));
+		uint64_t lengthLeftover = length & 3;
 		for(size_t i = 0; i < h; i++) {
 			uint32_t next = 0;
 			auto destPtr = dest;
@@ -216,21 +218,19 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_4
-
 				*destPtr++ = (uint8_t)((src0 << 6) | (src1 << 4) | (src2 << 2) | src3);
 			}
-			if (ct < length){
+			if (lengthLeftover){
+				ct = 0;
 				NEXT_PACK()
 				uint32_t src0 = next;
 				uint32_t src1 = 0U;
 				uint32_t src2 = 0U;
-
-				ct = length & 3;
-				if(ct > 1U)
+				if(ct < lengthLeftover)
 				{
 					NEXT_PACK()
 					src1 = next;
-					if(ct > 2U) {
+					if(ct < lengthLeftover) {
 						NEXT_PACK()
 						src2 = next;
 					}
@@ -265,7 +265,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_8
-
 				*destPtr++ = (uint8_t)((src0 << 5) | (src1 << 2) | (src2 >> 1));
 				*destPtr++ = (uint8_t)((src2 << 7) | (src3 << 4) | (src4 << 1) | (src5 >> 2));
 				*destPtr++ = (uint8_t)((src5 << 6) | (src6 << 3) | (src7));
@@ -311,7 +310,6 @@ public:
 				uint32_t src0 = next;
 				NEXT_PACK()
 				uint32_t src1 = next;
-
 				// IMPORTANT NOTE: we need to mask src1 to 4 bits,
 				// to prevent sign extension bits of negative src1,
 				// extending beyond 4 bits,
@@ -350,7 +348,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_8
-
 				*destPtr++ = (uint8_t)((src0 << 3) | (src1 >> 2));
 				*destPtr++ = (uint8_t)((src1 << 6) | (src2 << 1) | (src3 >> 4));
 				*destPtr++ = (uint8_t)((src3 << 4) | (src4 >> 1));
@@ -386,6 +383,7 @@ public:
 	{
 		uint64_t length = (uint64_t)srcWidth * numPlanes;
 		uint64_t lengthTrunc = (uint64_t)(length & (uint64_t)(~3));
+		uint64_t lengthLeftover = length & 3;
 		for(size_t i = 0; i < h; i++) {
 			uint32_t next = 0;
 			auto destPtr = dest;
@@ -394,23 +392,21 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_4
-
 				*destPtr++ = (uint8_t)((src0 << 2) | (src1 >> 4));
 				*destPtr++ = (uint8_t)(((src1 & 0xFU) << 4) | (src2 >> 2));
 				*destPtr++ = (uint8_t)(((src2 & 0x3U) << 6) | src3);
 			}
-			if (ct < length){
+			if (lengthLeftover){
+				ct = 0;
 				NEXT_PACK()
 				uint32_t src0 = next;
 				uint32_t src1 = 0U;
 				uint32_t src2 = 0U;
-
-				ct = length & 3;
-				if(ct > 1U)
+				if(ct < lengthLeftover)
 				{
 					NEXT_PACK()
 					src1 = next;
-					if(ct > 2U) {
+					if(ct < lengthLeftover) {
 						NEXT_PACK()
 						src2 = next;
 					}
@@ -452,7 +448,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_8
-
 				*destPtr++ = (uint8_t)((src0 << 1) | (src1 >> 6));
 				*destPtr++ = (uint8_t)((src1 << 2) | (src2 >> 5));
 				*destPtr++ = (uint8_t)((src2 << 3) | (src3 >> 4));
@@ -523,7 +518,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_8
-
 				*destPtr++ = (uint8_t)((src0 >> 1));
 				*destPtr++ = (uint8_t)((src0 << 7) | (src1 >> 2));
 				*destPtr++ = (uint8_t)((src1 << 6) | (src2 >> 3));
@@ -564,6 +558,7 @@ public:
 	{
 		uint64_t length = (uint64_t)srcWidth * numPlanes;
 		uint64_t lengthTrunc = (uint64_t)(length & (uint64_t)(~3));
+		uint64_t lengthLeftover = length & 3;
 		for(size_t i = 0; i < h; i++) {
 			uint32_t next = 0;
 			auto destPtr = dest;
@@ -572,25 +567,23 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_4
-
 				*destPtr++ = (uint8_t)(src0 >> 2);
 				*destPtr++ = (uint8_t)(((src0 & 0x3U) << 6) | (src1 >> 4));
 				*destPtr++ = (uint8_t)(((src1 & 0xFU) << 4) | (src2 >> 6));
 				*destPtr++ = (uint8_t)(((src2 & 0x3FU) << 2) | (src3 >> 8));
 				*destPtr++ = (uint8_t)(src3);
 			}
-			if (ct < length){
-				ct = length & 3;
+			if (lengthLeftover){
+				ct = 0;
 				NEXT_PACK()
 				uint32_t src0 = next;
 				uint32_t src1 = 0U;
 				uint32_t src2 = 0U;
-
-				if(ct > 1U)
+				if(ct < lengthLeftover)
 				{
 					NEXT_PACK()
 					src1 = next;
-					if(ct > 2U) {
+					if(ct < lengthLeftover) {
 						NEXT_PACK()
 						src2 = next;
 					}
@@ -633,7 +626,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_8
-
 				*destPtr++ = (uint8_t)((src0 >> 3));
 				*destPtr++ = (uint8_t)((src0 << 5) | (src1 >> 6));
 				*destPtr++ = (uint8_t)((src1 << 2) | (src2 >> 9));
@@ -725,7 +717,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_8
-
 				*destPtr++ = (uint8_t)((src0 >> 5));
 				*destPtr++ = (uint8_t)((src0 << 3) | (src1 >> 10));
 				*destPtr++ = (uint8_t)((src1 >> 2));
@@ -769,6 +760,7 @@ public:
 	{
 		uint64_t length = (uint64_t)srcWidth * numPlanes;
 		uint64_t lengthTrunc = (uint64_t)(length & (uint64_t)(~3));
+		uint64_t lengthLeftover = length & 3;
 		for(size_t i = 0; i < h; i++) {
 			uint32_t next = 0;
 			auto destPtr = dest;
@@ -777,7 +769,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_4
-
 				*destPtr++ = (uint8_t)(src0 >> 6);
 				*destPtr++ = (uint8_t)(((src0 & 0x3FU) << 2) | (src1 >> 12));
 				*destPtr++ = (uint8_t)(src1 >> 4);
@@ -786,18 +777,17 @@ public:
 				*destPtr++ = (uint8_t)(((src2 & 0x3U) << 6) | (src3 >> 8));
 				*destPtr++ = (uint8_t)(src3);
 			}
-			if (ct < length){
+			if (lengthLeftover){
+				ct = 0;
 				NEXT_PACK()
 				uint32_t src0 = next;
 				uint32_t src1 = 0U;
 				uint32_t src2 = 0U;
-
-				ct = length & 3;
-				if(ct > 1U)
+				if(ct < lengthLeftover)
 				{
 					NEXT_PACK()
 					src1 = next;
-					if(ct > 2U) {
+					if(ct < lengthLeftover) {
 						NEXT_PACK()
 						src2 = next;
 					}
@@ -843,7 +833,6 @@ public:
 			size_t j = 0;
 			while(ct < lengthTrunc) {
 				NEXT_8
-
 				*destPtr++ = (uint8_t)((src0 >> 7));
 				*destPtr++ = (uint8_t)((src0 << 1) | (src1 >> 14));
 				*destPtr++ = (uint8_t)((src1 >> 6));
