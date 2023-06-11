@@ -42,7 +42,7 @@ namespace HWY_NAMESPACE
 		{
 			auto highestResBuffer =
 				info.tile->comps[info.compno].getWindow()->getResWindowBufferHighestSimpleF();
-			std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
+			const std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
 			auto index = (uint64_t)info.yBegin * highestResBuffer.stride_;
 			auto chunkSize = (uint64_t)(info.yEnd - info.yBegin) * highestResBuffer.stride_;
 			auto chan0 = (float*)highestResBuffer.buf_;
@@ -77,7 +77,7 @@ namespace HWY_NAMESPACE
 				info.tile->comps[info.compno].getWindow()->getResWindowBufferHighestStride();
 			auto index = (uint64_t)info.yBegin * highestResBufferStride;
 			auto chunkSize = (uint64_t)(info.yEnd - info.yBegin) * highestResBufferStride;
-			std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
+			const std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
 			auto chan0 =
 				info.tile->comps[info.compno].getWindow()->getResWindowBufferHighestSimple().buf_;
 			const HWY_FULL(int32_t) di;
@@ -108,7 +108,7 @@ namespace HWY_NAMESPACE
 				info.tile->comps[info.compno].getWindow()->getResWindowBufferHighestStride();
 			auto index = (uint64_t)info.yBegin * highestResBufferStride;
 			auto chunkSize = (uint64_t)(info.yEnd - info.yBegin) * highestResBufferStride;
-			std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
+			const std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
 			auto chan0 = info.tile->comps[0].getWindow()->getResWindowBufferHighestSimple().buf_;
 			auto chan1 = info.tile->comps[1].getWindow()->getResWindowBufferHighestSimple().buf_;
 			auto chan2 = info.tile->comps[2].getWindow()->getResWindowBufferHighestSimple().buf_;
@@ -155,7 +155,7 @@ namespace HWY_NAMESPACE
 				info.tile->comps[info.compno].getWindow()->getResWindowBufferHighestStride();
 			auto index = (uint64_t)info.yBegin * highestResBufferStride;
 			auto chunkSize = (uint64_t)(info.yEnd - info.yBegin) * highestResBufferStride;
-			std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
+			const std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
 			auto chan0 = info.tile->comps[0].getWindow()->getResWindowBufferHighestSimpleF().buf_;
 			auto chan1 = info.tile->comps[1].getWindow()->getResWindowBufferHighestSimpleF().buf_;
 			auto chan2 = info.tile->comps[2].getWindow()->getResWindowBufferHighestSimpleF().buf_;
@@ -214,7 +214,7 @@ namespace HWY_NAMESPACE
 				info.tile->comps[info.compno].getWindow()->getResWindowBufferHighestStride();
 			auto index = (uint64_t)info.yBegin * highestResBufferStride;
 			auto chunkSize = (uint64_t)(info.yEnd - info.yBegin) * highestResBufferStride;
-			std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
+			const std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
 			auto chan0 = info.tile->comps[0].getWindow()->getResWindowBufferHighestSimple().buf_;
 			auto chan1 = info.tile->comps[1].getWindow()->getResWindowBufferHighestSimple().buf_;
 			auto chan2 = info.tile->comps[2].getWindow()->getResWindowBufferHighestSimple().buf_;
@@ -254,7 +254,7 @@ namespace HWY_NAMESPACE
 				info.tile->comps[info.compno].getWindow()->getResWindowBufferHighestStride();
 			auto index = (uint64_t)info.yBegin * highestResBufferStride;
 			auto chunkSize = (uint64_t)(info.yEnd - info.yBegin) * highestResBufferStride;
-			std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
+			const std::vector<ShiftInfo>& shiftInfo = info.shiftInfo;
 			auto chan0 = info.tile->comps[0].getWindow()->getResWindowBufferHighestSimple().buf_;
 			auto chan1 = info.tile->comps[1].getWindow()->getResWindowBufferHighestSimple().buf_;
 			auto chan2 = info.tile->comps[2].getWindow()->getResWindowBufferHighestSimple().buf_;

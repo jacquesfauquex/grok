@@ -72,13 +72,13 @@ const char* minpf_get_dynamic_library_extension(void)
 {
 #ifdef _WIN32
 	return "dll";
-#else
-#if defined(__APPLE__)
+#elif defined(__APPLE__)
 	return "dylib";
 #elif defined(__linux)
 	return "so";
-#endif
 #endif /* _WIN32 */
+
+	return "";
 }
 
 void minpf_initialize_plugin_manager(minpf_plugin_manager* manager)
@@ -192,6 +192,7 @@ int32_t minpf_load_from_dir(const char* directory_path, bool verbose,
 	if(!directory_path || directory_path[0] == '\0') // Check that the path is non-empty.
 		return -1;
 
+	const char* extension = minpf_get_dynamic_library_extension();
 	mgr->platformServices.invokeService = func;
 	int32_t rc = -1;
 	for(const auto& entry : std::filesystem::directory_iterator(directory_path))
@@ -199,7 +200,7 @@ int32_t minpf_load_from_dir(const char* directory_path, bool verbose,
 		auto str = entry.path().filename().string();
 		const char* f = str.c_str();
 		// ignore files with incorrect extensions
-		if(strcmp(get_filename_ext(f), minpf_get_dynamic_library_extension()) != 0)
+		if(strcmp(get_filename_ext(f), extension) != 0)
 			continue;
 		strcpy(libraryPath, directory_path);
 		strcat(libraryPath, MINPF_FILE_SEPARATOR);

@@ -22,7 +22,7 @@ struct Serializer
 #ifndef _WIN32
 	int getFd(void);
 #endif
-	bool open(std::string name, std::string mode, bool asynch);
+	bool open(const std::string &name, const std::string &mode, bool asynch);
 	bool close(void);
 	size_t write(uint8_t* buf, size_t size);
 	uint64_t seek(int64_t off, int32_t whence);

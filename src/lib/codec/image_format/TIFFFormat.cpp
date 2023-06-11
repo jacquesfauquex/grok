@@ -41,7 +41,7 @@ static tmsize_t TiffRead([[maybe_unused]] thandle_t handle, [[maybe_unused]] voi
 }
 static tmsize_t TiffWrite(thandle_t handle, void* buf, tmsize_t size)
 {
-	auto* serializer = (Serializer*)handle;
+	auto* serializer = static_cast<Serializer*>(handle);
 	const size_t bytes_total = (size_t)size;
 	if((tmsize_t)bytes_total != size)
 	{
@@ -57,7 +57,7 @@ static tmsize_t TiffWrite(thandle_t handle, void* buf, tmsize_t size)
 
 static uint64_t TiffSeek(thandle_t handle, uint64_t off, int32_t whence)
 {
-	auto* serializer = (Serializer*)handle;
+	auto* serializer = static_cast<Serializer*>(handle);
 	_TIFF_off_t off_io = (_TIFF_off_t)off;
 
 	if((uint64_t)off_io != off)
@@ -71,7 +71,7 @@ static uint64_t TiffSeek(thandle_t handle, uint64_t off, int32_t whence)
 
 static int TiffClose(thandle_t handle)
 {
-	auto* serializer = (Serializer*)handle;
+	auto* serializer = static_cast<Serializer*>(handle);
 
 	return serializer->close() ? 0 : EINVAL;
 }
@@ -99,7 +99,7 @@ const bool grokNewIO = false;
 #ifdef GRK_NEW_IO
 static bool ioReclaimCallback(uint32_t threadId, io::io_buf* buffer, void* io_user_data)
 {
-	auto tiffFormat = (TIFFFormat*)io_user_data;
+	auto tiffFormat = static_cast<TIFFFormat*>(io_user_data);
 
 	return tiffFormat->ioReclaim(threadId, buffer);
 }
@@ -493,7 +493,7 @@ bool TIFFFormat::encodePixels()
 				packedBuf.len_ = bytesToWrite;
 				packedBuf.offset_ = serializer.getOffset();
 				packedBuf.index_ = serializer.getNumPooledRequests();
-				if(bytesToWrite && !encodePixelsCore(0, packedBuf))
+				if(!encodePixelsCore(0, packedBuf))
 					goto cleanup;
 				packedBuf = pool.get(packedLengthEncoded);
 				bufPtr = (int8_t*)(packedBuf.data_);

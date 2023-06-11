@@ -33,7 +33,7 @@ using namespace grk;
 
 struct GrkCodec
 {
-	GrkCodec(grk_stream* stream);
+	explicit GrkCodec(grk_stream* stream);
 	~GrkCodec();
 
 	static GrkCodec* getImpl(grk_codec* codec)
@@ -552,7 +552,7 @@ grk_codec* GRK_CALLCONV grk_compress_init(grk_stream_params* stream_params,
 		codecWrapper = nullptr;
 	}
 
-	return codecWrapper;
+	return rc ? codecWrapper : nullptr;
 }
 static bool grk_compress_start(grk_codec* codecWrapper)
 {
@@ -584,8 +584,6 @@ static grk_stream* grk_stream_create_file_stream(const char* fname, size_t buffe
 {
 	bool stdin_stdout = !fname || !fname[0];
 	FILE* file = nullptr;
-	if(!stdin_stdout && (!fname || !fname[0]))
-		return nullptr;
 	if(stdin_stdout)
 	{
 		file = is_read_stream ? stdin : stdout;

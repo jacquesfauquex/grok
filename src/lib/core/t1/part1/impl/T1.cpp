@@ -399,18 +399,13 @@ bool T1::alloc(uint32_t width, uint32_t height)
  */
 void T1::code_block_enc_deallocate(cblk_enc* code_block)
 {
-	grk::grk_free(code_block->passes);
+	delete[] code_block->passes;
 	code_block->passes = nullptr;
 }
-bool T1::code_block_enc_allocate(cblk_enc* p_code_block)
+void T1::code_block_enc_allocate(cblk_enc* p_code_block)
 {
 	if(!p_code_block->passes)
-	{
-		p_code_block->passes = (pass_enc*)grk::grk_calloc(100, sizeof(pass_enc));
-		if(!p_code_block->passes)
-			return false;
-	}
-	return true;
+		p_code_block->passes = new pass_enc[100];
 }
 double T1::getwmsedec(int32_t nmsedec, uint16_t compno, uint32_t level, uint8_t orientation,
 					  int32_t bpno, uint32_t qmfbid, double stepsize, const double* mct_norms,
@@ -760,8 +755,7 @@ double T1::compress_cblk(cblk_enc* cblk, uint32_t max, uint8_t orientation, uint
 						 uint8_t level, uint8_t qmfbid, double stepsize, uint32_t cblksty,
 						 const double* mct_norms, uint16_t mct_numcomps, bool doRateControl)
 {
-	if(!code_block_enc_allocate(cblk))
-		return 0;
+	code_block_enc_allocate(cblk);
 	auto mqc = &coder;
 	mqc_init_enc(mqc, cblk->data);
 

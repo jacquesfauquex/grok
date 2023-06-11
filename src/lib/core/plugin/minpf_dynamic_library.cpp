@@ -47,7 +47,7 @@ static std::string GetLastErrorAsString()
 
 namespace grk
 {
-bool minpf_get_full_path([[maybe_unused]] const char* path, [[maybe_unused]] void* addr,
+bool minpf_get_full_path([[maybe_unused]] const char* path, [[maybe_unused]] const void* addr,
 						 [[maybe_unused]] dynamic_handle_t handle, [[maybe_unused]] char* fullPath,
 						 [[maybe_unused]] size_t fullPathLen)
 {
@@ -161,9 +161,7 @@ void* minpf_get_symbol([[maybe_unused]] minpf_dynamic_library* library,
 #ifdef _WIN32
 	rc = GetProcAddress((HMODULE)library->handle, symbol);
 	if(!rc)
-	{
-		int err = GetLastError();
-	}
+		Logger::logger_.error("Error getting symbol : %d",GetLastError());
 #else
 	rc = dlsym(library->handle, symbol);
 #endif

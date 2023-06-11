@@ -66,7 +66,7 @@ bool FileUringIO::attach(std::string fileName, std::string mode, int fd)
 	return (doRead ? true : initQueue());
 }
 
-bool FileUringIO::open(std::string fileName, std::string mode)
+bool FileUringIO::open(const std::string &fileName, const std::string &mode)
 {
 	fileName_ = fileName;
 	bool useStdio = grk::useStdio(fileName_);

@@ -24,7 +24,7 @@
 static bool grkReclaimCallback([[maybe_unused]] uint32_t threadId, grk_io_buf buffer,
 							   void* io_user_data)
 {
-	auto pool = (BufferPool*)io_user_data;
+	auto pool = static_cast<BufferPool*>(io_user_data);
 	if(pool)
 		pool->put(GrkIOBuf(buffer));
 
@@ -146,7 +146,7 @@ bool ImageFormat::isHeaderEncoded(void)
 {
 	return ((encodeState & IMAGE_FORMAT_ENCODED_HEADER) == IMAGE_FORMAT_ENCODED_HEADER);
 }
-bool ImageFormat::open(std::string fileName, std::string mode)
+bool ImageFormat::open(const std::string &fileName, const std::string &mode)
 {
 	return fileIO_->open(fileName, mode);
 }
@@ -176,7 +176,7 @@ bool ImageFormat::openFile(void)
 {
 	bool rc = fileIO_->open(fileName_, "w");
 	if(rc)
-		fileStream_ = ((FileStreamIO*)fileIO_)->getFileStream();
+		fileStream_ = static_cast<FileStreamIO*>(fileIO_)->getFileStream();
 
 	return rc;
 }

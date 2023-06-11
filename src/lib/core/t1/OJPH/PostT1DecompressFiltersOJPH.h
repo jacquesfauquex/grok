@@ -8,10 +8,10 @@ template<typename T>
 class RoiShiftOJPHFilter
 {
   public:
-	RoiShiftOJPHFilter(grk::DecompressBlockExec* block)
+	explicit RoiShiftOJPHFilter(grk::DecompressBlockExec* block)
 		: roiShift(block->roishift), shift(31U - (block->k_msbs + 1U))
 	{}
-	inline void copy(T* dest, T* src, uint32_t len)
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		T thresh = 1 << roiShift;
 		for(uint32_t i = 0; i < len; ++i)
@@ -33,8 +33,8 @@ template<typename T>
 class ShiftOJPHFilter
 {
   public:
-	ShiftOJPHFilter(grk::DecompressBlockExec* block) : shift(31U - (block->k_msbs + 1U)) {}
-	inline void copy(T* dest, T* src, uint32_t len)
+	explicit ShiftOJPHFilter(grk::DecompressBlockExec* block) : shift(31U - (block->k_msbs + 1U)) {}
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		for(uint32_t i = 0; i < len; ++i)
 		{
@@ -52,13 +52,13 @@ template<typename T>
 class RoiScaleOJPHFilter
 {
   public:
-	RoiScaleOJPHFilter(grk::DecompressBlockExec* block)
+	explicit RoiScaleOJPHFilter(grk::DecompressBlockExec* block)
 		: roiShift(block->roishift),
 		  scale(block->stepsize / (float)(1u << (31 - block->bandNumbps)))
 	{
 		assert(block->bandNumbps <= 31);
 	}
-	inline void copy(T* dest, T* src, uint32_t len)
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		T thresh = 1 << roiShift;
 		for(uint32_t i = 0; i < len; ++i)
@@ -81,12 +81,12 @@ template<typename T>
 class ScaleOJPHFilter
 {
   public:
-	ScaleOJPHFilter(grk::DecompressBlockExec* block)
+	explicit ScaleOJPHFilter(grk::DecompressBlockExec* block)
 		: scale(block->stepsize / (float)(1u << (31 - block->bandNumbps)))
 	{
 		assert(block->bandNumbps <= 31);
 	}
-	inline void copy(T* dest, T* src, uint32_t len)
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		for(uint32_t i = 0; i < len; ++i)
 		{

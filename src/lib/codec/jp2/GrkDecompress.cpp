@@ -218,7 +218,7 @@ bool GrkDecompress::parsePrecision(const char* option, grk_decompress_parameters
 		char comma;
 		int count;
 
-		count = sscanf(remaining, "%u%c%c", &prec, &mode, &comma);
+		count = sscanf(remaining, "%d%c%c", &prec, &mode, &comma);
 		if(count == 1)
 		{
 			mode = 'C';
@@ -318,18 +318,6 @@ bool GrkDecompress::parsePrecision(const char* option, grk_decompress_parameters
 	return result;
 }
 
-int GrkDecompress::loadImages(grk_dircnt* dirptr, char* imgdirpath)
-{
-	int i = 0;
-
-	for(const auto& entry : std::filesystem::directory_iterator(imgdirpath))
-	{
-		strcpy(dirptr->filename[i], entry.path().filename().string().c_str());
-		i++;
-	}
-
-	return 0;
-}
 char GrkDecompress::nextFile(const std::string inputFile, grk_img_fol* inputFolder,
 							 grk_img_fol* outFolder, grk_decompress_parameters* parameters)
 {

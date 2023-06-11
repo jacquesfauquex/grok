@@ -192,14 +192,14 @@ bool SIZMarker::read(CodeStreamDecompress* codeStream, uint8_t* headerData, uint
 	/* Read the component information */
 	for(uint16_t i = 0; i < image->numcomps; ++i)
 	{
-		uint8_t tmp;
-		grk_read(headerData++, &tmp); /* Ssiz_i */
-		img_comp->prec = (uint8_t)((tmp & 0x7f) + 1);
-		img_comp->sgnd = tmp >> 7;
-		grk_read(headerData++, &tmp); /* XRsiz_i */
-		img_comp->dx = tmp; /* should be between 1 and 255 */
-		grk_read(headerData++, &tmp); /* YRsiz_i */
-		img_comp->dy = tmp; /* should be between 1 and 255 */
+		uint8_t val;
+		grk_read(headerData++, &val); /* Ssiz_i */
+		img_comp->prec = (uint8_t)((val & 0x7f) + 1);
+		img_comp->sgnd = val >> 7;
+		grk_read(headerData++, &val); /* XRsiz_i */
+		img_comp->dx = val; /* should be between 1 and 255 */
+		grk_read(headerData++, &val); /* YRsiz_i */
+		img_comp->dy = val; /* should be between 1 and 255 */
 		if(img_comp->dx == 0 || img_comp->dy == 0)
 		{
 			Logger::logger_.error(

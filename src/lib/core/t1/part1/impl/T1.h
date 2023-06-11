@@ -89,7 +89,7 @@ struct T1
 	void enc_sigpass(int32_t bpno, int32_t* nmsedec, uint8_t type, uint32_t cblksty);
 	void enc_refpass(int32_t bpno, int32_t* nmsedec, uint8_t type);
 	int enc_is_term_pass(cblk_enc* cblk, uint32_t cblksty, int32_t bpno, uint32_t passtype);
-	bool code_block_enc_allocate(cblk_enc* p_code_block);
+	void code_block_enc_allocate(cblk_enc* p_code_block);
 	/**
 	 Get the norm of a wavelet function of a subband at a specified level for the reversible 5-3
 	 DWT.

@@ -470,7 +470,6 @@ static int parse_cmdline_cmp(int argc, char** argv, test_cmp_parameters* param)
 	char* MSElistvalues = nullptr;
 	char* PEAKlistvalues = nullptr;
 	char* separatorList = nullptr;
-	int flagM = 0, flagP = 0;
 	param->base_filename = nullptr;
 	param->test_filename = nullptr;
 	param->nbcomp = 0;
@@ -510,6 +509,7 @@ static int parse_cmdline_cmp(int argc, char** argv, test_cmp_parameters* param)
 			"R", "SubRegion",
 			"Base image region to compare with. Must equal test image dimensions.", false, "",
 			"string", cmd);
+		int flagM = 0, flagP = 0;
 
 		cmd.parse(argc, argv);
 

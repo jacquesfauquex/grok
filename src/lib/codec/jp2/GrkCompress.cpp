@@ -1042,7 +1042,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			memcpy(substr1, rawFormatArg.getValue().c_str(), len);
 			substr1[len] = '\0';
 			char signo;
-			if(sscanf(substr1, "%u,%u,%u,%u,%c", &width, &height, &ncomp, &bitdepth, &signo) == 5)
+			if(sscanf(substr1, "%d,%d,%d,%d,%c", &width, &height, &ncomp, &bitdepth, &signo) == 5)
 			{
 				if(signo == 's')
 				{
@@ -1064,9 +1064,9 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(!wrong)
 			{
 				grk_raw_cparameters* raw_cp = &parameters->raw_cp;
-				int compno;
-				int lastdx = 1;
-				int lastdy = 1;
+				uint16_t compno;
+				uint32_t lastdx = 1;
+				uint32_t lastdy = 1;
 				raw_cp->width = (uint32_t)width;
 				raw_cp->height = (uint32_t)height;
 				raw_cp->numcomps = (uint16_t)ncomp;
@@ -1088,7 +1088,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					}
 					else
 					{
-						int dx, dy;
+						uint32_t dx, dy;
 						char* sep = strchr(substr2, ':');
 						if(sep == nullptr)
 						{
@@ -1166,7 +1166,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		if(codeBlockDimArg.isSet())
 		{
 			int cblockw_init = 0, cblockh_init = 0;
-			if(sscanf(codeBlockDimArg.getValue().c_str(), "%u,%u", &cblockw_init, &cblockh_init) ==
+			if(sscanf(codeBlockDimArg.getValue().c_str(), "%d,%d", &cblockw_init, &cblockh_init) ==
 			   EOF)
 			{
 				spdlog::error("sscanf failed for code block dimension argument");
@@ -1334,13 +1334,13 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				char* comma;
 
 				comma = strstr(arg, ",mainlevel=");
-				if(comma && sscanf(comma + 1, "mainlevel=%u", &mainlevel) != 1)
+				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
 				{
 					spdlog::error("{}", msg);
 					return 1;
 				}
 				comma = strstr(arg, ",framerate=");
-				if(comma && sscanf(comma + 1, "framerate=%u", &framerate) != 1)
+				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
 				{
 					spdlog::error("{}", msg);
 					return 1;
@@ -1415,21 +1415,21 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				char* comma;
 
 				comma = strstr(arg, ",mainlevel=");
-				if(comma && sscanf(comma + 1, "mainlevel=%u", &mainlevel) != 1)
+				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
 				{
 					spdlog::error("{}", msg);
 					return 1;
 				}
 
 				comma = strstr(arg, ",sublevel=");
-				if(comma && sscanf(comma + 1, "sublevel=%u", &sublevel) != 1)
+				if(comma && sscanf(comma + 1, "sublevel=%d", &sublevel) != 1)
 				{
 					spdlog::error("{}", msg);
 					return 1;
 				}
 
 				comma = strstr(arg, ",framerate=");
-				if(comma && sscanf(comma + 1, "framerate=%u", &framerate) != 1)
+				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
 				{
 					spdlog::error("{}", msg);
 					return 1;
@@ -1487,7 +1487,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				spdlog::warn("IMF profile activated. Other options specified may be overridden");
 
 				parameters->framerate = (uint16_t)framerate;
-				if(framerate > 0 && sublevel > 0 && sublevel <= 9)
+				if(framerate > 0 && sublevel != 0)
 				{
 					const int limitMBitsSec[] = {0,
 												 GRK_IMF_SUBLEVEL_1_MBITSSEC,
@@ -1654,7 +1654,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		if(tilesArg.isSet())
 		{
 			int32_t t_width = 0, t_height = 0;
-			if(sscanf(tilesArg.getValue().c_str(), "%u,%u", &t_width, &t_height) == EOF)
+			if(sscanf(tilesArg.getValue().c_str(), "%d,%d", &t_width, &t_height) == EOF)
 			{
 				spdlog::error("sscanf failed for tiles argument");
 				return 1;
@@ -1674,7 +1674,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		if(tileOffsetArg.isSet())
 		{
 			int32_t off1, off2;
-			if(sscanf(tileOffsetArg.getValue().c_str(), "%u,%u", &off1, &off2) != 2)
+			if(sscanf(tileOffsetArg.getValue().c_str(), "%d,%d", &off1, &off2) != 2)
 			{
 				spdlog::error("-T 'tile offset' argument must be in the form: -T X0,Y0");
 				return 1;
@@ -1690,7 +1690,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		if(imageOffsetArg.isSet())
 		{
 			int32_t off1, off2;
-			if(sscanf(imageOffsetArg.getValue().c_str(), "%u,%u", &off1, &off2) != 2)
+			if(sscanf(imageOffsetArg.getValue().c_str(), "%d,%d", &off1, &off2) != 2)
 			{
 				spdlog::error("-d 'image offset' argument must be specified as:  -d x0,y0");
 				return 1;

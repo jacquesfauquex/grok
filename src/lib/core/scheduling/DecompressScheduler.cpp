@@ -167,9 +167,9 @@ bool DecompressScheduler::scheduleBlocks(uint16_t compno)
 	success = true;
 	if(num_threads == 1)
 	{
-		for(auto& resBlocks : blocks)
+		for(auto& rb : blocks)
 		{
-			for(auto& block : resBlocks.blocks_)
+			for(auto& block : rb.blocks_)
 			{
 				if(!success)
 				{
@@ -187,10 +187,10 @@ bool DecompressScheduler::scheduleBlocks(uint16_t compno)
 		return success;
 	}
 	uint8_t resFlowNum = 0;
-	for(auto& resBlocks : blocks)
+	for(auto& rb : blocks)
 	{
 		auto resFlow = imageComponentFlows_[compno]->resFlows_ + resFlowNum;
-		for(auto& block : resBlocks.blocks_)
+		for(auto& block : rb.blocks_)
 		{
 			resFlow->blocks_->nextTask().work([this, block] {
 				if(!success)

@@ -9,7 +9,7 @@ class RoiShiftFilter
 {
   public:
 	RoiShiftFilter(DecompressBlockExec* block) : roiShift(block->roishift) {}
-	inline void copy(T* dest, T* src, uint32_t len)
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		T thresh = 1 << roiShift;
 		for(uint32_t i = 0; i < len; ++i)
@@ -33,7 +33,7 @@ class ShiftFilter
 {
   public:
 	ShiftFilter([[maybe_unused]] DecompressBlockExec* block) {}
-	inline void copy(T* dest, T* src, uint32_t len)
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		for(uint32_t i = 0; i < len; ++i)
 			dest[i] = src[i] / 2;
@@ -47,7 +47,7 @@ class RoiScaleFilter
 	RoiScaleFilter(DecompressBlockExec* block)
 		: roiShift(block->roishift), scale(block->stepsize / 2)
 	{}
-	inline void copy(T* dest, T* src, uint32_t len)
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		T thresh = 1 << roiShift;
 		for(uint32_t i = 0; i < len; ++i)
@@ -73,7 +73,7 @@ class ScaleFilter
 {
   public:
 	ScaleFilter(DecompressBlockExec* block) : scale(block->stepsize / 2) {}
-	inline void copy(T* dest, T* src, uint32_t len)
+	inline void copy(T* dest, const T* src, uint32_t len)
 	{
 		for(uint32_t i = 0; i < len; ++i)
 			((float*)dest)[i] = (float)src[i] * scale;
