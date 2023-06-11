@@ -154,7 +154,7 @@ namespace t1_part1
 				t1->allocCompressedData(totalSegLen);
 				size_t offset = 0;
 				auto compressedData = t1->getCompressedDataBuffer();
-				for(auto& b : cblk->seg_buffers)
+				for(const auto& b : cblk->seg_buffers)
 				{
 					memcpy(compressedData + offset, b->buf, b->len);
 					offset += b->len;

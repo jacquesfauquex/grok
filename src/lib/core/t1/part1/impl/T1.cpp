@@ -656,12 +656,11 @@ void T1::enc_clnpass(int32_t bpno, int32_t* nmsedec, uint32_t cblksty)
 			for(uint32_t ci = 3 * runlen; ci < 3 * 4 && stage_2; ci += 3)
 			{
 				bool goto_PARTIAL = false;
-				auto flags = *flagsp;
 				if((agg != 0) && (ci == 3 * runlen))
 					goto_PARTIAL = true;
-				else if(!(flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))))
+				else if(!(*flagsp & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))))
 				{
-					uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));
+					uint8_t ctxno = getctxno_zc(mqc, *flagsp >> (ci));
 					curctx = mqc->ctxs + ctxno;
 					uint32_t v = !!(smr_abs(*datap) & (uint32_t)one);
 					mqc_encode_macro(mqc, curctx, a, c, ct, v);
@@ -720,10 +719,9 @@ void T1::enc_clnpass(int32_t bpno, int32_t* nmsedec, uint32_t cblksty)
 			for(uint32_t ci = 3 * runlen; ci < lim && stage_2; ci += 3)
 			{
 				bool goto_PARTIAL = false;
-				auto flags = *flagsp;
-				if(!(flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))))
+				if(!(*flagsp & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))))
 				{
-					uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));
+					uint8_t ctxno = getctxno_zc(mqc, *flagsp >> (ci));
 					curctx = mqc->ctxs + ctxno;
 					uint32_t v = !!(smr_abs(*datap) & (uint32_t)one);
 					mqc_encode_macro(mqc, curctx, a, c, ct, v);
@@ -955,8 +953,8 @@ double T1::compress_cblk(cblk_enc* cblk, uint32_t max, uint8_t orientation, uint
 		{                                                                                          \
 			for(uint32_t i = 0; i < l_w; ++i, ++data, ++flagsp)                                    \
 			{                                                                                      \
-				auto flags = *flagsp;                                                              \
-				if(flags == 0)                                                                     \
+				auto _flags = *flagsp;                                                              \
+				if(_flags == 0)                                                                     \
 				{                                                                                  \
 					uint32_t partial = true;                                                       \
 					setcurctx(curctx, T1_CTXNO_AGG);                                               \
@@ -972,38 +970,38 @@ double T1::compress_cblk(cblk_enc* cblk, uint32_t max, uint8_t orientation, uint
 					switch(runlen)                                                                 \
 					{                                                                              \
 						case 0:                                                                    \
-							dec_clnpass_step_macro(false, true, flags, flagsp, flags_stride, data, \
+							dec_clnpass_step_macro(false, true, _flags, flagsp, flags_stride, data, \
 												   l_w, 0, 0, vsc);                                \
 							partial = false;                                                       \
 							/* FALLTHRU */                                                         \
 						case 1:                                                                    \
-							dec_clnpass_step_macro(false, partial, flags, flagsp, flags_stride,    \
+							dec_clnpass_step_macro(false, partial, _flags, flagsp, flags_stride,    \
 												   data, l_w, 1, 3, false);                        \
 							partial = false;                                                       \
 							/* FALLTHRU */                                                         \
 						case 2:                                                                    \
-							dec_clnpass_step_macro(false, partial, flags, flagsp, flags_stride,    \
+							dec_clnpass_step_macro(false, partial, _flags, flagsp, flags_stride,    \
 												   data, l_w, 2, 6, false);                        \
 							partial = false;                                                       \
 							/* FALLTHRU */                                                         \
 						case 3:                                                                    \
-							dec_clnpass_step_macro(false, partial, flags, flagsp, flags_stride,    \
+							dec_clnpass_step_macro(false, partial, _flags, flagsp, flags_stride,    \
 												   data, l_w, 3, 9, false);                        \
 							break;                                                                 \
 					}                                                                              \
 				}                                                                                  \
 				else                                                                               \
 				{                                                                                  \
-					dec_clnpass_step_macro(true, false, flags, flagsp, flags_stride, data, l_w, 0, \
+					dec_clnpass_step_macro(true, false, _flags, flagsp, flags_stride, data, l_w, 0, \
 										   0, vsc);                                                \
-					dec_clnpass_step_macro(true, false, flags, flagsp, flags_stride, data, l_w, 1, \
+					dec_clnpass_step_macro(true, false, _flags, flagsp, flags_stride, data, l_w, 1, \
 										   3, false);                                              \
-					dec_clnpass_step_macro(true, false, flags, flagsp, flags_stride, data, l_w, 2, \
+					dec_clnpass_step_macro(true, false, _flags, flagsp, flags_stride, data, l_w, 2, \
 										   6, false);                                              \
-					dec_clnpass_step_macro(true, false, flags, flagsp, flags_stride, data, l_w, 3, \
+					dec_clnpass_step_macro(true, false, _flags, flagsp, flags_stride, data, l_w, 3, \
 										   9, false);                                              \
 				}                                                                                  \
-				*flagsp = flags & ~(T1_PI_0 | T1_PI_1 | T1_PI_2 | T1_PI_3);                        \
+				*flagsp = _flags & ~(T1_PI_0 | T1_PI_1 | T1_PI_2 | T1_PI_3);                        \
 			}                                                                                      \
 		}                                                                                          \
 		if(k < h)                                                                                  \
@@ -1114,8 +1112,7 @@ void T1::dec_sigpass_raw(int32_t bpno, int32_t cblksty)
 	{
 		for(uint32_t i = 0; i < l_w; ++i, ++flagsp, ++dataPtr)
 		{
-			grk_flag flags = *flagsp;
-			if(flags != 0)
+			if(*flagsp != 0)
 			{
 				dec_sigpass_step_raw(flagsp, dataPtr, oneplushalf, cblksty & GRK_CBLKSTY_VSC, 0U);
 				dec_sigpass_step_raw(flagsp, dataPtr + l_w, oneplushalf, false, 3U);
@@ -1145,18 +1142,18 @@ void T1::dec_sigpass_raw(int32_t bpno, int32_t cblksty)
 		{                                                                                        \
 			for(uint32_t i = 0; i < l_w; ++i, ++dataPtr, ++flagsp)                               \
 			{                                                                                    \
-				grk_flag flags = *flagsp;                                                        \
-				if(flags != 0)                                                                   \
+				grk_flag _flags = *flagsp;                                                        \
+				if(_flags != 0)                                                                   \
 				{                                                                                \
-					dec_sigpass_step_mqc_macro(flags, flagsp, flags_stride, dataPtr, l_w, 0, 0,  \
+					dec_sigpass_step_mqc_macro(_flags, flagsp, flags_stride, dataPtr, l_w, 0, 0,  \
 											   vsc);                                             \
-					dec_sigpass_step_mqc_macro(flags, flagsp, flags_stride, dataPtr, l_w, 1, 3,  \
+					dec_sigpass_step_mqc_macro(_flags, flagsp, flags_stride, dataPtr, l_w, 1, 3,  \
 											   false);                                           \
-					dec_sigpass_step_mqc_macro(flags, flagsp, flags_stride, dataPtr, l_w, 2, 6,  \
+					dec_sigpass_step_mqc_macro(_flags, flagsp, flags_stride, dataPtr, l_w, 2, 6,  \
 											   false);                                           \
-					dec_sigpass_step_mqc_macro(flags, flagsp, flags_stride, dataPtr, l_w, 3, 9,  \
+					dec_sigpass_step_mqc_macro(_flags, flagsp, flags_stride, dataPtr, l_w, 3, 9,  \
 											   false);                                           \
-					*flagsp = flags;                                                             \
+					*flagsp = _flags;                                                             \
 				}                                                                                \
 			}                                                                                    \
 		}                                                                                        \
@@ -1211,8 +1208,7 @@ void T1::dec_refpass_raw(int32_t bpno)
 	{
 		for(uint32_t i = 0; i < l_w; ++i, ++flagsp, ++dataPtr)
 		{
-			auto flags = *flagsp;
-			if(flags != 0)
+			if(*flagsp != 0)
 			{
 				dec_refpass_step_raw(flagsp, dataPtr, poshalf, 0U);
 				dec_refpass_step_raw(flagsp, dataPtr + l_w, poshalf, 3U);
@@ -1240,14 +1236,14 @@ void T1::dec_refpass_raw(int32_t bpno)
 		{                                                                               \
 			for(uint32_t i = 0; i < l_w; ++i, ++dataPtr, ++flagsp)                      \
 			{                                                                           \
-				auto flags = *flagsp;                                                   \
-				if(flags != 0)                                                          \
+				auto _flags = *flagsp;                                                   \
+				if(_flags != 0)                                                          \
 				{                                                                       \
-					dec_refpass_step_mqc_macro(flags, dataPtr, l_w, 0, 0);              \
-					dec_refpass_step_mqc_macro(flags, dataPtr, l_w, 1, 3);              \
-					dec_refpass_step_mqc_macro(flags, dataPtr, l_w, 2, 6);              \
-					dec_refpass_step_mqc_macro(flags, dataPtr, l_w, 3, 9);              \
-					*flagsp = flags;                                                    \
+					dec_refpass_step_mqc_macro(_flags, dataPtr, l_w, 0, 0);              \
+					dec_refpass_step_mqc_macro(_flags, dataPtr, l_w, 1, 3);              \
+					dec_refpass_step_mqc_macro(_flags, dataPtr, l_w, 2, 6);              \
+					dec_refpass_step_mqc_macro(_flags, dataPtr, l_w, 3, 9);              \
+					*flagsp = _flags;                                                    \
 				}                                                                       \
 			}                                                                           \
 		}                                                                               \

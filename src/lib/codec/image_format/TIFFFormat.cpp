@@ -954,8 +954,8 @@ grk_image* TIFFFormat::decode(const std::string& filename, grk_cparameters* para
 {
 	bool found_assocalpha = false;
 	size_t alpha_count = 0;
-	uint16_t chroma_subsample_x = 1;
-	uint16_t chroma_subsample_y = 1;
+	chroma_subsample_x = 1;
+	chroma_subsample_y = 1;
 	GRK_COLOR_SPACE color_space = GRK_CLRSPC_UNKNOWN;
 	grk_image_comp cmptparm[grk::maxNumPackComponents];
 	grk_image* image = nullptr;

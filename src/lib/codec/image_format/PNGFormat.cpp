@@ -347,7 +347,6 @@ grk_image* PNGFormat::do_decode(grk_cparameters* params)
 	int color_type;
 	useStdIO_ = grk::useStdio(std::string(fileName_));
 	grk_image_comp cmptparm[4];
-	uint16_t nr_comp;
 	uint8_t sigbuf[8];
 	cvtTo32 cvtXXTo32s = nullptr;
 	cvtInterleavedToPlanar cvtToPlanar = nullptr;
