@@ -229,30 +229,37 @@ bool PLMarkerMgr::findMarker(uint32_t nextIndex, bool compress)
 {
 	if(!compress)
 	{
+		// detect sequential markers.
+		// Note: once sequential_ becomes false, it never returns to true again
+
+		// 1. always start with assumption that markers are sequential
 		if(rawMarkers_->empty())
 		{
 			sequential_ = nextIndex == 0;
 		}
 		else
 		{
-			// once sequential_ becomes false, it never returns to true again
+			// 2. check if next index is also sequential
 			if(sequential_)
 			{
 				sequential_ = (rawMarkers_->size() & 0xFF) == nextIndex;
-				if(!sequential_ && rawMarkers_->size() > 256)
+
+				// 3. sanity check
+				if(!sequential_)
 				{
-					Logger::logger_.error("PLT: sequential marker assumption has been broken.");
-					return false;
+					if (rawMarkers_->size() > 256 ) {
+						Logger::logger_.error("PLT: sequential marker assumption has been broken.");
+						return false;
+					}
+				} else {
+					// The code below handles the case where there are more
+					// than 256 markers, but their signaled indices are all sequential mod 256.
+					// We interpret this to mean that the actual marker index is simply the marker count.
+					// Therefore, we do not concatenate any of the markers, even though
+					// they may share the same signaled marker index
+					nextIndex = (uint32_t)rawMarkers_->size();
 				}
 			}
-
-			// The code below handles the case where there are more
-			// than 256 markers, but their signaled indices are all sequential mod 256.
-			// We interpret this to mean that the actual marker index is simply the marker count.
-			// Therefore, we do not concatenate any of the markers, even though
-			// they may share the same signaled marker index
-			if(sequential_)
-				nextIndex = (uint32_t)rawMarkers_->size();
 		}
 	}
 
