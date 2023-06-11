@@ -33,7 +33,7 @@
 namespace grk
 {
 
-ChronoTimer::ChronoTimer(std::string msg) : message(msg){
+ChronoTimer::ChronoTimer(const std::string &msg) : message(msg){
 }
 void ChronoTimer::start(void){
 	startTime = std::chrono::high_resolution_clock::now();
@@ -159,7 +159,7 @@ bool safe_fclose(FILE* file)
 	return fclose(file) ? false : true;
 }
 
-bool useStdio(std::string  filename)
+bool useStdio(const std::string  &filename)
 {
 	return  filename.empty();
 }
@@ -265,8 +265,10 @@ char* get_file_name(char* name)
 uint32_t get_num_images(char* imgdirpath)
 {
 	uint32_t i = 0;
-    for ([[maybe_unused]] const auto & entry : std::filesystem::directory_iterator(imgdirpath))
-    	i++;
+    for (const auto & entry : std::filesystem::directory_iterator(imgdirpath)) {
+    	if (entry.is_regular_file())
+    		i++;
+    }
 
     return i;
 }

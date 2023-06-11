@@ -85,7 +85,7 @@ const size_t maxICCProfileBufferLen = 10000000;
 
 class ChronoTimer {
 public:
-	ChronoTimer(std::string msg);
+	explicit ChronoTimer(const std::string &msg);
 	void start(void);
 	void finish(void);
 private:
@@ -111,7 +111,7 @@ std::string convertFileFmtToString(GRK_SUPPORTED_FILE_FMT fmt);
 bool parseWindowBounds(char* inArg, float* dw_x0, float* dw_y0, float* dw_x1,
 		float* dw_y1);
 bool safe_fclose(FILE* fd);
-bool useStdio(std::string filename);
+bool useStdio(const std::string &filename);
 bool supportedStdioFormat(GRK_SUPPORTED_FILE_FMT format, bool compress);
 bool grk_open_for_output(FILE** fdest, const char* outfile, bool writeToStdout);
 bool grk_set_binary_mode(FILE* file);
