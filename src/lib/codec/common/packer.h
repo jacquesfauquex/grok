@@ -189,7 +189,7 @@ public:
 									(src5 << 2) | (src6 << 1));
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -238,7 +238,7 @@ public:
 				*destPtr++ = (uint8_t)((src0 << 6) | (src1 << 4) | (src2 << 2));
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -279,7 +279,7 @@ public:
 				FLUSHBITS()
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -321,7 +321,7 @@ public:
 				*destPtr++ = (uint8_t)((next << 4));
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -364,7 +364,7 @@ public:
 				FLUSHBITS()
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -421,7 +421,7 @@ public:
 
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -466,7 +466,7 @@ public:
 				FLUSHBITS()
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -538,7 +538,7 @@ public:
 				FLUSHBITS()
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -598,7 +598,7 @@ public:
 				}
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -648,7 +648,7 @@ public:
 				FLUSHBITS()
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -690,7 +690,7 @@ public:
 				*destPtr = (uint8_t)(((src0 & 0xFU) << 4));
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -741,7 +741,7 @@ public:
 				FLUSHBITS()
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -806,7 +806,7 @@ public:
 				}
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
@@ -859,7 +859,7 @@ public:
 				FLUSHBITS()
 			}
 			dest += destStride;
-			for(size_t k = 0; k < numPlanes; ++k)
+			for(k = 0; k < numPlanes; ++k)
 				src[k] += srcStride;
 		}
 	}
