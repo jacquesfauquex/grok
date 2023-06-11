@@ -506,7 +506,6 @@ bool WaveletFwdImpl::encode_procedure(TileComponent* tilec)
 		if(num_threads <= 1 || rh <= 1)
 		{
 			uint32_t j;
-			DWT dwt;
 			for(j = 0; j < rh; j++)
 			{
 				T* GRK_RESTRICT aj = (T*)(tiledp) + j * stride;

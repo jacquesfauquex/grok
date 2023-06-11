@@ -832,9 +832,9 @@ bool GrkImage::apply_palette_clr()
 				// note: 1 <= n <= 255
 				for(uint32_t n = 0; n < newComps[palette_column].h; ++n)
 				{
-					int32_t k = 0;
 					for(uint32_t m = 0; m < newComps[palette_column].w; ++m)
 					{
+						int32_t k = 0;
 						if((k = src[ind]) < 0)
 							k = 0;
 						else if(k > top_k)
