@@ -310,15 +310,15 @@ bool PNMFormat::writeRows(uint32_t rowsOffset, uint32_t rows, uint16_t compno, T
 	T* outPtr = buf + *outCount;
 	uint16_t start = singleComp ? compno : 0;
 	uint16_t end = singleComp ? compno + 1 : ncomp;
-	for(uint16_t i = start; i < end; ++i)
-		compPtr[i] = (image_->comps + i)->data + rowsOffset * image_->comps[0].stride;
+	for(uint16_t comp = start; comp < end; ++comp)
+		compPtr[comp] = (image_->comps + comp)->data + rowsOffset * image_->comps[0].stride;
 	for(uint32_t j = 0; j < rows; ++j)
 	{
 		for(uint32_t i = 0; i < width; ++i)
 		{
-			for(uint16_t i = start; i < end; ++i)
+			for(uint16_t comp = start; comp < end; ++comp)
 			{
-				int32_t v = *compPtr[i]++ + adjust;
+				int32_t v = *compPtr[comp]++ + adjust;
 				if(fileStream_)
 				{
 					if(!grk::writeBytes<T>((T)v, buf, &outPtr, outCount, bufSize, true,

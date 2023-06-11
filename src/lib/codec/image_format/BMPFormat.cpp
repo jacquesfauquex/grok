@@ -750,10 +750,8 @@ grk_image* BMPFormat::decode(const std::string& fname, grk_cparameters* paramete
 
 		palette_num_entries = infoHeader_.biClrUsed;
 		// need to check this a second time for OS2 files
-		if((palette_num_entries == 0U) && (infoHeader_.biBitCount <= 8U))
-		{
+		if((palette_num_entries == 0U))
 			palette_num_entries = (1U << infoHeader_.biBitCount);
-		}
 		if(palette_num_entries > 256U)
 			palette_num_entries = 256U;
 

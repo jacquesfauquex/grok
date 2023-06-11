@@ -155,12 +155,6 @@ bool RAWFormat::encodePixels(void)
 			if(!rc)
 				spdlog::error("fimagetoraw: ailed to write bytes for {}", outfile);
 		}
-		else if(comp->prec <= 32)
-		{
-			spdlog::error("imagetoraw: more than %d bits per component not supported.",
-						  GRK_MAX_SUPPORTED_IMAGE_PRECISION);
-			goto beach;
-		}
 		else
 		{
 			spdlog::error("imagetoraw: invalid precision: {}", comp->prec);

@@ -306,8 +306,7 @@ bool PNGFormat::encodePixels(void)
 	auto iter = grk::InterleaverFactory<int32_t>::makeInterleaver(prec == 16 ? 0xFF : prec);
 	if(!iter)
 		return false;
-	uint32_t rowCount = 0;
-	for(uint32_t y = rowCount; y < max; ++y)
+	for(uint32_t y = 0; y < max; ++y)
 	{
 		iter->interleave((int32_t**)planes, nr_comp, row_buf, image_->comps[0].w,
 						 image_->comps[0].stride, image_->comps[0].w, 1, adjust);
@@ -315,7 +314,6 @@ bool PNGFormat::encodePixels(void)
 		png_write_row(png, row_buf_cpy);
 	}
 	delete iter;
-	rowCount += image_->comps->h;
 
 	return true;
 }

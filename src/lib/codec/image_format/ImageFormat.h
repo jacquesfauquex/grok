@@ -79,7 +79,6 @@ class ImageFormat : public IImageFormat
 	FILE* fileStream_;
 	std::string fileName_;
 	uint32_t compressionLevel_;
-	uint32_t concurrency_;
 
 	bool useStdIO_;
 	uint32_t encodeState;

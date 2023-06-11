@@ -61,12 +61,12 @@ class PerlInterp
 				}
 		    )x"};
 		constexpr int NUM_ARGS = 3;
-		const char* embedding[NUM_ARGS] = {"", "-e", "0"};
 		PERL_SYS_INIT3(nullptr, nullptr, nullptr);
 		my_perl = perl_alloc();
 		if(my_perl)
 		{
 			perl_construct(my_perl);
+			const char* embedding[NUM_ARGS] = {"", "-e", "0"};
 			if(perl_parse(my_perl, nullptr, NUM_ARGS, (char**)embedding, nullptr))
 			{
 				dealloc();
@@ -121,7 +121,7 @@ class PerlScriptRunner
 };
 #endif
 
-void transferExifTags([[maybe_unused]] std::string src, [[maybe_unused]] std::string dest)
+void transferExifTags([[maybe_unused]] const std::string &src, [[maybe_unused]] const std::string &dest)
 {
 #ifdef GROK_HAVE_EXIFTOOL
 	try
