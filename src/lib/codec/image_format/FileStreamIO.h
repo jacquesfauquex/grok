@@ -25,7 +25,7 @@ class FileStreamIO : public IFileIO
   public:
 	FileStreamIO();
 	virtual ~FileStreamIO() override;
-	bool open(const std::string &fileName, const std::string &mode) override;
+	bool open(const std::string& fileName, const std::string& mode) override;
 	bool close(void) override;
 	uint64_t write(uint8_t* buf, uint64_t offset, size_t len, size_t maxLen, bool pooled) override;
 	uint64_t write(GrkIOBuf buffer) override;

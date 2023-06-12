@@ -154,9 +154,8 @@ grk_stream* create_mem_stream(uint8_t* buf, size_t len, bool ownsBuffer, bool is
 		return nullptr;
 	}
 	GRK_CODEC_FORMAT format;
-	if(is_read_stream &&  !grk_decompress_buffer_detect_format(buf, len, &format))
+	if(is_read_stream && !grk_decompress_buffer_detect_format(buf, len, &format))
 		return nullptr;
-
 
 	auto memStream = new MemStream(buf, 0, len, ownsBuffer);
 	auto streamImpl = new BufferedStream(buf, len, is_read_stream);

@@ -33,8 +33,7 @@ static bool grkReclaimCallback([[maybe_unused]] uint32_t threadId, grk_io_buf bu
 
 ImageFormat::ImageFormat()
 	: image_(nullptr), fileIO_(new FileStreamIO()), fileStream_(nullptr), fileName_(""),
-	  compressionLevel_(GRK_DECOMPRESS_COMPRESSION_LEVEL_DEFAULT),
-	  useStdIO_(false),
+	  compressionLevel_(GRK_DECOMPRESS_COMPRESSION_LEVEL_DEFAULT), useStdIO_(false),
 	  encodeState(IMAGE_FORMAT_UNENCODED)
 {
 	grk_io_init init;
@@ -146,7 +145,7 @@ bool ImageFormat::isHeaderEncoded(void)
 {
 	return ((encodeState & IMAGE_FORMAT_ENCODED_HEADER) == IMAGE_FORMAT_ENCODED_HEADER);
 }
-bool ImageFormat::open(const std::string &fileName, const std::string &mode)
+bool ImageFormat::open(const std::string& fileName, const std::string& mode)
 {
 	return fileIO_->open(fileName, mode);
 }

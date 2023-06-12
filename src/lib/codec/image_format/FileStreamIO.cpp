@@ -27,7 +27,7 @@ FileStreamIO::~FileStreamIO()
 	close();
 }
 
-bool FileStreamIO::open(const std::string &fileName, const std::string &mode)
+bool FileStreamIO::open(const std::string& fileName, const std::string& mode)
 {
 	bool useStdio = grk::useStdio(fileName);
 	switch(mode[0])

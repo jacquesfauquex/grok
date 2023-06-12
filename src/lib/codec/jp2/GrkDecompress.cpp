@@ -1082,8 +1082,9 @@ int GrkDecompress::preProcess(grk_plugin_decompress_callback_info* info)
 		info->image = grk_decompress_get_composited_image(info->codec);
 		auto img = info->image;
 
-		const float val[4] = {info->decompressor_parameters->dw_x0, info->decompressor_parameters->dw_y0,
-						info->decompressor_parameters->dw_x1, info->decompressor_parameters->dw_y1};
+		const float val[4] = {
+			info->decompressor_parameters->dw_x0, info->decompressor_parameters->dw_y0,
+			info->decompressor_parameters->dw_x1, info->decompressor_parameters->dw_y1};
 		bool allLessThanOne = true;
 		for(uint8_t i = 0; i < 4; ++i)
 		{
@@ -1319,7 +1320,8 @@ int GrkDecompress::main(int argc, char** argv)
 				for(const auto& entry :
 					std::filesystem::directory_iterator(initParams.inputFolder.imgdirpath))
 				{
-					if(entry.is_regular_file() && decompress(entry.path().filename().string(), &initParams) == 1)
+					if(entry.is_regular_file() &&
+					   decompress(entry.path().filename().string(), &initParams) == 1)
 						numDecompressed++;
 				}
 			}

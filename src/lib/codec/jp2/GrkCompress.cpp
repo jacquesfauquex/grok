@@ -474,7 +474,9 @@ static bool validateCinema(TCLAP::ValueArg<std::string>* arg, uint16_t profile,
 				parameters->max_comp_size = GRK_CINEMA_48_COMP;
 				parameters->max_cs_size = GRK_CINEMA_48_CS;
 			}
-		} else {
+		}
+		else
+		{
 			bandwidth = GRK_CINEMA_DCI_MAX_BANDWIDTH;
 			if(args.size() > 1)
 				bandwidth = std::stoi(args[1]);

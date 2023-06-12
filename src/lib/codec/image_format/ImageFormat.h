@@ -57,7 +57,7 @@ class ImageFormat : public IImageFormat
 	 * Common core pixel encoding write to disk
 	 */
 	virtual bool encodePixelsCoreWrite(grk_io_buf pixels);
-	bool open(const std::string &fname, const std::string &mode);
+	bool open(const std::string& fname, const std::string& mode);
 	uint64_t write(GrkIOBuf buffer);
 	bool read(uint8_t* buf, size_t len);
 	bool seek(int64_t pos, int whence);

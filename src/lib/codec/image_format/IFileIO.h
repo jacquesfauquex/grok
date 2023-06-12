@@ -70,7 +70,7 @@ class IFileIO
 {
   public:
 	virtual ~IFileIO() = default;
-	virtual bool open(const std::string &fileName, const std::string &mode) = 0;
+	virtual bool open(const std::string& fileName, const std::string& mode) = 0;
 	virtual bool close(void) = 0;
 	virtual uint64_t write(uint8_t* buf, uint64_t offset, size_t len, size_t maxLen,
 						   bool pooled) = 0;

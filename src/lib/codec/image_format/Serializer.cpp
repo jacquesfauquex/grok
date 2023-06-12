@@ -38,7 +38,8 @@ void* Serializer::getIOReclaimUserData(void)
 }
 #ifdef _WIN32
 
-bool Serializer::open(const std::string &name, const std::string &mode, [[maybe_unused]] bool asynch)
+bool Serializer::open(const std::string& name, const std::string& mode,
+					  [[maybe_unused]] bool asynch)
 {
 	return fileStreamIO.open(name, mode);
 }
@@ -84,7 +85,8 @@ int Serializer::getMode(std::string mode)
 	return (m);
 }
 
-bool Serializer::open(const std::string &name, const std::string &mode, [[maybe_unused]] bool asynch)
+bool Serializer::open(const std::string& name, const std::string& mode,
+					  [[maybe_unused]] bool asynch)
 {
 	bool useStdio = grk::useStdio(name);
 	bool doRead = mode[0] == 'r';

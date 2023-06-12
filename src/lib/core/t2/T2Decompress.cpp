@@ -188,7 +188,7 @@ void T2Decompress::readPacketData(Resolution* res, PacketParser* parser, uint64_
 			parser->readData();
 			delete parser;
 		}
-		catch([[maybe_unused]] const  std::exception& ex)
+		catch([[maybe_unused]] const std::exception& ex)
 		{
 			delete parser;
 			throw;

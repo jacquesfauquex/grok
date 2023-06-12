@@ -39,7 +39,7 @@ class FileUringIO : public IFileIO
 	FileUringIO();
 	virtual ~FileUringIO() override;
 	void registerGrkReclaimCallback(grk_io_callback reclaim_callback, void* user_data);
-	bool open(const std::string &fileName, const std::string &mode) override;
+	bool open(const std::string& fileName, const std::string& mode) override;
 	bool attach(std::string fileName, std::string mode, int fd);
 	bool close(void) override;
 	uint64_t write(uint8_t* buf, uint64_t offset, size_t len, size_t maxLen, bool pooled) override;

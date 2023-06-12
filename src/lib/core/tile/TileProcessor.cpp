@@ -502,7 +502,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 									parser->readHeader();
 									parser->readData();
 								}
-								catch([[maybe_unused]] const  std::exception& ex)
+								catch([[maybe_unused]] const std::exception& ex)
 								{
 									break;
 								}
@@ -537,7 +537,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 										parser->readHeader();
 										parser->readData();
 									}
-									catch([[maybe_unused]] const  std::exception& ex)
+									catch([[maybe_unused]] const std::exception& ex)
 									{
 										break;
 									}
