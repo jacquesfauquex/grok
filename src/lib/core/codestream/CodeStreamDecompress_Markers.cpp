@@ -142,7 +142,7 @@ bool CodeStreamDecompress::parseTileParts(bool* canDecompress)
 	{
 		skipNonScheduledTLM(&cp_);
 	}
-	catch(CorruptTLMException& cte)
+	catch(const CorruptTLMException& cte)
 	{
 		return false;
 	}
@@ -169,7 +169,7 @@ bool CodeStreamDecompress::parseTileParts(bool* canDecompress)
 				if(!readCurrentMarkerBody(&markerSize))
 					return false;
 			}
-			catch(CorruptSOTMarkerException& csme)
+			catch(const CorruptSOTMarkerException& csme)
 			{
 				return false;
 			}
@@ -224,7 +224,7 @@ bool CodeStreamDecompress::parseTileParts(bool* canDecompress)
 			{
 				nextTLM();
 			}
-			catch(CorruptTLMException& ctlme)
+			catch(const CorruptTLMException& ctlme)
 			{
 				return false;
 			}
@@ -241,7 +241,7 @@ bool CodeStreamDecompress::parseTileParts(bool* canDecompress)
 			{
 				nextTLM();
 			}
-			catch(CorruptTLMException& ctlme)
+			catch(const CorruptTLMException& ctlme)
 			{
 				return false;
 			}
@@ -1662,7 +1662,7 @@ bool CodeStreamDecompress::read_unk(void)
 				return false;
 			}
 		}
-		catch(InvalidMarkerException&)
+		catch(const InvalidMarkerException&)
 		{
 			size_unk += MARKER_BYTES;
 			continue;

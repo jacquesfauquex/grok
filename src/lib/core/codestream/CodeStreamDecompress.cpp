@@ -100,7 +100,7 @@ CodeStreamDecompress::CodeStreamDecompress(BufferedStream* stream)
 }
 CodeStreamDecompress::~CodeStreamDecompress()
 {
-	for(auto& val : marker_map)
+	for(const auto& val : marker_map)
 		delete val.second;
 	delete decompressorState_.default_tcp_;
 	delete[] marker_scratch_;
@@ -507,7 +507,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 				goto cleanup;
 			}
 		}
-		catch(InvalidMarkerException& ime)
+		catch(const InvalidMarkerException& ime)
 		{
 			Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 			success = false;
@@ -534,7 +534,7 @@ bool CodeStreamDecompress::decompressTiles(void)
 				goto cleanup;
 			}
 		}
-		catch([[maybe_unused]] DecodeUnknownMarkerAtEndOfTileException& e)
+		catch([[maybe_unused]] const DecodeUnknownMarkerAtEndOfTileException& e)
 		{
 			breakAfterT1 = true;
 		}
@@ -671,7 +671,7 @@ bool CodeStreamDecompress::readHeaderProcedure(void)
 	{
 		rc = readHeaderProcedureImpl();
 	}
-	catch(InvalidMarkerException& ime)
+	catch(const InvalidMarkerException& ime)
 	{
 		Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 		rc = false;
@@ -863,7 +863,7 @@ bool CodeStreamDecompress::decompressTile(void)
 					return false;
 			}
 		}
-		catch(CorruptTLMException& cte)
+		catch(const CorruptTLMException& cte)
 		{
 			return false;
 		}
@@ -878,7 +878,7 @@ bool CodeStreamDecompress::decompressTile(void)
 			if(!parseTileParts(&canDecompress))
 				return false;
 		}
-		catch(InvalidMarkerException& ime)
+		catch(const InvalidMarkerException& ime)
 		{
 			Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 			return false;
@@ -907,7 +907,7 @@ bool CodeStreamDecompress::decompressTile(void)
 					return false;
 			}
 		}
-		catch(InvalidMarkerException& ime)
+		catch(const InvalidMarkerException& ime)
 		{
 			Logger::logger_.error("Found invalid marker : 0x%x", ime.marker_);
 			return false;
@@ -923,7 +923,7 @@ bool CodeStreamDecompress::checkForIllegalTilePart(void)
 		uint16_t markerSize;
 		readCurrentMarkerBody(&markerSize);
 	}
-	catch(CorruptSOTMarkerException& csme)
+	catch(const CorruptSOTMarkerException& csme)
 	{
 		return true;
 	}

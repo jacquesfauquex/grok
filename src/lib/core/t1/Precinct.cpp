@@ -96,7 +96,7 @@ TagTreeU16* PrecinctImpl::getIncludeTagTree(void)
 			{
 				incltree = new TagTreeU16(grid_width, grid_height);
 			}
-			catch([[maybe_unused]] std::exception& e)
+			catch([[maybe_unused]] const std::exception& e)
 			{
 				Logger::logger_.warn("No incltree created.");
 				throw;
@@ -121,7 +121,7 @@ TagTreeU8* PrecinctImpl::getIMsbTagTree(void)
 			{
 				imsbtree = new TagTreeU8(grid_width, grid_height);
 			}
-			catch([[maybe_unused]] std::exception& e)
+			catch([[maybe_unused]] const std::exception& e)
 			{
 				Logger::logger_.warn("No imsbtree created.");
 				throw;

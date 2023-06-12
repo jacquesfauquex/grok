@@ -61,7 +61,7 @@ bool FileFormatDecompress::read_asoc(uint8_t* header_data, uint32_t header_data_
 	{
 		read_asoc(&root_asoc, &header_data, &header_data_size, header_data_size);
 	}
-	catch([[maybe_unused]] BadAsocException& bae)
+	catch([[maybe_unused]] const BadAsocException& bae)
 	{
 		return false;
 	}
@@ -535,7 +535,7 @@ bool FileFormatDecompress::readHeaderProcedureImpl(void)
 		}
 		rc = true;
 	}
-	catch([[maybe_unused]] CorruptJP2BoxException& ex)
+	catch([[maybe_unused]] const CorruptJP2BoxException& ex)
 	{
 		rc = false;
 	}

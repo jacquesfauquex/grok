@@ -30,7 +30,7 @@ bool ResDecompressBlocks::empty(void) const
 }
 void ResDecompressBlocks::release(void)
 {
-	for(auto& b : blocks_)
+	for(const auto& b : blocks_)
 		delete b;
 	blocks_.clear();
 }
@@ -222,7 +222,7 @@ bool DecompressScheduler::decompressBlock(T1Interface* impl, DecompressBlockExec
 		delete block;
 		return rc;
 	}
-	catch(std::runtime_error& rerr)
+	catch(const std::runtime_error& rerr)
 	{
 		delete block;
 		Logger::logger_.error(rerr.what());

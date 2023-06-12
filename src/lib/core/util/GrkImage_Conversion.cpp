@@ -299,7 +299,6 @@ void GrkImage::convertPrecision(void)
 		{ /* GRAY_ALPHA, RGB, RGB_ALPHA */
 			for(uint16_t i = 0; i < numcomps; ++i)
 				scaleComponent(comps + i, 8);
-			prec = 8;
 		}
 		else if((prec > 1) && (prec < 8) && ((prec == 6) || ((prec & 1) == 1)))
 		{ /* GRAY with non native precision */

@@ -209,7 +209,7 @@ static int parseCommandLine(int argc, char** argv, grk_decompress_parameters* pa
 		if(flagArg.isSet())
 			inputFolder->flag = flagArg.getValue();
 	}
-	catch(TCLAP::ArgException& e) // catch any exceptions
+	catch(const TCLAP::ArgException& e) // catch any exceptions
 	{
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
 		return 1;

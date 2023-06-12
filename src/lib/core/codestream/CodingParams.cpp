@@ -291,7 +291,7 @@ bool DecompressorState::findNextSOT(CodeStreamDecompress* codeStream)
 				return true;
 			}
 		}
-		catch([[maybe_unused]] InvalidMarkerException& ume)
+		catch([[maybe_unused]] const InvalidMarkerException& ume)
 		{
 			setState(DECOMPRESS_STATE_NO_EOC);
 			Logger::logger_.warn("findNextTile: expected EOC or SOT "

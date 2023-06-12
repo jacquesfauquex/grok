@@ -41,7 +41,6 @@
 
 #include <filesystem>
 #include "common.h"
-#include "codec_common.h"
 using namespace grk;
 #include "grk_apps_config.h"
 #include "grok.h"
@@ -547,7 +546,7 @@ int GrkCompress::main(int argc, char** argv, grk_image* in_image, grk_stream_par
 						 numCompressedFiles > 1 ? "ms/image" : "ms");
 		}
 	}
-	catch(std::bad_alloc& ba)
+	catch(const std::bad_alloc& ba)
 	{
 		spdlog::error(" Out of memory. Exiting.");
 		success = 1;
@@ -1772,7 +1771,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			parameters->enableTilePartGeneration = true;
 		}
 	}
-	catch(TCLAP::ArgException& e) // catch any exceptions
+	catch(const TCLAP::ArgException& e) // catch any exceptions
 	{
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
 		return 1;

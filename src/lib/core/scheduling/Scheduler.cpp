@@ -30,7 +30,7 @@ Scheduler::~Scheduler()
 	for(uint16_t compno = 0; compno < numcomps_; ++compno)
 		delete imageComponentFlows_[compno];
 	delete[] imageComponentFlows_;
-	for(auto& t : t1Implementations)
+	for(const auto& t : t1Implementations)
 		delete t;
 	delete prePostProc_;
 }

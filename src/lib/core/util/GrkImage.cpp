@@ -819,7 +819,6 @@ bool GrkImage::apply_palette_clr()
 		switch(mapping->mapping_type)
 		{
 			case 0: {
-				auto src = oldComps[compno].data;
 				size_t num_pixels = (size_t)newComps[channel].stride * newComps[channel].h;
 				memcpy(newComps[channel].data, src, num_pixels * sizeof(int32_t));
 			}

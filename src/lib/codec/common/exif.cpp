@@ -128,7 +128,7 @@ void transferExifTags([[maybe_unused]] const std::string &src, [[maybe_unused]] 
 	{
 		PerlScriptRunner::instance();
 	}
-	catch(std::runtime_error& re)
+	catch(const std::runtime_error& re)
 	{
 		std::cout << re.what() << std::endl;
 		return;

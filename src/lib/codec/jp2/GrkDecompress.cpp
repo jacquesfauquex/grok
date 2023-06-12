@@ -38,7 +38,6 @@
 
 #include "grk_apps_config.h"
 #include "common.h"
-#include "codec_common.h"
 #include "grok.h"
 #include "spdlog/spdlog.h"
 #include "RAWFormat.h"
@@ -679,7 +678,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		if(durationArg.isSet())
 			parameters->duration = durationArg.getValue();
 	}
-	catch(TCLAP::ArgException& e) // catch any exceptions
+	catch(const TCLAP::ArgException& e) // catch any exceptions
 	{
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
 		return 1;
@@ -1083,7 +1082,7 @@ int GrkDecompress::preProcess(grk_plugin_decompress_callback_info* info)
 		info->image = grk_decompress_get_composited_image(info->codec);
 		auto img = info->image;
 
-		float val[4] = {info->decompressor_parameters->dw_x0, info->decompressor_parameters->dw_y0,
+		const float val[4] = {info->decompressor_parameters->dw_x0, info->decompressor_parameters->dw_y0,
 						info->decompressor_parameters->dw_x1, info->decompressor_parameters->dw_y1};
 		bool allLessThanOne = true;
 		for(uint8_t i = 0; i < 4; ++i)
@@ -1320,14 +1319,14 @@ int GrkDecompress::main(int argc, char** argv)
 				for(const auto& entry :
 					std::filesystem::directory_iterator(initParams.inputFolder.imgdirpath))
 				{
-					if(decompress(entry.path().filename().string(), &initParams) == 1)
+					if(entry.is_regular_file() && decompress(entry.path().filename().string(), &initParams) == 1)
 						numDecompressed++;
 				}
 			}
 		}
 		printTiming(numDecompressed, std::chrono::high_resolution_clock::now() - start);
 	}
-	catch([[maybe_unused]] std::bad_alloc& ba)
+	catch([[maybe_unused]] const std::bad_alloc& ba)
 	{
 		spdlog::error("Out of memory. Exiting.");
 		rc = 1;

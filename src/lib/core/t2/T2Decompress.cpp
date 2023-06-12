@@ -56,7 +56,7 @@ void T2Decompress::decompressPackets(uint16_t tile_no, SparseBuffer* src,
 					break;
 				}
 			}
-			catch([[maybe_unused]] TruncatedPacketHeaderException& tex)
+			catch([[maybe_unused]] const TruncatedPacketHeaderException& tex)
 			{
 				Logger::logger_.warn(
 					"Truncated packet: tile=%u component=%02d resolution=%02d precinct=%03d "
@@ -66,7 +66,7 @@ void T2Decompress::decompressPackets(uint16_t tile_no, SparseBuffer* src,
 				*stopProcessionPackets = true;
 				break;
 			}
-			catch([[maybe_unused]] CorruptPacketException& cex)
+			catch([[maybe_unused]] const CorruptPacketException& cex)
 			{
 				// we can skip corrupt packet if PLT markers are present
 				if(!tileProcessor->packetLengthCache.getMarkers())
@@ -149,7 +149,7 @@ bool T2Decompress::processPacket(uint16_t compno, uint8_t resno, uint64_t precin
 		{
 			parser->readHeader();
 		}
-		catch([[maybe_unused]] std::exception& ex)
+		catch([[maybe_unused]] const std::exception& ex)
 		{
 			delete parser;
 			throw;
@@ -160,7 +160,7 @@ bool T2Decompress::processPacket(uint16_t compno, uint8_t resno, uint64_t precin
 	{
 		src->incrementCurrentChunkOffset(packetLen);
 	}
-	catch([[maybe_unused]] SparseBufferOverrunException& sboe)
+	catch([[maybe_unused]] const SparseBufferOverrunException& sboe)
 	{
 		delete parser;
 		return false;
@@ -188,7 +188,7 @@ void T2Decompress::readPacketData(Resolution* res, PacketParser* parser, uint64_
 			parser->readData();
 			delete parser;
 		}
-		catch([[maybe_unused]] std::exception& ex)
+		catch([[maybe_unused]] const  std::exception& ex)
 		{
 			delete parser;
 			throw;

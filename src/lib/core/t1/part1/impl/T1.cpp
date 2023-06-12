@@ -451,11 +451,10 @@ int T1::enc_is_term_pass(cblk_enc* cblk, uint32_t cblksty, int32_t bpno, uint32_
 #define enc_sigpass_step_macro(datap, ci, vsc)                                                   \
 	{                                                                                            \
 		uint32_t v;                                                                              \
-		uint32_t const flags = *flagsp;                                                          \
-		if((flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))) == 0U &&                             \
-		   (flags & (T1_SIGMA_NEIGHBOURS << (ci))) != 0U)                                        \
+		if((*flagsp & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))) == 0U &&                             \
+		   (*flagsp & (T1_SIGMA_NEIGHBOURS << (ci))) != 0U)                                        \
 		{                                                                                        \
-			uint8_t ctxno = getctxno_zc(mqc, flags >> (ci));                                     \
+			uint8_t ctxno = getctxno_zc(mqc, *flagsp >> (ci));                                     \
 			v = !!(smr_abs(*(datap)) & (uint32_t)one);                                           \
 			curctx = mqc->ctxs + ctxno;                                                          \
 			if(type == T1_TYPE_RAW)                                                              \
@@ -1058,10 +1057,8 @@ inline void T1::dec_sigpass_step_raw(grk_flag* flagsp, int32_t* datap, int32_t o
 									 uint32_t vsc, uint32_t ci)
 {
 	auto mqc = &(coder);
-	uint32_t const flags = *flagsp;
-
-	if((flags & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))) == 0U &&
-	   (flags & (T1_SIGMA_NEIGHBOURS << (ci))) != 0U)
+	if((*flagsp & ((T1_SIGMA_THIS | T1_PI_THIS) << (ci))) == 0U &&
+	   (*flagsp & (T1_SIGMA_NEIGHBOURS << (ci))) != 0U)
 	{
 		if(mqc_raw_decode(mqc))
 		{

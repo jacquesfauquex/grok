@@ -292,7 +292,7 @@ void PacketParser::readHeader(void)
 		bio->inalign();
 		currentHeaderPtr += bio->numBytes();
 	}
-	catch([[maybe_unused]] InvalidMarkerException& ex)
+	catch([[maybe_unused]] const InvalidMarkerException& ex)
 	{
 		headerError_ = true;
 		throw CorruptPacketHeaderException();
@@ -494,7 +494,7 @@ ParserMap::ParserMap(TileProcessor* tileProcessor) : tileProcessor_(tileProcesso
 
 ParserMap::~ParserMap()
 {
-	for(auto& p : precinctParsers_)
+	for(const auto& p : precinctParsers_)
 		delete p.second;
 }
 

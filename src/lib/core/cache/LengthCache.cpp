@@ -131,7 +131,7 @@ CodeStreamInfo::CodeStreamInfo(BufferedStream* str)
 {}
 CodeStreamInfo::~CodeStreamInfo()
 {
-	for(auto& m : marker)
+	for(const auto& m : marker)
 		delete m;
 	delete[] tileInfo;
 }
@@ -534,7 +534,7 @@ bool TileLengthMarkers::addTileMarkerInfo(uint16_t tileno, CodeStreamInfo* codes
 PacketInfo::PacketInfo(void) : packetLength(0) {}
 PacketInfoCache::~PacketInfoCache()
 {
-	for(auto& p : packetInfo)
+	for(const auto& p : packetInfo)
 		delete p;
 }
 

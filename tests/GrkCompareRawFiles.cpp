@@ -67,7 +67,7 @@ static int parse_cmdline_cmp(int argc, char** argv, test_cmp_parameters* param)
 			index++;
 		}
 	}
-	catch(TCLAP::ArgException& e) // catch any exceptions
+	catch(const TCLAP::ArgException& e) // catch any exceptions
 	{
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
 		return 0;

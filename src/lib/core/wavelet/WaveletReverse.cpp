@@ -1629,25 +1629,25 @@ class Partial53 : public PartialInterleaver<T, FILTER_WIDTH, VERT_PASS_WIDTH>
 		}
 	}
 #ifdef GRK_DEBUG_SPARSE
-	inline T get_S(T* buf, int64_t i)
+	inline T get_S(T* const buf, int64_t i)
 	{
 		auto ret = buf[(i) << 1];
 		assert(abs(ret) < 0xFFFFFFF);
 		return ret;
 	}
-	inline T get_D(T* buf, int64_t i)
+	inline T get_D(T* const buf, int64_t i)
 	{
 		auto ret = buf[(1 + ((i) << 1))];
 		assert(abs(ret) < 0xFFFFFFF);
 		return ret;
 	}
-	inline T get_S_off(T* buf, int64_t i, int64_t off)
+	inline T get_S_off(T* const buf, int64_t i, int64_t off)
 	{
 		auto ret = buf[(i)*2 * VERT_PASS_WIDTH + off];
 		assert(abs(ret) < 0xFFFFFFF);
 		return ret;
 	}
-	inline T get_D_off(T* buf, int64_t i, int64_t off)
+	inline T get_D_off(T* const buf, int64_t i, int64_t off)
 	{
 		auto ret = buf[(1 + (i)*2) * VERT_PASS_WIDTH + off];
 		assert(abs(ret) < 0xFFFFFFF);
@@ -2029,9 +2029,9 @@ WaveletReverse::WaveletReverse(TileProcessor* tileProcessor, TileComponent* tile
 {}
 WaveletReverse::~WaveletReverse(void)
 {
-	for(auto& t : tasks_)
+	for(const auto& t : tasks_)
 		delete t;
-	for(auto& t : tasksF_)
+	for(const auto& t : tasksF_)
 		delete t;
 }
 bool WaveletReverse::decompress(void)

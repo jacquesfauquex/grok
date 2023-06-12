@@ -492,7 +492,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 					for(uint8_t resno = 0; resno < tilec->numResolutionsToDecompress; ++resno)
 					{
 						auto res = tilec->resolutions_ + resno;
-						for(auto& pp : res->parserMap_->precinctParsers_)
+						for(const auto& pp : res->parserMap_->precinctParsers_)
 						{
 							for(uint64_t j = 0; j < pp.second->numParsers_; ++j)
 							{
@@ -502,7 +502,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 									parser->readHeader();
 									parser->readData();
 								}
-								catch([[maybe_unused]] std::exception& ex)
+								catch([[maybe_unused]] const  std::exception& ex)
 								{
 									break;
 								}
@@ -525,7 +525,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 					for(uint8_t resno = 0; resno < tilec->numResolutionsToDecompress; ++resno)
 					{
 						auto res = tilec->resolutions_ + resno;
-						for(auto& pp : res->parserMap_->precinctParsers_)
+						for(const auto& pp : res->parserMap_->precinctParsers_)
 						{
 							auto& ppair = pp;
 							auto decompressor = [ppair]() {
@@ -537,7 +537,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 										parser->readHeader();
 										parser->readData();
 									}
-									catch([[maybe_unused]] std::exception& ex)
+									catch([[maybe_unused]] const  std::exception& ex)
 									{
 										break;
 									}
@@ -571,11 +571,11 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 				{
 					tilec->allocRegionWindow(tilec->highestResolutionDecompressed + 1U, truncated);
 				}
-				catch([[maybe_unused]] std::runtime_error& ex)
+				catch([[maybe_unused]] const std::runtime_error& ex)
 				{
 					continue;
 				}
-				catch([[maybe_unused]] std::bad_alloc& baex)
+				catch([[maybe_unused]] const std::bad_alloc& baex)
 				{
 					return false;
 				}
@@ -1116,7 +1116,7 @@ bool TileProcessor::cacheTilePartPackets(CodeStreamDecompress* codeStream)
 			{
 				buff = new uint8_t[len];
 			}
-			catch([[maybe_unused]] std::bad_alloc& ex)
+			catch([[maybe_unused]] const std::bad_alloc& ex)
 			{
 				Logger::logger_.error("Not enough memory to allocate segment");
 

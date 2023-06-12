@@ -43,7 +43,6 @@ set(GROK_CODEC_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/image_format/PNGFormat.h
   ${CMAKE_CURRENT_SOURCE_DIR}/image_format/JPEGFormat.h
   ${CMAKE_CURRENT_SOURCE_DIR}/common/common.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/codec_common.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/common.h
   ${CMAKE_CURRENT_SOURCE_DIR}/common/grk_string.h
   ${CMAKE_CURRENT_SOURCE_DIR}/common/exif.cpp

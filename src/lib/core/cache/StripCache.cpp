@@ -56,7 +56,7 @@ StripCache::StripCache()
 {}
 StripCache::~StripCache()
 {
-	for(auto& p : pools_)
+	for(const auto& p : pools_)
 		delete p;
 	for(uint16_t i = 0; i < numStrips_; ++i)
 		delete strips[i];

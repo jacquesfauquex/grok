@@ -115,13 +115,12 @@ void dwt97::encode_step1_combined(float* fw, uint32_t iters_c1, uint32_t iters_c
 
 void dwt97::encode_step2(float* fl, float* fw, uint32_t end, uint32_t m, float c)
 {
-	uint32_t i;
 	uint32_t imax = std::min<uint32_t>(end, m);
 	if(imax > 0)
 	{
 		fw[-1] += (fl[0] + fw[0]) * c;
 		fw += 2;
-		i = 1;
+		uint32_t i = 1;
 		for(; i + 3 < imax; i += 4)
 		{
 			fw[-1] += (fw[-2] + fw[0]) * c;
@@ -456,8 +455,8 @@ bool WaveletFwdImpl::encode_procedure(TileComponent* tilec)
 			if(num_jobs > 1)
 			{
 				node = new tf::Task[num_jobs];
-				for(uint64_t i = 0; i < num_jobs; i++)
-					node[i] = taskflow.placeholder();
+				for(uint64_t j = 0; j < num_jobs; j++)
+					node[j] = taskflow.placeholder();
 			}
 			for(uint32_t j = 0; j < num_jobs; j++)
 			{
@@ -525,8 +524,8 @@ bool WaveletFwdImpl::encode_procedure(TileComponent* tilec)
 			if(num_jobs > 1)
 			{
 				node = new tf::Task[num_jobs];
-				for(uint64_t i = 0; i < num_jobs; i++)
-					node[i] = taskflow.placeholder();
+				for(uint64_t j = 0; j < num_jobs; j++)
+					node[j] = taskflow.placeholder();
 			}
 			for(uint32_t j = 0; j < num_jobs; j++)
 			{
@@ -552,13 +551,9 @@ bool WaveletFwdImpl::encode_procedure(TileComponent* tilec)
 					job->max_j = rh;
 				}
 				if(node)
-				{
 					node[j].work([job] { encode_h_func<T, DWT>(job); });
-				}
 				else
-				{
 					encode_h_func<T, DWT>(job);
-				}
 			}
 			if(node)
 			{
@@ -738,10 +733,10 @@ void dwt53::encode_and_deinterleave_v(int32_t* arrayIn, int32_t* tmpIn, uint32_t
 #else
 	if(even)
 	{
-		uint32_t c;
 		if(height > 1)
 		{
 			uint32_t i;
+			uint32_t c;
 			for(i = 0; i + 1 < sn; i++)
 			{
 				for(c = 0; c < NB_ELTS_V8; c++)

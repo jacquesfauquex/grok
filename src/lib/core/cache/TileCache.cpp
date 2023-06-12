@@ -31,7 +31,7 @@ TileCache::TileCache(GRK_TILE_CACHE_STRATEGY strategy) : tileComposite(nullptr),
 TileCache::TileCache() : TileCache(GRK_TILE_CACHE_NONE) {}
 TileCache::~TileCache()
 {
-	for(auto& proc : cache_)
+	for(const auto& proc : cache_)
 		delete proc.second;
 	if(tileComposite)
 		grk_object_unref(&tileComposite->obj);
@@ -85,7 +85,7 @@ std::vector<GrkImage*> TileCache::getAllImages(void)
 std::vector<GrkImage*> TileCache::getTileImages(void)
 {
 	std::vector<GrkImage*> rc;
-	for(auto& entry : cache_)
+	for(const auto& entry : cache_)
 	{
 		auto image = entry.second->processor->getImage();
 		if(image)
