@@ -78,6 +78,7 @@ struct Codeblock : public grk_buf2d<int32_t, AllocatorAligned>, public ICacheabl
 		delete[] numPassesInPacket;
 	}
 	void init(void) {
+		assert(!numPassesInPacket);
 		numPassesInPacket = new uint8_t[numlayers_];
 		memset(numPassesInPacket, 0, numlayers_);
 	}
@@ -182,7 +183,6 @@ struct DecompressCodeblock : public Codeblock
 #endif
 		  numSegmentsAllocated(0)
 	{
-		Codeblock::init();
 	}
 	virtual ~DecompressCodeblock()
 	{
