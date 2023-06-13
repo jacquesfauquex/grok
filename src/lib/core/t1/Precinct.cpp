@@ -68,8 +68,7 @@ bool PrecinctImpl::initCodeBlock(T* block, uint64_t cblkno)
 {
 	if(!block->empty())
 		return true;
-	if(!block->init())
-		return false;
+	block->init();
 	block->setRect(getCodeBlockBounds(cblkno));
 
 	return true;

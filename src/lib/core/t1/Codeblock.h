@@ -65,47 +65,21 @@ struct Layer
 struct Codeblock : public grk_buf2d<int32_t, AllocatorAligned>, public ICacheable
 {
 	Codeblock(uint16_t numLayers)
-		: numbps(0), numlenbits(0)
+		: numbps(0), numlenbits(0), numPassesInPacket(nullptr), numlayers_(numLayers)
 #ifdef DEBUG_LOSSLESS_T2
 		  ,
 		  included(false)
 #endif
 	{
-		numPassesInPacket = std::vector<uint8_t>(numLayers);
-		std::fill(numPassesInPacket.begin(), numPassesInPacket.end(), 0);
 	}
 	virtual ~Codeblock()
 	{
 		compressedStream.dealloc();
+		delete[] numPassesInPacket;
 	}
-	Codeblock(const Codeblock& rhs)
-		: grk_buf2d(rhs), numbps(rhs.numbps), numlenbits(rhs.numlenbits),
-		  numPassesInPacket(rhs.numPassesInPacket)
-#ifdef DEBUG_LOSSLESS_T2
-		  ,
-		  included(0)
-#endif
-	{
-		compressedStream = rhs.compressedStream;
-	}
-	Codeblock& operator=(const Codeblock& rhs)
-	{
-		if(this != &rhs)
-		{ // self-assignment check expected
-			x0 = rhs.x0;
-			y0 = rhs.y0;
-			x1 = rhs.x1;
-			y1 = rhs.y1;
-			compressedStream = rhs.compressedStream;
-			numbps = rhs.numbps;
-			numlenbits = rhs.numlenbits;
-			numPassesInPacket = rhs.numPassesInPacket;
-#ifdef DEBUG_LOSSLESS_T2
-			included = rhs.included;
-			packet_length_info = rhs.packet_length_info;
-#endif
-		}
-		return *this;
+	void init(void) {
+		numPassesInPacket = new uint8_t[numlayers_];
+		memset(numPassesInPacket, 0, numlayers_);
 	}
 	void setRect(grk_rect32 r)
 	{
@@ -116,26 +90,31 @@ struct Codeblock : public grk_buf2d<int32_t, AllocatorAligned>, public ICacheabl
 	uint8_t numlenbits;
 	uint8_t getNumPassesInPacket(uint16_t layno)
 	{
-		assert(layno < numPassesInPacket.size());
+		assert(layno < numlayers_);
 		return numPassesInPacket[layno];
 	}
 	void setNumPassesInPacket(uint16_t layno, uint8_t passes)
 	{
-		assert(layno < numPassesInPacket.size());
+		assert(layno < numlayers_);
 		numPassesInPacket[layno] = passes;
 	}
 	void incNumPassesInPacket(uint16_t layno, uint8_t delta)
 	{
-		assert(layno < numPassesInPacket.size());
+		assert(layno < numlayers_);
 		numPassesInPacket[layno] += delta;
 	}
 
   protected:
-	std::vector<uint8_t> numPassesInPacket;
+	uint8_t *numPassesInPacket;
+	uint16_t numlayers_;
 #ifdef DEBUG_LOSSLESS_T2
 	uint32_t included;
 	std::vector<PacketLengthInfo> packet_length_info;
 #endif
+
+private:
+	explicit Codeblock(const Codeblock& rhs) = default;
+	Codeblock& operator=(const Codeblock& rhs) = default;
 };
 
 struct CompressCodeblock : public Codeblock
@@ -150,25 +129,16 @@ struct CompressCodeblock : public Codeblock
 	{}
 	virtual ~CompressCodeblock()
 	{
-		compressedStream.dealloc();
-		grk_free(layers);
-		grk_free(passes);
+		delete[] layers;
+		delete[] passes;
 	}
-	bool init()
+	void init()
 	{
+		Codeblock::init();
 		if(!layers)
-		{
-			layers = (Layer*)grk_calloc(maxCompressLayersGRK, sizeof(Layer));
-			if(!layers)
-				return false;
-		}
+			layers = new Layer[numlayers_];
 		if(!passes)
-		{
-			passes = (CodePass*)grk_calloc(100, sizeof(CodePass));
-			if(!passes)
-				return false;
-		}
-		return true;
+			passes = new CodePass[3*32-2];
 	}
 	/**
 	 * Allocates data memory for an compressing code block.
@@ -196,7 +166,7 @@ struct CompressCodeblock : public Codeblock
 	uint8_t* paddedCompressedStream;
 	Layer* layers;
 	CodePass* passes;
-	uint32_t numPassesInPreviousPackets; /* number of passes in previous packets */
+	uint32_t numPassesInPreviousPackets;
 	uint32_t numPassesTotal; /* total number of passes in all layers */
 #ifdef PLUGIN_DEBUG_ENCODE
 	uint32_t* contextStream;
@@ -211,7 +181,9 @@ struct DecompressCodeblock : public Codeblock
 		  included(0),
 #endif
 		  numSegmentsAllocated(0)
-	{}
+	{
+		Codeblock::init();
+	}
 	virtual ~DecompressCodeblock()
 	{
 		release();
@@ -224,7 +196,7 @@ struct DecompressCodeblock : public Codeblock
 			segs = new Segment[numSegmentsAllocated];
 			numSegmentsAllocated = 1;
 		}
-		else if(segmentIndex >= numSegmentsAllocated)
+		else if(numSegmentsAllocated > 0 && segmentIndex >= numSegmentsAllocated)
 		{
 			auto new_segs = new Segment[2 * numSegmentsAllocated];
 			for(uint32_t i = 0; i < numSegmentsAllocated; ++i)
@@ -235,10 +207,6 @@ struct DecompressCodeblock : public Codeblock
 		}
 
 		return segs + segmentIndex;
-	}
-	bool init()
-	{
-		return true;
 	}
 	uint32_t getNumSegments(void)
 	{
