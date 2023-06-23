@@ -1404,6 +1404,8 @@ typedef struct _grk_plugin_init_info
 {
 	int32_t deviceId;
 	bool verbose;
+	const char* license;
+	const char* server;
 } grk_plugin_init_info;
 
 /**

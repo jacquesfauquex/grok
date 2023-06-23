@@ -411,19 +411,23 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 												"unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> inputFileArg("i", "in_file", "Input file", false, "", "string",
 												  cmd);
-		TCLAP::ValueArg<uint16_t> layerArg("l", "layer", "layer", false, 0, "unsigned integer",
-										   cmd);
-		TCLAP::ValueArg<uint32_t> randomAccessArg("m", "random_access",
-												  "Toggle support for random access"
-												  " into code stream",
-												  false, 0, "unsigned integer", cmd);
+		TCLAP::ValueArg<std::string> licenseArg("j", "license", "License", false, "", "string",
+												  cmd);
+		TCLAP::ValueArg<std::string> serverArg("J", "server", "Server", false, "", "string",
+												  cmd);
 		// Kernel build flags:
 		// 1 indicates build binary, otherwise load binary
 		// 2 indicates generate binaries
 		TCLAP::ValueArg<uint32_t> kernelBuildOptionsArg("k", "kernel_build", "Kernel build options",
 														false, 0, "unsigned integer", cmd);
+		TCLAP::ValueArg<uint16_t> layerArg("l", "layer", "layer", false, 0, "unsigned integer",
+										   cmd);
 		TCLAP::ValueArg<uint32_t> compressionLevelArg("L", "compression_level", "compression Level",
 													  false, UINT_MAX, "unsigned integer", cmd);
+		TCLAP::ValueArg<uint32_t> randomAccessArg("m", "random_access",
+												  "Toggle support for random access"
+												  " into code stream",
+												  false, 0, "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> outputFileArg("o", "out_file", "Output file", false, "",
 												   "string", cmd);
 		TCLAP::ValueArg<std::string> outForArg("O", "out_fmt", "Output Format", false, "", "string",

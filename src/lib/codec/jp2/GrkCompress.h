@@ -33,6 +33,8 @@ struct CompressInitParams
 	bool transferExifTags;
 	grk_image* in_image;
 	grk_stream_params* stream_;
+	std::string license_;
+	std::string server_;
 };
 
 class GrkCompress

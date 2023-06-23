@@ -605,8 +605,11 @@ int GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initParam
 
 	// create codec
 	grk_plugin_init_info initInfo;
+	memset(&initInfo, 0, sizeof(initInfo));
 	initInfo.deviceId = initParams->parameters.deviceId;
 	initInfo.verbose = initParams->parameters.verbose;
+	initInfo.license = initParams->license_.c_str();
+	initInfo.server = initParams->server_.c_str();
 	if(!grk_plugin_init(initInfo))
 		return -1;
 
@@ -693,8 +696,10 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		TCLAP::ValueArg<std::string> inputFileArg("i", "in_file", "Input file", false, "", "string",
 												  cmd);
 		TCLAP::SwitchArg irreversibleArg("I", "irreversible", "Irreversible", cmd);
-		TCLAP::ValueArg<uint32_t> durationArg("J", "duration", "Duration in seconds", false, 0,
-											  "unsigned integer", cmd);
+		TCLAP::ValueArg<std::string> licenseArg("j", "license", "License", false, "", "string",
+												  cmd);
+		TCLAP::ValueArg<std::string> serverArg("J", "server", "Server", false, "", "string",
+												  cmd);
 		// Kernel build flags:
 		// 1 indicates build binary, otherwise load binary
 		// 2 indicates generate binaries
@@ -702,11 +707,12 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 														false, 0, "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> inForArg("K", "in_fmt", "InputFormat format", false, "",
 											  "string", cmd);
+		TCLAP::ValueArg<uint32_t> durationArg("l", "duration", "Duration in seconds", false, 0,
+											  "unsigned integer", cmd);
 		TCLAP::SwitchArg pltArg("L", "PLT", "PLT marker", cmd);
 		TCLAP::ValueArg<std::string> customMCTArg("m", "custom_mct", "MCT input file", false, "",
 												  "string", cmd);
 		TCLAP::ValueArg<uint32_t> cblkSty("M", "mode", "mode", false, 0, "unsigned integer", cmd);
-
 		TCLAP::ValueArg<uint32_t> resolutionArg("n", "num_resolutions", "Resolution", false, 0,
 												"unsigned integer", cmd);
 		TCLAP::ValueArg<uint32_t> guardBits("N", "guard_bits", "Number of guard bits", false, 2,
@@ -717,7 +723,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 											   cmd);
 		TCLAP::ValueArg<std::string> progressionOrderArg(
 			"p", "progression_order", "Progression order", false, "", "string", cmd);
-
 		TCLAP::ValueArg<std::string> pocArg("P", "POC", "Progression order changes", false, "",
 											"string", cmd);
 		TCLAP::ValueArg<std::string> qualityArg("q", "quality", "layer rates expressed as quality",
@@ -730,20 +735,20 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		TCLAP::ValueArg<std::string> roiArg("R", "ROI", "Region of interest", false, "", "string",
 											cmd);
 		TCLAP::SwitchArg sopArg("S", "SOP", "Add SOP markers", cmd);
-
-		TCLAP::ValueArg<std::string> tileOffsetArg("T", "tile_offset", "Tile offset", false, "",
-												   "string", cmd);
-
 		TCLAP::ValueArg<std::string> tilesArg("t", "tile_dims", "Tile dimensions", false, "",
 											  "string", cmd);
+		TCLAP::ValueArg<std::string> tileOffsetArg("T", "tile_offset", "Tile offset", false, "",
+												   "string", cmd);
 		TCLAP::ValueArg<uint8_t> tpArg("u", "tile_parts", "Tile part generation", false, 0,
 									   "uint8_t", cmd);
+		TCLAP::ValueArg<std::string> BroadcastArg("U", "broadcast", "Broadcast profile", false, "",
+												  "string", cmd);
 		TCLAP::SwitchArg verboseArg("v", "verbose", "Verbose", cmd);
 		TCLAP::SwitchArg transferExifTagsArg("V", "transfer_exif_tags", "Transfer Exif tags", cmd);
-		TCLAP::ValueArg<std::string> logfileArg("W", "logfile", "Log file", false, "", "string",
-												cmd);
 		TCLAP::ValueArg<std::string> cinema2KArg("w", "cinema2K", "Digital cinema 2K profile",
 												 false, "24", "string", cmd);
+		TCLAP::ValueArg<std::string> logfileArg("W", "logfile", "Log file", false, "", "string",
+												cmd);
 		TCLAP::ValueArg<std::string> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile",
 												 false, "24", "string", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
@@ -751,16 +756,19 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 											  "string", cmd);
 		TCLAP::ValueArg<uint32_t> mctArg("Y", "MCT", "Multi component transform", false, 0,
 										 "unsigned integer", cmd);
-		TCLAP::ValueArg<uint16_t> rsizArg("Z", "rsiz", "rsiz", false, 0, "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> IMFArg("z", "IMF", "IMF profile", false, "", "string", cmd);
-		TCLAP::ValueArg<std::string> BroadcastArg("U", "broadcast", "Broadcast profile", false, "",
-												  "string", cmd);
+		TCLAP::ValueArg<uint16_t> rsizArg("Z", "rsiz", "rsiz", false, 0, "unsigned integer", cmd);
 		cmd.parse(argc, argv);
 		if(logfileArg.isSet())
 		{
 			auto file_logger = spdlog::basic_logger_mt("grk_compress", logfileArg.getValue());
 			spdlog::set_default_logger(file_logger);
 		}
+		if (serverArg.isSet() && licenseArg.isSet()) {
+			initParams->server_ = serverArg.getValue();
+			initParams->license_ = licenseArg.getValue();
+		}
+
 		initParams->transferExifTags = transferExifTagsArg.isSet();
 #ifndef GROK_HAVE_EXIFTOOL
 		if(initParams->transferExifTags)
