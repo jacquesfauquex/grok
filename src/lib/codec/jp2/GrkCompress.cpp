@@ -752,7 +752,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		TCLAP::ValueArg<std::string> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile",
 												 false, "24", "string", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
-		TCLAP::ValueArg<std::string> inDirArg("y", "batch_src", "Image directory", false, "",
+		TCLAP::ValueArg<std::string> batchSrcArg("y", "batch_src", "Image directory", false, "",
 											  "string", cmd);
 		TCLAP::ValueArg<uint32_t> mctArg("Y", "MCT", "Multi component transform", false, 0,
 										 "unsigned integer", cmd);
@@ -764,11 +764,16 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			auto file_logger = spdlog::basic_logger_mt("grk_compress", logfileArg.getValue());
 			spdlog::set_default_logger(file_logger);
 		}
-		if (serverArg.isSet() && licenseArg.isSet()) {
-			initParams->server_ = serverArg.getValue();
-			initParams->license_ = licenseArg.getValue();
-		}
+		if(verboseArg.isSet())
+			parameters->verbose = true;
+		else
+			spdlog::set_level(spdlog::level::level_enum::err);
+		grk_set_msg_handlers(parameters->verbose ? infoCallback : nullptr, nullptr,
+							 parameters->verbose ? warningCallback : nullptr, nullptr,
+							 errorCallback, nullptr);
 
+		bool isHT = false;
+#ifndef GRK_BUILD_DCI
 		initParams->transferExifTags = transferExifTagsArg.isSet();
 #ifndef GROK_HAVE_EXIFTOOL
 		if(initParams->transferExifTags)
@@ -782,30 +787,14 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 #endif
 		inputFolder->set_out_format = false;
 		parameters->raw_cp.width = 0;
-
 		if(applyICCArg.isSet())
 			parameters->apply_icc_ = true;
-
 		if(pltArg.isSet())
 			parameters->writePLT = true;
-
 		if(tlmArg.isSet())
 			parameters->writeTLM = true;
-
-		if(verboseArg.isSet())
-			parameters->verbose = true;
-		else
-			spdlog::set_level(spdlog::level::level_enum::err);
-		grk_set_msg_handlers(parameters->verbose ? infoCallback : nullptr, nullptr,
-							 parameters->verbose ? warningCallback : nullptr, nullptr,
-							 errorCallback, nullptr);
-
 		if(repetitionsArg.isSet())
 			parameters->repeats = repetitionsArg.getValue();
-
-		if(kernelBuildOptionsArg.isSet())
-			parameters->kernelBuildOptions = kernelBuildOptionsArg.getValue();
-
 		if(rateControlAlgoArg.isSet())
 		{
 			uint32_t algo = rateControlAlgoArg.getValue();
@@ -815,16 +804,12 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				parameters->rateControlAlgorithm =
 					(GRK_RATE_CONTROL_ALGORITHM)rateControlAlgoArg.getValue();
 		}
-
 		if(numThreadsArg.isSet())
 			parameters->numThreads = numThreadsArg.getValue();
-
 		if(deviceIdArg.isSet())
 			parameters->deviceId = deviceIdArg.getValue();
-
 		if(durationArg.isSet())
 			parameters->duration = durationArg.getValue();
-
 		if(inForArg.isSet())
 		{
 			auto dummy = "dummy." + inForArg.getValue();
@@ -839,7 +824,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 							 infile);
 			}
 		}
-
 		if(inputFileArg.isSet())
 		{
 			char* infile = (char*)inputFileArg.getValue().c_str();
@@ -863,7 +847,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		else
 		{
 			// check for possible input from STDIN
-			if(!inDirArg.isSet() && !initParams->in_image)
+			if(!batchSrcArg.isSet() && !initParams->in_image)
 			{
 				bool fromStdin =
 					inForArg.isSet() && grk::supportedStdioFormat(
@@ -875,26 +859,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				}
 			}
 		}
-
-		if(outForArg.isSet())
-		{
-			std::string outformat = std::string(".") + outForArg.getValue();
-			inputFolder->set_out_format = true;
-			parameters->cod_format = grk_get_file_format(outformat.c_str());
-			switch(parameters->cod_format)
-			{
-				case GRK_FMT_J2K:
-					inputFolder->out_format = "j2k";
-					break;
-				case GRK_FMT_JP2:
-					inputFolder->out_format = "jp2";
-					break;
-				default:
-					spdlog::error("Unknown output format image [only j2k, j2c, jp2] ");
-					return 1;
-			}
-		}
-
 		if(outputFileArg.isSet())
 		{
 			char* outfile = (char*)outputFileArg.getValue().c_str();
@@ -914,7 +878,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				return 1;
 			}
 		}
-		bool isHT = false;
 		if(cblkSty.isSet())
 		{
 			parameters->cblk_sty = cblkSty.getValue() & 0X7F;
@@ -1054,17 +1017,11 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(sscanf(substr1, "%d,%d,%d,%d,%c", &width, &height, &ncomp, &bitdepth, &signo) == 5)
 			{
 				if(signo == 's')
-				{
 					raw_signed = true;
-				}
 				else if(signo == 'u')
-				{
 					raw_signed = false;
-				}
 				else
-				{
 					wrong = true;
-				}
 			}
 			else
 			{
@@ -1142,12 +1099,10 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				return 1;
 			}
 		}
-
 		if(resolutionArg.isSet())
 			parameters->numresolution = (uint8_t)resolutionArg.getValue();
 		else if(cinema4KArg.isSet())
 			parameters->numresolution = GRK_CINEMA_4K_DEFAULT_NUM_RESOLUTIONS;
-
 		if(precinctDimArg.isSet())
 		{
 			char sep;
@@ -1171,7 +1126,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			} while(sep == ',');
 			parameters->res_spec = (uint32_t)res_spec;
 		}
-
 		if(codeBlockDimArg.isSet())
 		{
 			int cblockw_init = 0, cblockh_init = 0;
@@ -1270,39 +1224,12 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				return 1;
 			}
 		}
-
 		if(sopArg.isSet())
 			parameters->csty |= 0x02;
-
 		if(ephArg.isSet())
 			parameters->csty |= 0x04;
-
 		if(irreversibleArg.isSet())
 			parameters->irreversible = true;
-
-		if(pluginPathArg.isSet())
-		{
-			if(pluginPath)
-				strcpy(pluginPath, pluginPathArg.getValue().c_str());
-		}
-
-		inputFolder->set_imgdir = false;
-		if(inDirArg.isSet())
-		{
-			inputFolder->imgdirpath = (char*)malloc(strlen(inDirArg.getValue().c_str()) + 1);
-			strcpy(inputFolder->imgdirpath, inDirArg.getValue().c_str());
-			inputFolder->set_imgdir = true;
-		}
-		if(outFolder)
-		{
-			outFolder->set_imgdir = false;
-			if(outDirArg.isSet())
-			{
-				outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
-				strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
-				outFolder->set_imgdir = true;
-			}
-		}
 		if(guardBits.isSet())
 		{
 			if(guardBits.getValue() > 7)
@@ -1311,224 +1238,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				return 1;
 			}
 			parameters->numgbits = (uint8_t)guardBits.getValue();
-		}
-		// cinema/broadcast profiles
-		if(!isHT)
-		{
-			if(cinema2KArg.isSet())
-			{
-				if(!validateCinema(&cinema2KArg, GRK_PROFILE_CINEMA_2K, parameters))
-					return 1;
-				parameters->writeTLM = true;
-				spdlog::warn(
-					"Cinema 2K profile activated. Other options specified may be overridden");
-			}
-			else if(cinema4KArg.isSet())
-			{
-				if(!validateCinema(&cinema4KArg, GRK_PROFILE_CINEMA_4K, parameters))
-					return 1;
-				spdlog::warn(
-					"Cinema 4K profile activated. Other options specified may be overridden");
-				parameters->writeTLM = true;
-			}
-			else if(BroadcastArg.isSet())
-			{
-				int mainlevel = 0;
-				int profile = 0;
-				int framerate = 0;
-				const char* msg = "Wrong value for -broadcast. Should be "
-								  "<PROFILE>[,mainlevel=X][,framerate=FPS] where <PROFILE> is one "
-								  "of SINGLE/MULTI/MULTI_R.";
-				char* arg = (char*)BroadcastArg.getValue().c_str();
-				char* comma;
-
-				comma = strstr(arg, ",mainlevel=");
-				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
-				{
-					spdlog::error("{}", msg);
-					return 1;
-				}
-				comma = strstr(arg, ",framerate=");
-				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
-				{
-					spdlog::error("{}", msg);
-					return 1;
-				}
-
-				comma = strchr(arg, ',');
-				if(comma != nullptr)
-				{
-					*comma = 0;
-				}
-
-				if(strcmp(arg, "SINGLE") == 0)
-				{
-					profile = GRK_PROFILE_BC_SINGLE;
-				}
-				else if(strcmp(arg, "MULTI") == 0)
-				{
-					profile = GRK_PROFILE_BC_MULTI;
-				}
-				else if(strcmp(arg, "MULTI_R") == 0)
-				{
-					profile = GRK_PROFILE_BC_MULTI_R;
-				}
-				else
-				{
-					spdlog::error("{}", msg);
-					return 1;
-				}
-
-				if(!(mainlevel >= 0 && mainlevel <= 11))
-				{
-					/* Voluntarily rough validation. More fine grained done in library */
-					spdlog::error("Invalid mainlevel value {}.", mainlevel);
-					return 1;
-				}
-				parameters->rsiz = (uint16_t)(profile | mainlevel);
-				spdlog::warn(
-					"Broadcast profile activated. Other options specified may be overridden");
-				parameters->framerate = (uint16_t)framerate;
-				if(framerate > 0)
-				{
-					const int limitMBitsSec[] = {0,
-												 GRK_BROADCAST_LEVEL_1_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_2_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_3_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_4_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_5_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_6_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_7_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_8_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_9_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_10_MBITSSEC,
-												 GRK_BROADCAST_LEVEL_11_MBITSSEC};
-					parameters->max_cs_size =
-						(uint64_t)(limitMBitsSec[mainlevel] * (1000.0 * 1000 / 8) / framerate);
-					spdlog::info("Setting max code stream size to {} bytes.",
-								 parameters->max_cs_size);
-					parameters->writeTLM = true;
-				}
-			}
-			if(IMFArg.isSet())
-			{
-				int mainlevel = 0;
-				int sublevel = 0;
-				int profile = 0;
-				int framerate = 0;
-				const char* msg =
-					"Wrong value for -IMF. Should be "
-					"<PROFILE>[,mainlevel=X][,sublevel=Y][,framerate=FPS] where <PROFILE> is one "
-					"of 2K/4K/8K/2K_R/4K_R/8K_R.";
-				char* arg = (char*)IMFArg.getValue().c_str();
-				char* comma;
-
-				comma = strstr(arg, ",mainlevel=");
-				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
-				{
-					spdlog::error("{}", msg);
-					return 1;
-				}
-
-				comma = strstr(arg, ",sublevel=");
-				if(comma && sscanf(comma + 1, "sublevel=%d", &sublevel) != 1)
-				{
-					spdlog::error("{}", msg);
-					return 1;
-				}
-
-				comma = strstr(arg, ",framerate=");
-				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
-				{
-					spdlog::error("{}", msg);
-					return 1;
-				}
-
-				comma = strchr(arg, ',');
-				if(comma != nullptr)
-				{
-					*comma = 0;
-				}
-
-				if(strcmp(arg, "2K") == 0)
-				{
-					profile = GRK_PROFILE_IMF_2K;
-				}
-				else if(strcmp(arg, "4K") == 0)
-				{
-					profile = GRK_PROFILE_IMF_4K;
-				}
-				else if(strcmp(arg, "8K") == 0)
-				{
-					profile = GRK_PROFILE_IMF_8K;
-				}
-				else if(strcmp(arg, "2K_R") == 0)
-				{
-					profile = GRK_PROFILE_IMF_2K_R;
-				}
-				else if(strcmp(arg, "4K_R") == 0)
-				{
-					profile = GRK_PROFILE_IMF_4K_R;
-				}
-				else if(strcmp(arg, "8K_R") == 0)
-				{
-					profile = GRK_PROFILE_IMF_8K_R;
-				}
-				else
-				{
-					spdlog::error("{}", msg);
-					return 1;
-				}
-
-				if(!(mainlevel >= 0 && mainlevel <= 11))
-				{
-					/* Voluntarily rough validation. More fine grained done in library */
-					spdlog::error("Invalid main level {}.", mainlevel);
-					return 1;
-				}
-				if(!(sublevel >= 0 && sublevel <= 9))
-				{
-					/* Voluntarily rough validation. More fine grained done in library */
-					spdlog::error("Invalid sub-level {}.", sublevel);
-					return 1;
-				}
-				parameters->rsiz = (uint16_t)(profile | (sublevel << 4) | mainlevel);
-				spdlog::warn("IMF profile activated. Other options specified may be overridden");
-
-				parameters->framerate = (uint16_t)framerate;
-				if(framerate > 0 && sublevel != 0)
-				{
-					const int limitMBitsSec[] = {0,
-												 GRK_IMF_SUBLEVEL_1_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_2_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_3_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_4_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_5_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_6_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_7_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_8_MBITSSEC,
-												 GRK_IMF_SUBLEVEL_9_MBITSSEC};
-					parameters->max_cs_size =
-						(uint64_t)(limitMBitsSec[sublevel] * (1000.0 * 1000 / 8) / framerate);
-					spdlog::info("Setting max code stream size to {} bytes.",
-								 parameters->max_cs_size);
-				}
-				parameters->writeTLM = true;
-			}
-
-			if(rsizArg.isSet())
-			{
-				if(cinema2KArg.isSet() || cinema4KArg.isSet())
-					grk::warningCallback("Cinema profile set - rsiz parameter ignored.", nullptr);
-				else if(IMFArg.isSet())
-					grk::warningCallback("IMF profile set - rsiz parameter ignored.", nullptr);
-				else
-					parameters->rsiz = rsizArg.getValue();
-			}
-		}
-		else
-		{
-			parameters->rsiz |= GRK_JPH_RSIZ_FLAG;
 		}
 		if(captureResArg.isSet())
 		{
@@ -1550,7 +1259,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			}
 			parameters->write_display_resolution = true;
 		}
-
 		if(mctArg.isSet())
 		{
 			uint32_t mct_mode = mctArg.getValue();
@@ -1561,7 +1269,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			}
 			parameters->mct = (uint8_t)mct_mode;
 		}
-
 		if(customMCTArg.isSet())
 		{
 			char* lFilename = (char*)customMCTArg.getValue().c_str();
@@ -1649,7 +1356,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(rc)
 				return false;
 		}
-
 		if(roiArg.isSet())
 		{
 			if(sscanf(roiArg.getValue().c_str(), "c=%u,U=%u", &parameters->roi_compno,
@@ -1779,6 +1485,269 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		{
 			parameters->newTilePartProgressionDivider = tpArg.getValue();
 			parameters->enableTilePartGeneration = true;
+		}
+#endif
+
+
+		if(pluginPathArg.isSet())
+		{
+			if(pluginPath)
+				strcpy(pluginPath, pluginPathArg.getValue().c_str());
+		}
+		inputFolder->set_imgdir = false;
+		if(batchSrcArg.isSet())
+		{
+			inputFolder->imgdirpath = (char*)malloc(strlen(batchSrcArg.getValue().c_str()) + 1);
+			strcpy(inputFolder->imgdirpath, batchSrcArg.getValue().c_str());
+			inputFolder->set_imgdir = true;
+		}
+		if(outFolder)
+		{
+			outFolder->set_imgdir = false;
+			if(outDirArg.isSet())
+			{
+				outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
+				strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
+				outFolder->set_imgdir = true;
+			}
+		}
+		if(kernelBuildOptionsArg.isSet())
+			parameters->kernelBuildOptions = kernelBuildOptionsArg.getValue();
+		// cinema/broadcast profiles
+		if(!isHT)
+		{
+			if(cinema2KArg.isSet())
+			{
+				if(!validateCinema(&cinema2KArg, GRK_PROFILE_CINEMA_2K, parameters))
+					return 1;
+				parameters->writeTLM = true;
+				spdlog::warn(
+					"Cinema 2K profile activated. Other options specified may be overridden");
+			}
+			else if(cinema4KArg.isSet())
+			{
+				if(!validateCinema(&cinema4KArg, GRK_PROFILE_CINEMA_4K, parameters))
+					return 1;
+				spdlog::warn(
+					"Cinema 4K profile activated. Other options specified may be overridden");
+				parameters->writeTLM = true;
+			}
+			else if(BroadcastArg.isSet())
+			{
+				int mainlevel = 0;
+				int profile = 0;
+				int framerate = 0;
+				const char* msg = "Wrong value for -broadcast. Should be "
+								  "<PROFILE>[,mainlevel=X][,framerate=FPS] where <PROFILE> is one "
+								  "of SINGLE/MULTI/MULTI_R.";
+				char* arg = (char*)BroadcastArg.getValue().c_str();
+				char* comma;
+
+				comma = strstr(arg, ",mainlevel=");
+				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
+				{
+					spdlog::error("{}", msg);
+					return 1;
+				}
+				comma = strstr(arg, ",framerate=");
+				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
+				{
+					spdlog::error("{}", msg);
+					return 1;
+				}
+				comma = strchr(arg, ',');
+				if(comma != nullptr)
+				{
+					*comma = 0;
+				}
+				if(strcmp(arg, "SINGLE") == 0)
+				{
+					profile = GRK_PROFILE_BC_SINGLE;
+				}
+				else if(strcmp(arg, "MULTI") == 0)
+				{
+					profile = GRK_PROFILE_BC_MULTI;
+				}
+				else if(strcmp(arg, "MULTI_R") == 0)
+				{
+					profile = GRK_PROFILE_BC_MULTI_R;
+				}
+				else
+				{
+					spdlog::error("{}", msg);
+					return 1;
+				}
+
+				if(!(mainlevel >= 0 && mainlevel <= 11))
+				{
+					/* Voluntarily rough validation. More fine grained done in library */
+					spdlog::error("Invalid mainlevel value {}.", mainlevel);
+					return 1;
+				}
+				parameters->rsiz = (uint16_t)(profile | mainlevel);
+				spdlog::warn(
+					"Broadcast profile activated. Other options specified may be overridden");
+				parameters->framerate = (uint16_t)framerate;
+				if(framerate > 0)
+				{
+					const int limitMBitsSec[] = {0,
+												 GRK_BROADCAST_LEVEL_1_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_2_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_3_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_4_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_5_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_6_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_7_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_8_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_9_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_10_MBITSSEC,
+												 GRK_BROADCAST_LEVEL_11_MBITSSEC};
+					parameters->max_cs_size =
+						(uint64_t)(limitMBitsSec[mainlevel] * (1000.0 * 1000 / 8) / framerate);
+					spdlog::info("Setting max code stream size to {} bytes.",
+								 parameters->max_cs_size);
+					parameters->writeTLM = true;
+				}
+			}
+			if(IMFArg.isSet())
+			{
+				int mainlevel = 0;
+				int sublevel = 0;
+				int profile = 0;
+				int framerate = 0;
+				const char* msg =
+					"Wrong value for -IMF. Should be "
+					"<PROFILE>[,mainlevel=X][,sublevel=Y][,framerate=FPS] where <PROFILE> is one "
+					"of 2K/4K/8K/2K_R/4K_R/8K_R.";
+				char* arg = (char*)IMFArg.getValue().c_str();
+				char* comma;
+
+				comma = strstr(arg, ",mainlevel=");
+				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
+				{
+					spdlog::error("{}", msg);
+					return 1;
+				}
+
+				comma = strstr(arg, ",sublevel=");
+				if(comma && sscanf(comma + 1, "sublevel=%d", &sublevel) != 1)
+				{
+					spdlog::error("{}", msg);
+					return 1;
+				}
+
+				comma = strstr(arg, ",framerate=");
+				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
+				{
+					spdlog::error("{}", msg);
+					return 1;
+				}
+
+				comma = strchr(arg, ',');
+				if(comma != nullptr)
+				{
+					*comma = 0;
+				}
+
+				if(strcmp(arg, "2K") == 0)
+				{
+					profile = GRK_PROFILE_IMF_2K;
+				}
+				else if(strcmp(arg, "4K") == 0)
+				{
+					profile = GRK_PROFILE_IMF_4K;
+				}
+				else if(strcmp(arg, "8K") == 0)
+				{
+					profile = GRK_PROFILE_IMF_8K;
+				}
+				else if(strcmp(arg, "2K_R") == 0)
+				{
+					profile = GRK_PROFILE_IMF_2K_R;
+				}
+				else if(strcmp(arg, "4K_R") == 0)
+				{
+					profile = GRK_PROFILE_IMF_4K_R;
+				}
+				else if(strcmp(arg, "8K_R") == 0)
+				{
+					profile = GRK_PROFILE_IMF_8K_R;
+				}
+				else
+				{
+					spdlog::error("{}", msg);
+					return 1;
+				}
+				if(!(mainlevel >= 0 && mainlevel <= 11))
+				{
+					/* Voluntarily rough validation. More fine grained done in library */
+					spdlog::error("Invalid main level {}.", mainlevel);
+					return 1;
+				}
+				if(!(sublevel >= 0 && sublevel <= 9))
+				{
+					/* Voluntarily rough validation. More fine grained done in library */
+					spdlog::error("Invalid sub-level {}.", sublevel);
+					return 1;
+				}
+				parameters->rsiz = (uint16_t)(profile | (sublevel << 4) | mainlevel);
+				spdlog::warn("IMF profile activated. Other options specified may be overridden");
+
+				parameters->framerate = (uint16_t)framerate;
+				if(framerate > 0 && sublevel != 0)
+				{
+					const int limitMBitsSec[] = {0,
+												 GRK_IMF_SUBLEVEL_1_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_2_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_3_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_4_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_5_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_6_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_7_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_8_MBITSSEC,
+												 GRK_IMF_SUBLEVEL_9_MBITSSEC};
+					parameters->max_cs_size =
+						(uint64_t)(limitMBitsSec[sublevel] * (1000.0 * 1000 / 8) / framerate);
+					spdlog::info("Setting max code stream size to {} bytes.",
+								 parameters->max_cs_size);
+				}
+				parameters->writeTLM = true;
+			}
+			if(rsizArg.isSet())
+			{
+				if(cinema2KArg.isSet() || cinema4KArg.isSet())
+					grk::warningCallback("Cinema profile set - rsiz parameter ignored.", nullptr);
+				else if(IMFArg.isSet())
+					grk::warningCallback("IMF profile set - rsiz parameter ignored.", nullptr);
+				else
+					parameters->rsiz = rsizArg.getValue();
+			}
+		}
+		else
+		{
+			parameters->rsiz |= GRK_JPH_RSIZ_FLAG;
+		}
+		if(outForArg.isSet())
+		{
+			std::string outformat = std::string(".") + outForArg.getValue();
+			inputFolder->set_out_format = true;
+			parameters->cod_format = grk_get_file_format(outformat.c_str());
+			switch(parameters->cod_format)
+			{
+				case GRK_FMT_J2K:
+					inputFolder->out_format = "j2k";
+					break;
+				case GRK_FMT_JP2:
+					inputFolder->out_format = "jp2";
+					break;
+				default:
+					spdlog::error("Unknown output format image [only j2k, j2c, jp2] ");
+					return 1;
+			}
+		}
+		if (serverArg.isSet() && licenseArg.isSet()) {
+			initParams->server_ = serverArg.getValue();
+			initParams->license_ = licenseArg.getValue();
 		}
 	}
 	catch(const TCLAP::ArgException& e) // catch any exceptions

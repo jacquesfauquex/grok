@@ -18,5 +18,6 @@ On other platforms we use the result of the TRY_RUN. */
 # define GROK_BIG_ENDIAN
 #endif
 
+#cmakedefine GRK_BUILD_DCI @GRK_BUILD_DCI@
 #cmakedefine GRK_BUILD_LIBTIFF @GRK_BUILD_LIBTIFF@
 #define GROK_PLUGIN_NAME "@GROK_PLUGIN_NAME@"
