@@ -1375,32 +1375,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			parameters->newTilePartProgressionDivider = tpArg.getValue();
 			parameters->enableTilePartGeneration = true;
 		}
-#endif
-
-		if(pluginPathArg.isSet())
-		{
-			if(pluginPath)
-				strcpy(pluginPath, pluginPathArg.getValue().c_str());
-		}
-		inputFolder->set_imgdir = false;
-		if(batchSrcArg.isSet())
-		{
-			inputFolder->imgdirpath = (char*)malloc(strlen(batchSrcArg.getValue().c_str()) + 1);
-			strcpy(inputFolder->imgdirpath, batchSrcArg.getValue().c_str());
-			inputFolder->set_imgdir = true;
-		}
-		if(outFolder)
-		{
-			outFolder->set_imgdir = false;
-			if(outDirArg.isSet())
-			{
-				outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
-				strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
-				outFolder->set_imgdir = true;
-			}
-		}
-		if(kernelBuildOptionsArg.isSet())
-			parameters->kernelBuildOptions = kernelBuildOptionsArg.getValue();
 		if(cblkSty.isSet())
 		{
 			parameters->cblk_sty = cblkSty.getValue() & 0X7F;
@@ -1506,7 +1480,36 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				lastDistortion = distortion;
 			}
 		}
-		else
+#else
+		if (!cinema2KArg.isSet() && !cinema4KArg.isSet())
+			return -1;
+
+#endif
+		if(pluginPathArg.isSet())
+		{
+			if(pluginPath)
+				strcpy(pluginPath, pluginPathArg.getValue().c_str());
+		}
+		inputFolder->set_imgdir = false;
+		if(batchSrcArg.isSet())
+		{
+			inputFolder->imgdirpath = (char*)malloc(strlen(batchSrcArg.getValue().c_str()) + 1);
+			strcpy(inputFolder->imgdirpath, batchSrcArg.getValue().c_str());
+			inputFolder->set_imgdir = true;
+		}
+		if(outFolder)
+		{
+			outFolder->set_imgdir = false;
+			if(outDirArg.isSet())
+			{
+				outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
+				strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
+				outFolder->set_imgdir = true;
+			}
+		}
+		if(kernelBuildOptionsArg.isSet())
+			parameters->kernelBuildOptions = kernelBuildOptionsArg.getValue();
+		if (!isHT && !qualityArg.isSet() && !compressionRatiosArg.isSet())
 		{
 			/* if no rate was entered, then lossless by default */
 			parameters->layer_rate[0] = 0;
