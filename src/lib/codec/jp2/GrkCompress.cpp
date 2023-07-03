@@ -773,6 +773,11 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 							 errorCallback, nullptr);
 
 		bool isHT = false;
+		if(resolutionArg.isSet())
+			parameters->numresolution = (uint8_t)resolutionArg.getValue();
+		else if(cinema4KArg.isSet())
+			parameters->numresolution = GRK_CINEMA_4K_DEFAULT_NUM_RESOLUTIONS;
+
 #ifndef GRK_BUILD_DCI
 		initParams->transferExifTags = transferExifTagsArg.isSet();
 #ifndef GROK_HAVE_EXIFTOOL
@@ -877,118 +882,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			{
 				return 1;
 			}
-		}
-		if(cblkSty.isSet())
-		{
-			parameters->cblk_sty = cblkSty.getValue() & 0X7F;
-			if(parameters->cblk_sty & GRK_CBLKSTY_HT)
-			{
-				if(parameters->cblk_sty != GRK_CBLKSTY_HT)
-				{
-					spdlog::error("High throughput compressing mode cannot be combined"
-								  " with any other block mode switches. Ignoring mode switch");
-					parameters->cblk_sty = 0;
-				}
-				else
-				{
-					isHT = true;
-					parameters->numgbits = 1;
-					if(compressionRatiosArg.isSet() || qualityArg.isSet())
-					{
-						spdlog::warn("HTJ2K compression using rate distortion or quality"
-									 " is not currently supported.");
-					}
-				}
-			}
-		}
-		if(!isHT && compressionRatiosArg.isSet() && qualityArg.isSet())
-		{
-			spdlog::error("compression by both rate distortion and quality is not allowed");
-			return 1;
-		}
-		if(!isHT && compressionRatiosArg.isSet())
-		{
-			char* s = (char*)compressionRatiosArg.getValue().c_str();
-			parameters->numlayers = 0;
-			while(sscanf(s, "%lf", &parameters->layer_rate[parameters->numlayers]) == 1)
-			{
-				parameters->numlayers++;
-				while(*s && *s != ',')
-				{
-					s++;
-				}
-				if(!*s)
-					break;
-				s++;
-			}
-
-			// sanity check on rates
-			double lastRate = DBL_MAX;
-			for(uint32_t i = 0; i < parameters->numlayers; ++i)
-			{
-				if(parameters->layer_rate[i] > lastRate)
-				{
-					spdlog::error("rates must be listed in descending order");
-					return 1;
-				}
-				if(parameters->layer_rate[i] < 1.0)
-				{
-					spdlog::error("rates must be greater than or equal to one");
-					return 1;
-				}
-				lastRate = parameters->layer_rate[i];
-			}
-
-			parameters->allocationByRateDistoration = true;
-			// set compression ratio of 1 equal to 0, to signal lossless layer
-			for(uint32_t i = 0; i < parameters->numlayers; ++i)
-			{
-				if(parameters->layer_rate[i] == 1)
-					parameters->layer_rate[i] = 0;
-			}
-		}
-		else if(!isHT && qualityArg.isSet())
-		{
-			char* s = (char*)qualityArg.getValue().c_str();
-			;
-			while(sscanf(s, "%lf", &parameters->layer_distortion[parameters->numlayers]) == 1)
-			{
-				parameters->numlayers++;
-				while(*s && *s != ',')
-				{
-					s++;
-				}
-				if(!*s)
-					break;
-				s++;
-			}
-			parameters->allocationByQuality = true;
-
-			// sanity check on quality values
-			double lastDistortion = -1;
-			for(uint16_t i = 0; i < parameters->numlayers; ++i)
-			{
-				auto distortion = parameters->layer_distortion[i];
-				if(distortion < 0)
-				{
-					spdlog::error("PSNR values must be greater than or equal to zero");
-					return 1;
-				}
-				if(distortion < lastDistortion &&
-				   !(i == (uint16_t)(parameters->numlayers - 1) && distortion == 0))
-				{
-					spdlog::error("PSNR values must be listed in ascending order");
-					return 1;
-				}
-				lastDistortion = distortion;
-			}
-		}
-		else
-		{
-			/* if no rate was entered, then lossless by default */
-			parameters->layer_rate[0] = 0;
-			parameters->numlayers = 1;
-			parameters->allocationByRateDistoration = true;
 		}
 		if(rawFormatArg.isSet())
 		{
@@ -1099,10 +992,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				return 1;
 			}
 		}
-		if(resolutionArg.isSet())
-			parameters->numresolution = (uint8_t)resolutionArg.getValue();
-		else if(cinema4KArg.isSet())
-			parameters->numresolution = GRK_CINEMA_4K_DEFAULT_NUM_RESOLUTIONS;
 		if(precinctDimArg.isSet())
 		{
 			char sep;
@@ -1488,7 +1377,6 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		}
 #endif
 
-
 		if(pluginPathArg.isSet())
 		{
 			if(pluginPath)
@@ -1513,6 +1401,118 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		}
 		if(kernelBuildOptionsArg.isSet())
 			parameters->kernelBuildOptions = kernelBuildOptionsArg.getValue();
+		if(cblkSty.isSet())
+		{
+			parameters->cblk_sty = cblkSty.getValue() & 0X7F;
+			if(parameters->cblk_sty & GRK_CBLKSTY_HT)
+			{
+				if(parameters->cblk_sty != GRK_CBLKSTY_HT)
+				{
+					spdlog::error("High throughput compressing mode cannot be combined"
+								  " with any other block mode switches. Ignoring mode switch");
+					parameters->cblk_sty = 0;
+				}
+				else
+				{
+					isHT = true;
+					parameters->numgbits = 1;
+					if(compressionRatiosArg.isSet() || qualityArg.isSet())
+					{
+						spdlog::warn("HTJ2K compression using rate distortion or quality"
+									 " is not currently supported.");
+					}
+				}
+			}
+		}
+		if(!isHT && compressionRatiosArg.isSet() && qualityArg.isSet())
+		{
+			spdlog::error("compression by both rate distortion and quality is not allowed");
+			return 1;
+		}
+		if(!isHT && compressionRatiosArg.isSet())
+		{
+			char* s = (char*)compressionRatiosArg.getValue().c_str();
+			parameters->numlayers = 0;
+			while(sscanf(s, "%lf", &parameters->layer_rate[parameters->numlayers]) == 1)
+			{
+				parameters->numlayers++;
+				while(*s && *s != ',')
+				{
+					s++;
+				}
+				if(!*s)
+					break;
+				s++;
+			}
+
+			// sanity check on rates
+			double lastRate = DBL_MAX;
+			for(uint32_t i = 0; i < parameters->numlayers; ++i)
+			{
+				if(parameters->layer_rate[i] > lastRate)
+				{
+					spdlog::error("rates must be listed in descending order");
+					return 1;
+				}
+				if(parameters->layer_rate[i] < 1.0)
+				{
+					spdlog::error("rates must be greater than or equal to one");
+					return 1;
+				}
+				lastRate = parameters->layer_rate[i];
+			}
+
+			parameters->allocationByRateDistoration = true;
+			// set compression ratio of 1 equal to 0, to signal lossless layer
+			for(uint32_t i = 0; i < parameters->numlayers; ++i)
+			{
+				if(parameters->layer_rate[i] == 1)
+					parameters->layer_rate[i] = 0;
+			}
+		}
+		else if(!isHT && qualityArg.isSet())
+		{
+			char* s = (char*)qualityArg.getValue().c_str();
+			;
+			while(sscanf(s, "%lf", &parameters->layer_distortion[parameters->numlayers]) == 1)
+			{
+				parameters->numlayers++;
+				while(*s && *s != ',')
+				{
+					s++;
+				}
+				if(!*s)
+					break;
+				s++;
+			}
+			parameters->allocationByQuality = true;
+
+			// sanity check on quality values
+			double lastDistortion = -1;
+			for(uint16_t i = 0; i < parameters->numlayers; ++i)
+			{
+				auto distortion = parameters->layer_distortion[i];
+				if(distortion < 0)
+				{
+					spdlog::error("PSNR values must be greater than or equal to zero");
+					return 1;
+				}
+				if(distortion < lastDistortion &&
+				   !(i == (uint16_t)(parameters->numlayers - 1) && distortion == 0))
+				{
+					spdlog::error("PSNR values must be listed in ascending order");
+					return 1;
+				}
+				lastDistortion = distortion;
+			}
+		}
+		else
+		{
+			/* if no rate was entered, then lossless by default */
+			parameters->layer_rate[0] = 0;
+			parameters->numlayers = 1;
+			parameters->allocationByRateDistoration = false;
+		}
 		// cinema/broadcast profiles
 		if(!isHT)
 		{
