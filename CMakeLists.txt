@@ -6,14 +6,14 @@ project(GROK)
 # GROK version
 set(GROK_VERSION_MAJOR 10)
 set(GROK_VERSION_MINOR 0)
-set(GROK_VERSION_BUILD 6)
+set(GROK_VERSION_BUILD 7)
 set(GROK_VERSION
   "${GROK_VERSION_MAJOR}.${GROK_VERSION_MINOR}.${GROK_VERSION_BUILD}")
 set(PACKAGE_VERSION
   "${GROK_VERSION_MAJOR}.${GROK_VERSION_MINOR}.${GROK_VERSION_BUILD}")
 
 # As autotools does not support X.Y notation for SOVERSION, we have to use
-# two different versions, one for Grok itself and one for its so
+# two different versions, one for Grok itself and one for its .so
 if(NOT GROK_SOVERSION)
   set(GROK_SOVERSION 1)
 endif(NOT GROK_SOVERSION)
