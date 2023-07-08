@@ -2,7 +2,9 @@ import sys
 import textwrap
 
 def escape_c_string(s):
-    return s.replace("\\", "\\\\").replace('"', '\\"')
+    s = s.replace("\\", "\\\\").replace('"', '\\"')
+    s = s.replace("#", "")  # Remove markdown special character #
+    return s
 
 def markdown_to_fprintf(md_file, output_file):
     with open(md_file, 'r') as md, open(output_file, 'w') as out:
