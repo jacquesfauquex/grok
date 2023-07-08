@@ -775,31 +775,34 @@ GrkRC GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParam
 		}
 		else
 		{
-			// check for possible output to STDOUT
 			if(!inDirArg.isSet())
 			{
-				bool toStdout =
-					outForArg.isSet() && grk::supportedStdioFormat(
-											 (GRK_SUPPORTED_FILE_FMT)parameters->cod_format, false);
-				if(!toStdout)
-				{
+				bool fail = true;
+				bool unsupportedStdout = outForArg.isSet() &&
+						!grk::supportedStdioFormat((GRK_SUPPORTED_FILE_FMT)parameters->cod_format, false);
+				if (unsupportedStdout)
+					spdlog::error("Output format does not support decompress to stdout");
+				else if (!outForArg.isSet())
 					spdlog::error("Missing output file");
+				else
+					fail = false;
+				if (fail)
 					return GrkRCParseArgsFailed;
-				}
 			}
 		}
 		if(outDirArg.isSet())
 		{
-			if(outFolder)
-			{
-				outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
-				strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
-				outFolder->set_imgdir = true;
-			}
+			if (!validateDirectory(outDirArg.getValue()))
+				return GrkRCFail;
+			outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
+			strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
+			outFolder->set_imgdir = true;
 		}
 
 		if(inDirArg.isSet())
 		{
+			if (!validateDirectory(inDirArg.getValue()))
+				return GrkRCFail;
 			inputFolder->imgdirpath = (char*)malloc(strlen(inDirArg.getValue().c_str()) + 1);
 			strcpy(inputFolder->imgdirpath, inDirArg.getValue().c_str());
 			inputFolder->set_imgdir = true;

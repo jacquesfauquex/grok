@@ -44,6 +44,14 @@ void ChronoTimer::finish(void){
 	spdlog::info("{} : {} ms",message, elapsed.count() * 1000);
 }
 
+bool validateDirectory(std::string dir){
+	if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)){
+		spdlog::error("Input directory {} does not exist or is not a directory",dir);
+		return false;
+	}
+
+	return true;
+}
 std::string convertFileFmtToString(GRK_SUPPORTED_FILE_FMT fmt)
 {
 	switch(fmt)

@@ -115,6 +115,7 @@ struct grk_img_fol
 	bool set_out_format;
 };
 
+bool validateDirectory(std::string dir);
 std::string convertFileFmtToString(GRK_SUPPORTED_FILE_FMT fmt);
 bool parseWindowBounds(char* inArg, float* dw_x0, float* dw_y0, float* dw_x1,
 		float* dw_y1);

@@ -1109,14 +1109,17 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 			// check for possible input from STDIN
 			if(!batchSrcArg.isSet() && !initParams->in_image)
 			{
-				bool fromStdin =
-					inForArg.isSet() && grk::supportedStdioFormat(
-											(GRK_SUPPORTED_FILE_FMT)parameters->decod_format, true);
-				if(!fromStdin)
-				{
+
+				bool fail = true;
+				bool unsupportedStdout = inForArg.isSet() &&
+						!grk::supportedStdioFormat((GRK_SUPPORTED_FILE_FMT)parameters->decod_format, false);
+				if (unsupportedStdout)
+					spdlog::error("Output format does not support decompress to stdout");
+				else if (!inForArg.isSet())
 					spdlog::error("Missing input file");
+				else fail = false;
+				if (fail)
 					return GrkRCFail;
-				}
 			}
 		}
 		if(outputFileArg.isSet())
@@ -1746,6 +1749,8 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 		inputFolder->set_imgdir = false;
 		if(batchSrcArg.isSet())
 		{
+			if (!validateDirectory(batchSrcArg.getValue()))
+				return GrkRCFail;
 			inputFolder->imgdirpath = (char*)malloc(strlen(batchSrcArg.getValue().c_str()) + 1);
 			strcpy(inputFolder->imgdirpath, batchSrcArg.getValue().c_str());
 			inputFolder->set_imgdir = true;
@@ -1755,6 +1760,8 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 			outFolder->set_imgdir = false;
 			if(outDirArg.isSet())
 			{
+				if (!validateDirectory(outDirArg.getValue()))
+					return GrkRCFail;
 				outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
 				strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
 				outFolder->set_imgdir = true;
