@@ -120,7 +120,6 @@ static void compress_help_display(void)
 			"grk_compress compresses various image formats into the JPEG 2000 format.\n"
 			"It has been compiled against libgrokj2k v%s.\n\n",
 			grk_version());
-
 	fprintf(stdout, "\n");
 	fprintf(stdout, "* Supported input formats:  `JPEG`, `BMP`, `PNM`, `PGX`, `PNG`, `RAW`, `RAWL`\n");
 	fprintf(stdout, "and `TIFF`\n");

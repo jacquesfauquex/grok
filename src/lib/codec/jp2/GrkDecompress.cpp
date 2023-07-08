@@ -110,10 +110,6 @@ static void decompress_help_display(void)
 			"grk_decompress - decompress JPEG 2000 codestream to various image formats.\n"
 			"This utility has been compiled against libgrokj2k v%s.\n\n",
 			grk_version());
-	fprintf(stdout, "## grk_decompress\n");
-	fprintf(stdout, "\n");
-	fprintf(stdout, "This program decompresses a JPEG 2000 image and stores it in another image\n");
-	fprintf(stdout, "format.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Supported input formats: `JP2` and `J2K\\J2C`\n");
 	fprintf(stdout, "Supported input image extensions are `.jp2` and `.j2k\\.j2c`\n");
@@ -361,7 +357,6 @@ static void decompress_help_display(void)
 	fprintf(stdout, "If the flag is set to -1, all GPUs are used in round-robin scheduling. If set to\n");
 	fprintf(stdout, "-2, then plugin is disabled and\n");
 	fprintf(stdout, "compression is done on the CPU. Default value: 0.\n");
-
 }
 
 void GrkDecompress::printTiming(uint32_t num_images, std::chrono::duration<double> elapsed)
