@@ -626,7 +626,7 @@ GrkRC GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initPar
 	uint32_t state = grk_plugin_get_debug_state();
 	bool isBatch = initParams->inputFolder.imgdirpath && initParams->outFolder.imgdirpath;
 	if(isBatch && !((state & GRK_PLUGIN_STATE_DEBUG) || (state & GRK_PLUGIN_STATE_PRE_TR1)))
-		return pluginBatchCompress(initParams) ? GrkRCSuccess : GrkRCFail;
+		return pluginBatchCompress(initParams) ? GrkRCFail : GrkRCSuccess;
 
 	// 2. single image encode
 	if(!initParams->inputFolder.set_imgdir)
