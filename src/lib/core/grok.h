@@ -1038,6 +1038,7 @@ typedef struct _grk_cparameters
 	bool writePLT;
 	bool writeTLM;
 	bool verbose;
+	bool sharedMemoryInterface;
 } grk_cparameters;
 
 /**

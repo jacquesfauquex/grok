@@ -46,7 +46,7 @@ void ChronoTimer::finish(void){
 
 bool validateDirectory(std::string dir){
 	if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)){
-		spdlog::error("Input directory {} does not exist or is not a directory",dir);
+		spdlog::error("Directory {} does not exist or is not in fact a directory",dir);
 		return false;
 	}
 

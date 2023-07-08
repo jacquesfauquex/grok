@@ -871,7 +871,7 @@ GrkRC GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initPar
 
 	// 1. batch encode
 	uint32_t state = grk_plugin_get_debug_state();
-	bool isBatch = initParams->inputFolder.imgdirpath && initParams->outFolder.imgdirpath;
+	bool isBatch = initParams->inputFolder.imgdirpath && (initParams->outFolder.imgdirpath || initParams->parameters.sharedMemoryInterface);
 	if(isBatch && !((state & GRK_PLUGIN_STATE_DEBUG) || (state & GRK_PLUGIN_STATE_PRE_TR1)))
 		return pluginBatchCompress(initParams) ? GrkRCFail : GrkRCSuccess;
 
@@ -1749,8 +1749,21 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 		inputFolder->set_imgdir = false;
 		if(batchSrcArg.isSet())
 		{
-			if (!validateDirectory(batchSrcArg.getValue()))
-				return GrkRCFail;
+			// first check if this is a comma separated list
+			std::stringstream ss(batchSrcArg.getValue());
+			uint32_t count = 0;
+			while(ss.good())
+			{
+				std::string substr;
+				std::getline(ss, substr, ',');
+				count++;
+			}
+			if (count >= 6) {
+				parameters->sharedMemoryInterface = true;
+			} else {
+				if (!validateDirectory(batchSrcArg.getValue()))
+					return GrkRCFail;
+			}
 			inputFolder->imgdirpath = (char*)malloc(strlen(batchSrcArg.getValue().c_str()) + 1);
 			strcpy(inputFolder->imgdirpath, batchSrcArg.getValue().c_str());
 			inputFolder->set_imgdir = true;
