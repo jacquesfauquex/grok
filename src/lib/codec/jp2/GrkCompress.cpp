@@ -498,15 +498,23 @@ int GrkCompress::main(int argc, char** argv, grk_image* in_image, grk_stream_par
 	try
 	{
 		// try to compress with plugin
-		int rc = pluginMain(argc, argv, &initParams);
+		GrkRC plugin_rc = pluginMain(argc, argv, &initParams);
 
 		// return immediately if either
 		// initParams was not initialized (something was wrong with command line params)
-		// or plugin was successful
+		// or
+		// plugin was successful
+		if(plugin_rc == GrkRCSuccess || plugin_rc == GrkRCUsage)
+		{
+			success = EXIT_SUCCESS;
+			goto cleanup;
+		}
 		if(!initParams.initialized)
-			return 1;
-		if(!rc)
-			return 0;
+		{
+			success = EXIT_FAILURE;
+			goto cleanup;
+		}
+
 		size_t numCompressedFiles = 0;
 
 		// cache certain settings
@@ -580,18 +588,19 @@ int GrkCompress::pluginBatchCompress(CompressInitParams* initParams)
 	return success;
 }
 
-int GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initParams)
+GrkRC GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initParams)
 {
 	if(!initParams)
-		return 1;
+		return GrkRCFail;
 	/* set compressing parameters to default values */
 	grk_compress_set_default_params(&initParams->parameters);
 	/* parse input and get user compressing parameters */
 	initParams->parameters.mct =
 		255; /* This will be set later according to the input image or the provided option */
 	initParams->parameters.rateControlAlgorithm = GRK_RATE_CONTROL_PCRD_OPT;
-	if(parseCommandLine(argc, argv, initParams) == 1)
-		return 1;
+	GrkRC parseRc = parseCommandLine(argc, argv, initParams);
+	if (parseRc != GrkRCSuccess)
+		return parseRc;
 
 #ifdef GROK_HAVE_LIBTIFF
 	tiffSetErrorAndWarningHandlers(initParams->parameters.verbose);
@@ -611,23 +620,23 @@ int GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initParam
 	initInfo.license = initParams->license_.c_str();
 	initInfo.server = initParams->server_.c_str();
 	if(!grk_plugin_init(initInfo))
-		return -1;
+		return GrkRCFail;
 
 	// 1. batch encode
 	uint32_t state = grk_plugin_get_debug_state();
 	bool isBatch = initParams->inputFolder.imgdirpath && initParams->outFolder.imgdirpath;
 	if(isBatch && !((state & GRK_PLUGIN_STATE_DEBUG) || (state & GRK_PLUGIN_STATE_PRE_TR1)))
-		return pluginBatchCompress(initParams);
+		return pluginBatchCompress(initParams) ? GrkRCSuccess : GrkRCFail;
 
 	// 2. single image encode
 	if(!initParams->inputFolder.set_imgdir)
-		return grk_plugin_compress(&initParams->parameters, pluginCompressCallback);
+		return grk_plugin_compress(&initParams->parameters, pluginCompressCallback) ? GrkRCSuccess : GrkRCFail;
 
 	// 3. directory encode
 	//  cache certain settings
 	auto mct = initParams->parameters.mct;
 	auto rateControlAlgorithm = initParams->parameters.rateControlAlgorithm;
-	int32_t success = 0;
+	GrkRC rc = GrkRCFail;
 	for(const auto& entry : std::filesystem::directory_iterator(initParams->inputFolder.imgdirpath))
 	{
 		if(nextFile(entry.path().filename().string(), &initParams->inputFolder,
@@ -640,15 +649,15 @@ int GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initParam
 		// restore cached settings
 		initParams->parameters.mct = mct;
 		initParams->parameters.rateControlAlgorithm = rateControlAlgorithm;
-		success = grk_plugin_compress(&initParams->parameters, pluginCompressCallback);
-		if(success != 0)
+		if(grk_plugin_compress(&initParams->parameters, pluginCompressCallback))
 			break;
 	}
+	rc = GrkRCSuccess;
 
-	return success;
+	return rc;
 }
 
-int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* initParams)
+GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* initParams)
 {
 	grk_cparameters* parameters = &initParams->parameters;
 	grk_img_fol* inputFolder = &initParams->inputFolder;
@@ -662,6 +671,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		// set the output
 		GrokCompressOutput output;
 		cmd.setOutput(&output);
+		cmd.setExceptionHandling(false);
 
 		TCLAP::ValueArg<std::string> outDirArg("a", "out_dir", "Output directory", false, "",
 											   "string", cmd);
@@ -841,13 +851,11 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 								  "        Known file formats are *.pnm, *.pgm, *.ppm, *.pgx, "
 								  "*png, *.bmp, *.tif, *.jpg or *.raw",
 								  infile);
-					return 1;
+					return GrkRCFail;
 				}
 			}
 			if(grk::strcpy_s(parameters->infile, sizeof(parameters->infile), infile) != 0)
-			{
-				return 1;
-			}
+				return GrkRCFail;
 		}
 		else
 		{
@@ -860,7 +868,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(!fromStdin)
 				{
 					spdlog::error("Missing input file");
-					return 1;
+					return GrkRCFail;
 				}
 			}
 		}
@@ -876,11 +884,11 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				default:
 					spdlog::error("Unknown output format image {} [only *.j2k, *.j2c or *.jp2] ",
 								  outfile);
-					return 1;
+					return GrkRCFail;
 			}
 			if(grk::strcpy_s(parameters->outfile, sizeof(parameters->outfile), outfile) != 0)
 			{
-				return 1;
+				return GrkRCFail;
 			}
 		}
 		if(rawFormatArg.isSet())
@@ -901,9 +909,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			}
 			char* substr1 = (char*)malloc((len + 1) * sizeof(char));
 			if(substr1 == nullptr)
-			{
-				return 1;
-			}
+				return GrkRCFail;
 			memcpy(substr1, rawFormatArg.getValue().c_str(), len);
 			substr1[len] = '\0';
 			char signo;
@@ -936,7 +942,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(raw_cp->comps == nullptr)
 				{
 					free(substr1);
-					return 1;
+					return GrkRCFail;
 				}
 				for(compno = 0; compno < ncomp && !wrong; compno++)
 				{
@@ -989,7 +995,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				spdlog::error("If subsampling is omitted, 1x1 is assumed for all components");
 				spdlog::error("Example: -i image.raw -o image.j2k -F 512,512,3,8,u@1x1:2x2:2x2");
 				spdlog::error("         for raw 512x512 image with 4:2:0 subsampling");
-				return 1;
+				return GrkRCFail;
 			}
 		}
 		if(precinctDimArg.isSet())
@@ -1007,7 +1013,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				{
 					spdlog::error("Could not parse precinct dimension: {} {}", s, sep);
 					spdlog::error("Example: -i lena.raw -o lena.j2k -c [128,128],[128,128]");
-					return 1;
+					return GrkRCFail;
 				}
 				parameters->csty |= 0x01;
 				res_spec++;
@@ -1022,14 +1028,14 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			   EOF)
 			{
 				spdlog::error("sscanf failed for code block dimension argument");
-				return 1;
+				return GrkRCFail;
 			}
 			if(cblockw_init * cblockh_init > 4096 || cblockw_init > 1024 || cblockw_init < 4 ||
 			   cblockh_init > 1024 || cblockh_init < 4)
 			{
 				spdlog::error("Size of code block error (option -b)\n\nRestriction :\n"
 							  "    * width*height<=4096\n    * 4<=width,height<= 1024");
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->cblockw_init = (uint32_t)cblockw_init;
 			parameters->cblockh_init = (uint32_t)cblockh_init;
@@ -1072,13 +1078,13 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				{
 					spdlog::error(
 						"POC beginning resolution must be strictly less than end resolution");
-					return 1;
+					return GrkRCFail;
 				}
 				if(progression[numProgressions].compS >= progression[numProgressions].compE)
 				{
 					spdlog::error(
 						"POC beginning component must be strictly less than end component");
-					return 1;
+					return GrkRCFail;
 				}
 				numProgressions++;
 				while(*s && *s != '/')
@@ -1090,7 +1096,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(numProgressions <= 1)
 			{
 				spdlog::error("POC argument must have at least two progressions");
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->numpocs = numProgressions - 1;
 		}
@@ -1110,7 +1116,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				spdlog::error("Unrecognized progression order {} is not one of "
 							  "[LRCP, RLCP, RPCL, PCRL, CPRL]",
 							  progressionOrderArg.getValue());
-				return 1;
+				return GrkRCFail;
 			}
 		}
 		if(sopArg.isSet())
@@ -1124,7 +1130,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(guardBits.getValue() > 7)
 			{
 				spdlog::error("Number of guard bits {} is greater than 7", guardBits.getValue());
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->numgbits = (uint8_t)guardBits.getValue();
 		}
@@ -1134,7 +1140,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					  parameters->capture_resolution + 1) != 2)
 			{
 				spdlog::error("-Q 'capture resolution' argument error  [-Q X0,Y0]");
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->write_capture_resolution = true;
 		}
@@ -1144,7 +1150,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					  parameters->display_resolution + 1) != 2)
 			{
 				spdlog::error("-D 'display resolution' argument error  [-D X0,Y0]");
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->write_display_resolution = true;
 		}
@@ -1154,7 +1160,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(mct_mode > 2)
 			{
 				spdlog::error("Incorrect MCT value {}. Must be equal to 0, 1 or 2.", mct_mode);
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->mct = (uint8_t)mct_mode;
 		}
@@ -1215,7 +1221,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(lSpace == nullptr)
 			{
 				free(lMatrix);
-				return 1;
+				return GrkRCFail;
 			}
 			lCurrentDoublePtr = lSpace;
 			for(i2 = 0; i2 < lMctComp; ++i2)
@@ -1243,7 +1249,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			free(lSpace);
 			free(lMatrix);
 			if(rc)
-				return false;
+				return GrkRCFail;
 		}
 		if(roiArg.isSet())
 		{
@@ -1251,7 +1257,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					  &parameters->roi_shift) != 2)
 			{
 				spdlog::error("ROI argument must be of the form: [-ROI c='compno',U='shift']");
-				return 1;
+				return GrkRCFail;
 			}
 		}
 		// Canvas coordinates
@@ -1261,7 +1267,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(sscanf(tilesArg.getValue().c_str(), "%d,%d", &t_width, &t_height) == EOF)
 			{
 				spdlog::error("sscanf failed for tiles argument");
-				return 1;
+				return GrkRCFail;
 			}
 			// sanity check on tile dimensions
 			if(t_width <= 0 || t_height <= 0)
@@ -1269,7 +1275,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				spdlog::error("Tile dimensions ({}, {}) must be "
 							  "strictly positive",
 							  t_width, t_height);
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->t_width = (uint32_t)t_width;
 			parameters->t_height = (uint32_t)t_height;
@@ -1281,12 +1287,12 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(sscanf(tileOffsetArg.getValue().c_str(), "%d,%d", &off1, &off2) != 2)
 			{
 				spdlog::error("-T 'tile offset' argument must be in the form: -T X0,Y0");
-				return 1;
+				return GrkRCFail;
 			}
 			if(off1 < 0 || off2 < 0)
 			{
 				spdlog::error("-T 'tile offset' values ({},{}) can't be negative", off1, off2);
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->tx0 = (uint32_t)off1;
 			parameters->ty0 = (uint32_t)off2;
@@ -1297,12 +1303,12 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(sscanf(imageOffsetArg.getValue().c_str(), "%d,%d", &off1, &off2) != 2)
 			{
 				spdlog::error("-d 'image offset' argument must be specified as:  -d x0,y0");
-				return 1;
+				return GrkRCFail;
 			}
 			if(off1 < 0 || off2 < 0)
 			{
 				spdlog::error("-T 'image offset' values ({},{}) can't be negative", off1, off2);
-				return 1;
+				return GrkRCFail;
 			}
 			parameters->image_offset_x0 = (uint32_t)off1;
 			parameters->image_offset_y0 = (uint32_t)off2;
@@ -1322,7 +1328,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 							  "image offset ({},{})",
 							  parameters->tx0, parameters->ty0, parameters->image_offset_x0,
 							  parameters->image_offset_y0);
-				return 1;
+				return GrkRCFail;
 			}
 			if(tilesArg.isSet())
 			{
@@ -1335,7 +1341,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 						"({},{}) must lie to the right and bottom of"
 						" image offset ({},{})\n so that the tile overlaps with the image area.",
 						tx1, ty1, parameters->image_offset_x0, parameters->image_offset_y0);
-					return 1;
+					return GrkRCFail;
 				}
 			}
 		}
@@ -1401,7 +1407,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		if(!isHT && compressionRatiosArg.isSet() && qualityArg.isSet())
 		{
 			spdlog::error("compression by both rate distortion and quality is not allowed");
-			return 1;
+			return GrkRCFail;
 		}
 		if(!isHT && compressionRatiosArg.isSet())
 		{
@@ -1426,12 +1432,12 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(parameters->layer_rate[i] > lastRate)
 				{
 					spdlog::error("rates must be listed in descending order");
-					return 1;
+					return GrkRCFail;
 				}
 				if(parameters->layer_rate[i] < 1.0)
 				{
 					spdlog::error("rates must be greater than or equal to one");
-					return 1;
+					return GrkRCFail;
 				}
 				lastRate = parameters->layer_rate[i];
 			}
@@ -1469,20 +1475,20 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(distortion < 0)
 				{
 					spdlog::error("PSNR values must be greater than or equal to zero");
-					return 1;
+					return GrkRCFail;
 				}
 				if(distortion < lastDistortion &&
 				   !(i == (uint16_t)(parameters->numlayers - 1) && distortion == 0))
 				{
 					spdlog::error("PSNR values must be listed in ascending order");
-					return 1;
+					return GrkRCFail;
 				}
 				lastDistortion = distortion;
 			}
 		}
 #else
 		if (!cinema2KArg.isSet() && !cinema4KArg.isSet())
-			return -1;
+			return GrkRCFail;
 
 #endif
 		if(pluginPathArg.isSet())
@@ -1522,7 +1528,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			if(cinema2KArg.isSet())
 			{
 				if(!validateCinema(&cinema2KArg, GRK_PROFILE_CINEMA_2K, parameters))
-					return 1;
+					return GrkRCFail;
 				parameters->writeTLM = true;
 				spdlog::warn(
 					"Cinema 2K profile activated. Other options specified may be overridden");
@@ -1530,7 +1536,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 			else if(cinema4KArg.isSet())
 			{
 				if(!validateCinema(&cinema4KArg, GRK_PROFILE_CINEMA_4K, parameters))
-					return 1;
+					return GrkRCFail;
 				spdlog::warn(
 					"Cinema 4K profile activated. Other options specified may be overridden");
 				parameters->writeTLM = true;
@@ -1550,13 +1556,13 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
 				{
 					spdlog::error("{}", msg);
-					return 1;
+					return GrkRCFail;
 				}
 				comma = strstr(arg, ",framerate=");
 				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
 				{
 					spdlog::error("{}", msg);
-					return 1;
+					return GrkRCFail;
 				}
 				comma = strchr(arg, ',');
 				if(comma != nullptr)
@@ -1578,14 +1584,14 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				else
 				{
 					spdlog::error("{}", msg);
-					return 1;
+					return GrkRCFail;
 				}
 
 				if(!(mainlevel >= 0 && mainlevel <= 11))
 				{
 					/* Voluntarily rough validation. More fine grained done in library */
 					spdlog::error("Invalid mainlevel value {}.", mainlevel);
-					return 1;
+					return GrkRCFail;
 				}
 				parameters->rsiz = (uint16_t)(profile | mainlevel);
 				spdlog::warn(
@@ -1629,21 +1635,21 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				if(comma && sscanf(comma + 1, "mainlevel=%d", &mainlevel) != 1)
 				{
 					spdlog::error("{}", msg);
-					return 1;
+					return GrkRCFail;
 				}
 
 				comma = strstr(arg, ",sublevel=");
 				if(comma && sscanf(comma + 1, "sublevel=%d", &sublevel) != 1)
 				{
 					spdlog::error("{}", msg);
-					return 1;
+					return GrkRCFail;
 				}
 
 				comma = strstr(arg, ",framerate=");
 				if(comma && sscanf(comma + 1, "framerate=%d", &framerate) != 1)
 				{
 					spdlog::error("{}", msg);
-					return 1;
+					return GrkRCFail;
 				}
 
 				comma = strchr(arg, ',');
@@ -1679,19 +1685,19 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 				else
 				{
 					spdlog::error("{}", msg);
-					return 1;
+					return GrkRCFail;
 				}
 				if(!(mainlevel >= 0 && mainlevel <= 11))
 				{
 					/* Voluntarily rough validation. More fine grained done in library */
 					spdlog::error("Invalid main level {}.", mainlevel);
-					return 1;
+					return GrkRCFail;
 				}
 				if(!(sublevel >= 0 && sublevel <= 9))
 				{
 					/* Voluntarily rough validation. More fine grained done in library */
 					spdlog::error("Invalid sub-level {}.", sublevel);
-					return 1;
+					return GrkRCFail;
 				}
 				parameters->rsiz = (uint16_t)(profile | (sublevel << 4) | mainlevel);
 				spdlog::warn("IMF profile activated. Other options specified may be overridden");
@@ -1745,7 +1751,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					break;
 				default:
 					spdlog::error("Unknown output format image [only j2k, j2c, jp2] ");
-					return 1;
+					return GrkRCFail;
 			}
 		}
 		if (serverArg.isSet() && licenseArg.isSet()) {
@@ -1756,26 +1762,31 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 	catch(const TCLAP::ArgException& e) // catch any exceptions
 	{
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
-		return 1;
+		return GrkRCFail;
 	}
+	catch(const TCLAP::ExitException& e) // catch any exceptions
+	{
+		return GrkRCUsage;
+	}
+
 	if(inputFolder->set_imgdir)
 	{
 		if(!(parameters->infile[0] == 0))
 		{
 			spdlog::error("options -batch_src and -in_file cannot be used together ");
-			return 1;
+			return GrkRCFail;
 		}
 		if(!inputFolder->set_out_format)
 		{
 			spdlog::error("When -batch_src is used, -out_fmt <FORMAT> must be used ");
 			spdlog::error("Only one format allowed! Valid formats are j2k and jp2");
-			return 1;
+			return GrkRCFail;
 		}
 		if(!((parameters->outfile[0] == 0)))
 		{
 			spdlog::error("options -batch_src and -out_file cannot be used together ");
 			spdlog::error("Specify OutputFormat using -out_fmt<FORMAT> ");
-			return 1;
+			return GrkRCFail;
 		}
 	}
 	else
@@ -1788,7 +1799,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 							  "Example: {} -i image.pgm -o image.j2k",
 							  argv[0]);
 				spdlog::error("   Help: {} -h", argv[0]);
-				return 1;
+				return GrkRCFail;
 			}
 		}
 
@@ -1798,7 +1809,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 						  "Example: {} -i image.pgm -o image.j2k",
 						  argv[0]);
 			spdlog::error("   Help: {} -h", argv[0]);
-			return 1;
+			return GrkRCFail;
 		}
 	}
 	if((parameters->decod_format == GRK_FMT_RAW && parameters->raw_cp.width == 0) ||
@@ -1808,7 +1819,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		spdlog::error("Please use the Format option -F:");
 		spdlog::error("-F rawWidth,rawHeight,rawComp,rawBitDepth,s/u (Signed/Unsigned)");
 		spdlog::error("Example: -i lena.raw -o lena.j2k -F 512,512,3,8,u");
-		return 1;
+		return GrkRCFail;
 	}
 	if((parameters->tx0 > 0 && parameters->tx0 > parameters->image_offset_x0) ||
 	   (parameters->ty0 > 0 && parameters->ty0 > parameters->image_offset_y0))
@@ -1817,7 +1828,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 					  "TYO({})<=IMG_Y0({}) ",
 					  parameters->tx0, parameters->image_offset_x0, parameters->ty0,
 					  parameters->image_offset_y0);
-		return 1;
+		return GrkRCFail;
 	}
 	for(uint32_t i = 0; i < parameters->numpocs; i++)
 	{
@@ -1840,10 +1851,10 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 	if(parameters->mct == 2 && !parameters->mct_data)
 	{
 		spdlog::error("Custom MCT has been set but no array-based MCT has been provided.");
-		return false;
+		return GrkRCFail;
 	}
 
-	return 0;
+	return GrkRCSuccess;
 }
 
 static uint64_t pluginCompressCallback(grk_plugin_compress_user_callback_info* info)

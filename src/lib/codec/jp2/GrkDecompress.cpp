@@ -378,7 +378,7 @@ uint32_t GrkDecompress::getCompressionCode(const std::string& compressionString)
 		return UINT_MAX;
 }
 
-int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams* initParams)
+GrkRC GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams* initParams)
 {
 	grk_decompress_parameters* parameters = &initParams->parameters;
 	grk_img_fol* inputFolder = &initParams->inputFolder;
@@ -387,6 +387,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 	try
 	{
 		TCLAP::CmdLine cmd("grk_decompress command line", ' ', grk_version());
+		cmd.setExceptionHandling(false);
 
 		// set the output
 		GrokDecompressOutput output;
@@ -514,7 +515,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 				if(!grk_decompress_detect_format(infile, &parameters->decod_format))
 				{
 					spdlog::error("Unable to open file {} for decoding.", infile);
-					return 1;
+					return GrkRCParseArgsFailed;
 				}
 				switch(parameters->decod_format)
 				{
@@ -525,7 +526,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 						spdlog::error("Unknown input file format: {} \n"
 									  "        Known file formats are *.j2k, *.jp2 or *.jpc",
 									  infile);
-						return 1;
+						return GrkRCParseArgsFailed;
 				}
 			}
 			else
@@ -535,7 +536,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 			if(grk::strcpy_s(parameters->infile, sizeof(parameters->infile), infile) != 0)
 			{
 				spdlog::error("Path is too long");
-				return 1;
+				return GrkRCParseArgsFailed;
 			}
 		}
 		if(outForArg.isSet())
@@ -573,7 +574,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 					spdlog::error("Unknown output format image {} [only *.png, *.pnm, *.pgm, "
 								  "*.ppm, *.pgx, *.bmp, *.tif, *.jpg, *.jpeg, *.raw or *.rawl]",
 								  outformat);
-					return 1;
+					return GrkRCParseArgsFailed;
 			}
 		}
 		if(outputFileArg.isSet())
@@ -596,12 +597,12 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 						"Unknown output format image {} [only *.png, *.pnm, *.pgm, *.ppm, *.pgx, "
 						"*.bmp, *.tif, *.tiff, *jpg, *jpeg, *.raw or *rawl]",
 						outfile);
-					return 1;
+					return GrkRCParseArgsFailed;
 			}
 			if(grk::strcpy_s(parameters->outfile, sizeof(parameters->outfile), outfile) != 0)
 			{
 				spdlog::error("Path is too long");
-				return 1;
+				return GrkRCParseArgsFailed;
 			}
 		}
 		else
@@ -615,7 +616,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 				if(!toStdout)
 				{
 					spdlog::error("Missing output file");
-					return 1;
+					return GrkRCParseArgsFailed;
 				}
 			}
 		}
@@ -653,7 +654,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		if(tileArg.isSet())
 			parameters->tileIndex = (uint16_t)tileArg.getValue();
 		if(precisionArg.isSet() && !parsePrecision(precisionArg.getValue().c_str(), parameters))
-			return 1;
+			return GrkRCParseArgsFailed;
 		if(numThreadsArg.isSet())
 			parameters->numThreads = numThreadsArg.getValue();
 		if(decodeRegionArg.isSet())
@@ -668,7 +669,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 										&parameters->dw_x1, &parameters->dw_y1);
 			delete[] ROI_values;
 			if(!rc)
-				return 1;
+				return GrkRCParseArgsFailed;
 		}
 
 		if(pluginPathArg.isSet() && pluginPath)
@@ -685,13 +686,12 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 	catch(const TCLAP::ArgException& e) // catch any exceptions
 	{
 		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
-		return 1;
+		return GrkRCParseArgsFailed;
 	}
-#if 0
-    case 'h':           /* display an help description */
-        decompress_help_display();
-        return 1;
-#endif
+	catch(const TCLAP::ExitException& e) // catch any exceptions
+	{
+		return GrkRCUsage;
+	}
 
 	/* check for possible errors */
 	if(inputFolder->set_imgdir)
@@ -699,19 +699,19 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		if(!(parameters->infile[0] == 0))
 		{
 			spdlog::error("options -batch_src and -i cannot be used together.");
-			return 1;
+			return GrkRCParseArgsFailed;
 		}
 		if(!inputFolder->set_out_format)
 		{
 			spdlog::error("When -batch_src is used, -out_fmt <FORMAT> must be used.");
 			spdlog::error("Only one format allowed.\n"
 						  "Valid format are PGM, PPM, PNM, PGX, BMP, TIF and RAW.");
-			return 1;
+			return GrkRCParseArgsFailed;
 		}
 		if(!((parameters->outfile[0] == 0)))
 		{
 			spdlog::error("options -batch_src and -o cannot be used together.");
-			return 1;
+			return GrkRCParseArgsFailed;
 		}
 	}
 	else
@@ -724,11 +724,11 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 							  "Example: {} -i image.j2k -o image.pgm",
 							  argv[0]);
 				spdlog::error("   Help: {} -h", argv[0]);
-				return 1;
+				return GrkRCParseArgsFailed;
 			}
 		}
 	}
-	return 0;
+	return GrkRCSuccess;
 }
 void GrkDecompress::setDefaultParams(grk_decompress_parameters* parameters)
 {
@@ -799,16 +799,17 @@ int GrkDecompress::decompress(const std::string& fileName, DecompressInitParams*
 	return 1;
 }
 
-int GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initParams)
+GrkRC GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initParams)
 {
 	grk_dircnt* dirptr = nullptr;
-	int32_t success = 0;
+	GrkRC rc = GrkRCFail;
 	uint32_t numDecompressed = 0;
 	bool isBatch = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> start;
 	setDefaultParams(&initParams->parameters);
-	if(parseCommandLine(argc, argv, initParams) == 1)
-		return EXIT_FAILURE;
+	GrkRC parseReturn = parseCommandLine(argc, argv, initParams);
+	if (parseReturn != GrkRCSuccess)
+		return parseReturn;
 #ifdef GROK_HAVE_LIBTIFF
 	tiffSetErrorAndWarningHandlers(initParams->parameters.verbose_);
 #endif
@@ -825,10 +826,7 @@ int GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initP
 	initInfo.deviceId = initParams->parameters.deviceId;
 	initInfo.verbose = initParams->parameters.verbose_;
 	if(!grk_plugin_init(initInfo))
-	{
-		success = 1;
 		goto cleanup;
-	}
 	initParams->parameters.user_data = this;
 	isBatch = initParams->inputFolder.imgdirpath && initParams->outFolder.imgdirpath;
 	if((grk_plugin_get_debug_state() & GRK_PLUGIN_STATE_DEBUG))
@@ -837,17 +835,20 @@ int GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initP
 	{
 		// initialize batch
 		setUpSignalHandler();
-		success = grk_plugin_init_batch_decompress(initParams->inputFolder.imgdirpath,
+		int ret = grk_plugin_init_batch_decompress(initParams->inputFolder.imgdirpath,
 												   initParams->outFolder.imgdirpath,
 												   &initParams->parameters, decompress_callback);
 		// start batch
-		if(success)
-			success = grk_plugin_batch_decompress();
+		if(ret)
+			ret = grk_plugin_batch_decompress();
 		// if plugin successfully begins batch compress, then wait for batch to complete
-		if(success == 0)
+		if(ret == 0)
 		{
 			grk_plugin_wait_for_batch_complete();
 			grk_plugin_stop_batch_decompress();
+			rc = GrkRCSuccess;
+		} else {
+			goto cleanup;
 		}
 	}
 	else
@@ -855,7 +856,8 @@ int GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initP
 		start = std::chrono::high_resolution_clock::now();
 		if(!initParams->inputFolder.set_imgdir)
 		{
-			success = grk_plugin_decompress(&initParams->parameters, decompress_callback);
+			if (grk_plugin_decompress(&initParams->parameters, decompress_callback))
+				goto cleanup;
 		}
 		else
 		{
@@ -869,16 +871,14 @@ int GrkDecompress::pluginMain(int argc, char** argv, DecompressInitParams* initP
 				{
 					continue;
 				}
-				success = grk_plugin_decompress(&initParams->parameters, decompress_callback);
-				if(success != 0)
+				if(grk_plugin_decompress(&initParams->parameters, decompress_callback))
 					goto cleanup;
 				numDecompressed++;
-				if(success != 0)
-					break;
 			}
 		}
 		printTiming(numDecompressed, std::chrono::high_resolution_clock::now() - start);
 	}
+	rc = GrkRCSuccess;
 cleanup:
 	if(dirptr)
 	{
@@ -886,7 +886,7 @@ cleanup:
 		free(dirptr->filename);
 		free(dirptr);
 	}
-	return success;
+	return rc;
 }
 
 int decompress_callback(grk_plugin_decompress_callback_info* info)
@@ -1287,20 +1287,20 @@ int GrkDecompress::main(int argc, char** argv)
 	try
 	{
 		// try to decompress with plugin
-		int plugin_rc = pluginMain(argc, argv, &initParams);
+		GrkRC plugin_rc = pluginMain(argc, argv, &initParams);
 
 		// return immediately if either
 		// initParams was not initialized (something was wrong with command line params)
 		// or
 		// plugin was successful
+		if(plugin_rc == GrkRCSuccess || plugin_rc == GrkRCUsage)
+		{
+			rc = EXIT_SUCCESS;
+			goto cleanup;
+		}
 		if(!initParams.initialized)
 		{
 			rc = EXIT_FAILURE;
-			goto cleanup;
-		}
-		if(plugin_rc == EXIT_SUCCESS)
-		{
-			rc = EXIT_SUCCESS;
 			goto cleanup;
 		}
 		auto start = std::chrono::high_resolution_clock::now();

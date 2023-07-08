@@ -60,6 +60,14 @@
 
 namespace grk
 {
+
+enum GrkRC {
+	GrkRCSuccess,
+	GrkRCFail,
+	GrkRCParseArgsFailed,
+	GrkRCUsage
+};
+
 template<typename... Args>
 void log(grk_msg_callback msg_handler, void* data, char const* const format, Args&... args) noexcept
 {

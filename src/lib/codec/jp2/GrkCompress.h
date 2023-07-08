@@ -46,8 +46,8 @@ class GrkCompress
 
   private:
 	int pluginBatchCompress(CompressInitParams* initParams);
-	int pluginMain(int argc, char** argv, CompressInitParams* initParams);
-	int parseCommandLine(int argc, char** argv, CompressInitParams* initParams);
+	GrkRC pluginMain(int argc, char** argv, CompressInitParams* initParams);
+	GrkRC parseCommandLine(int argc, char** argv, CompressInitParams* initParams);
 	int compress(const std::string& inputFile, CompressInitParams* initParams);
 };
 
