@@ -344,7 +344,7 @@ char GrkDecompress::nextFile(const std::string inputFile, grk_img_fol* inputFold
 	return 0;
 }
 
-class GrokOutput : public TCLAP::StdOutput
+class GrokDecompressOutput : public TCLAP::StdOutput
 {
   public:
 	virtual void usage([[maybe_unused]] TCLAP::CmdLineInterface& c)
@@ -389,7 +389,7 @@ int GrkDecompress::parseCommandLine(int argc, char** argv, DecompressInitParams*
 		TCLAP::CmdLine cmd("grk_decompress command line", ' ', grk_version());
 
 		// set the output
-		GrokOutput output;
+		GrokDecompressOutput output;
 		cmd.setOutput(&output);
 
 		TCLAP::ValueArg<std::string> outDirArg("a", "out_dir", "Output Directory", false, "",

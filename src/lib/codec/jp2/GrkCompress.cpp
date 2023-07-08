@@ -416,7 +416,7 @@ static bool isDecodedFormatSupported(GRK_SUPPORTED_FILE_FMT format)
 	return true;
 }
 
-class GrokOutput : public TCLAP::StdOutput
+class GrokCompressOutput : public TCLAP::StdOutput
 {
   public:
 	virtual void usage([[maybe_unused]] TCLAP::CmdLineInterface& c)
@@ -660,7 +660,7 @@ int GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* ini
 		TCLAP::CmdLine cmd("grk_compress command line", ' ', grk_version());
 
 		// set the output
-		GrokOutput output;
+		GrokCompressOutput output;
 		cmd.setOutput(&output);
 
 		TCLAP::ValueArg<std::string> outDirArg("a", "out_dir", "Output directory", false, "",
