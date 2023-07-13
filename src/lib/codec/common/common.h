@@ -30,10 +30,6 @@
 #include <cstring>
 #include <fcntl.h>
 #endif /* _WIN32 */
-#include <cstdint>
-#include <cstddef>
-#include <cstdio>
-#include <cassert>
 #include <chrono>
 
 #include "grok.h"
