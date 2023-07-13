@@ -34,7 +34,6 @@
 #include <cstddef>
 #include <cstdio>
 #include <cassert>
-#include <algorithm>
 #include <chrono>
 
 #include "grok.h"
