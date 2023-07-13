@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stddef.h>
-#include <stdint.h>
 #include <string.h>  // memcpy
 
 #include <algorithm>  // std::fill
@@ -37,6 +35,7 @@ struct TestLowerHalf {
     const size_t N = Lanes(d);
     auto lanes = AllocateAligned<T>(N);
     auto lanes2 = AllocateAligned<T>(N);
+    HWY_ASSERT(lanes && lanes2);
     std::fill(lanes.get(), lanes.get() + N, T(0));
     std::fill(lanes2.get(), lanes2.get() + N, T(0));
     const auto v = Iota(d, 1);
@@ -64,6 +63,7 @@ struct TestLowerQuarter {
     const size_t N = Lanes(d);
     auto lanes = AllocateAligned<T>(N);
     auto lanes2 = AllocateAligned<T>(N);
+    HWY_ASSERT(lanes && lanes2);
     std::fill(lanes.get(), lanes.get() + N, T(0));
     std::fill(lanes2.get(), lanes2.get() + N, T(0));
     const auto v = Iota(d, 1);
@@ -102,8 +102,10 @@ struct TestUpperHalf {
 #if HWY_TARGET != HWY_SCALAR
     const Half<D> d2;
     const size_t N2 = Lanes(d2);
-    HWY_ASSERT(N2 * 2 == Lanes(d));
+    if (N2 < 2) return;
+    HWY_ASSERT_EQ(N2 * 2, Lanes(d));
     auto expected = AllocateAligned<T>(N2);
+    HWY_ASSERT(expected);
     size_t i = 0;
     for (; i < N2; ++i) {
       expected[i] = static_cast<T>(N2 + 1 + i);
@@ -132,10 +134,11 @@ struct TestZeroExtendVector {
     if (N2 == N) return;
     HWY_ASSERT(N2 == 2 * N);
     auto lanes = AllocateAligned<T>(N2);
+    HWY_ASSERT(lanes);
     Store(v, d, &lanes[0]);
     Store(v, d, &lanes[N]);
 
-    const auto ext = ZeroExtendVector(d2, v);
+    const VFromD<decltype(d2)> ext = ZeroExtendVector(d2, v);
     Store(ext, d2, lanes.get());
 
     // Lower half is unchanged
@@ -154,14 +157,16 @@ struct TestCombine {
   HWY_NOINLINE void operator()(T /*unused*/, D d) {
     const Twice<D> d2;
     const size_t N2 = Lanes(d2);
+    if (N2 < 2) return;
     auto lanes = AllocateAligned<T>(N2);
+    HWY_ASSERT(lanes);
 
-    const auto lo = Iota(d, 1);
-    const auto hi = Iota(d, static_cast<T>(N2 / 2 + 1));
-    const auto combined = Combine(d2, hi, lo);
+    const Vec<D> lo = Iota(d, 1);
+    const Vec<D> hi = Iota(d, static_cast<T>(N2 / 2 + 1));
+    const Vec<decltype(d2)> combined = Combine(d2, hi, lo);
     Store(combined, d2, lanes.get());
 
-    const auto expected = Iota(d2, 1);
+    const Vec<decltype(d2)> expected = Iota(d2, 1);
     HWY_ASSERT_VEC_EQ(d2, expected, combined);
   }
 };
@@ -180,6 +185,7 @@ struct TestConcat {
     auto hi = AllocateAligned<T>(N);
     auto lo = AllocateAligned<T>(N);
     auto expected = AllocateAligned<T>(N);
+    HWY_ASSERT(hi && lo && expected);
     RandomState rng;
     for (size_t rep = 0; rep < 10; ++rep) {
       for (size_t i = 0; i < N; ++i) {
@@ -238,6 +244,29 @@ struct TestConcatOddEven {
     HWY_ASSERT_VEC_EQ(d, odd, ConcatOdd(d, hi, lo));
     HWY_ASSERT_VEC_EQ(d, even, ConcatEven(d, hi, lo));
 
+    const auto v_1 = Set(d, T{1});
+    const auto v_2 = Set(d, T{2});
+    const auto v_3 = Set(d, T{3});
+    const auto v_4 = Set(d, T{4});
+
+    const Half<decltype(d)> dh;
+    const auto v_12 = InterleaveLower(v_1, v_2); /* {1, 2, 1, 2, ...} */
+    const auto v_34 = InterleaveLower(v_3, v_4); /* {3, 4, 3, 4, ...} */
+    const auto v_13 =
+        ConcatLowerLower(d, v_3, v_1); /* {1, 1, ..., 3, 3, ...} */
+    const auto v_24 =
+        ConcatLowerLower(d, v_4, v_2); /* {2, 2, ..., 4, 4, ...} */
+
+    const auto concat_even_1234_result = ConcatEven(d, v_34, v_12);
+    const auto concat_odd_1234_result = ConcatOdd(d, v_34, v_12);
+
+    HWY_ASSERT_VEC_EQ(d, v_13, concat_even_1234_result);
+    HWY_ASSERT_VEC_EQ(d, v_24, concat_odd_1234_result);
+    HWY_ASSERT_VEC_EQ(dh, LowerHalf(dh, v_3),
+                      UpperHalf(dh, concat_even_1234_result));
+    HWY_ASSERT_VEC_EQ(dh, LowerHalf(dh, v_4),
+                      UpperHalf(dh, concat_odd_1234_result));
+
     // This test catches inadvertent saturation.
     const auto min = Set(d, LowestValue<T>());
     const auto max = Set(d, HighestValue<T>());
@@ -247,7 +276,7 @@ struct TestConcatOddEven {
     HWY_ASSERT_VEC_EQ(d, min, ConcatEven(d, min, min));
 #else
     (void)d;
-#endif
+#endif  // HWY_TARGET != HWY_SCALAR
   }
 };
 
