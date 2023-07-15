@@ -47,14 +47,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     uint64_t compressedLength = 0;
 
     // initialize compress parameters
-	grk_cparameters param;
-    grk_compress_set_default_params(&param);
-    param.cod_format = GRK_FMT_JP2;
-    param.verbose = true;
+	grk_cparameters compressParams;
+    grk_compress_set_default_params(&compressParams);
+    compressParams.cod_format = GRK_FMT_JP2;
+    compressParams.verbose = true;
 
 	grk_codec *codec = nullptr;
 	grk_image *image = nullptr;
-	grk_image_comp* compParams = nullptr;
+	grk_image_comp* components = nullptr;
 	int32_t rc = EXIT_FAILURE;
 
 	bool outputToBuffer = true;
@@ -62,13 +62,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	// initialize library
 	grk_initialize(nullptr, 0, false);
 
-	grk_stream_params stream_params;
-	memset(&stream_params,0,sizeof(stream_params));
+	grk_stream_params streamParams;
+	memset(&streamParams,0,sizeof(streamParams));
 	if (outputToBuffer) {
-        stream_params.len = (size_t)numComps * (precision/8) * dimX * dimY;
-	    stream_params.buf = new uint8_t[stream_params.len];
+        streamParams.len = (size_t)numComps * (precision/8) * dimX * dimY;
+	    streamParams.buf = new uint8_t[streamParams.len];
 	} else {
-	    stream_params.file = outFile;
+	    streamParams.file = outFile;
 	}
 
 	// set library message handlers
@@ -76,9 +76,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 						 errorCallback, nullptr);
 
 	// create blank image
-	compParams = new grk_image_comp[numComps];
+	components = new grk_image_comp[numComps];
 	for (uint32_t i = 0; i < numComps; ++i){
-	    auto c = compParams + i;
+	    auto c = components + i;
 	    c->w = dimX;
 	    c->h = dimY;
 	    c->dx = 1;
@@ -86,7 +86,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	    c->prec = precision;
 	    c->sgnd = false;
 	}
-	image = grk_image_new(numComps, compParams, GRK_CLRSPC_SRGB, true);
+	image = grk_image_new(numComps, components, GRK_CLRSPC_SRGB, true);
 
 	// fill in component data
     // see grok.h header for full details of image structure
@@ -111,7 +111,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     }
 
 	// initialize compressor
-	codec = grk_compress_init(&stream_params, &param, image);
+	codec = grk_compress_init(&streamParams, &compressParams, image);
 	if(!codec)
 	{
 		fprintf(stderr, "Failed to initialize compressor\n");
@@ -137,7 +137,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         }
         else
         {
-            size_t written = fwrite(stream_params.buf, 1, compressedLength, fp);
+            size_t written = fwrite(streamParams.buf, 1, compressedLength, fp);
             if(written != compressedLength)
             {
                 fprintf(stderr,"Buffer compress: only %ld bytes written out of %ld total", compressedLength,
@@ -150,8 +150,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	rc = EXIT_SUCCESS;
 beach:
     // cleanup
-    delete[] compParams;
-    delete[] stream_params.buf;
+    delete[] components;
+    delete[] streamParams.buf;
 	grk_object_unref(codec);
 	grk_object_unref(&image->obj);
     grk_deinitialize();

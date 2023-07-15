@@ -100,12 +100,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	    inputFilePath = argv[1];
 
 	// initialize decompress parameters
-	grk_decompress_parameters param;
-    grk_decompress_set_default_params(&param);
-    param.compressionLevel = GRK_DECOMPRESS_COMPRESSION_LEVEL_DEFAULT;
-    param.verbose_ = true;
+	grk_decompress_parameters decompressParams;
+    grk_decompress_set_default_params(&decompressParams);
+    decompressParams.compressionLevel = GRK_DECOMPRESS_COMPRESSION_LEVEL_DEFAULT;
+    decompressParams.verbose_ = true;
 
-	grk_codec *codec = nullptr;
 	grk_image *image = nullptr;
 	const char* inputFileStr = nullptr;
 
@@ -135,15 +134,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 						 errorCallback, nullptr);
 
 	// initialize decompressor
-    grk_stream_params stream_params;
-    memset(&stream_params,0,sizeof(stream_params));
+    grk_stream_params streamParams;
+    memset(&streamParams,0,sizeof(streamParams));
     if (fromBuffer) {
-        stream_params.buf = img;
-        stream_params.len = sizeof(img);
+        streamParams.buf = img;
+        streamParams.len = sizeof(img);
     } else {
-        stream_params.file = inputFileStr;
+        streamParams.file = inputFileStr;
     }
-    codec = grk_decompress_init(&stream_params, &param.core);
+    auto codec = grk_decompress_init(&streamParams, &decompressParams.core);
 	if(!codec)
 	{
 		fprintf(stderr, "Failed to set up decompressor\n");
