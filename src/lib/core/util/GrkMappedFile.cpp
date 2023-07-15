@@ -246,37 +246,4 @@ grk_stream* create_mapped_file_read_stream(const char* fname)
 	return stream;
 }
 
-grk_stream* create_mapped_file_write_stream(const char* fname)
-{
-	Logger::logger_.error("Memory mapped file writing not currently supported");
-	return nullptr;
-
-	grk_handle fd = open_fd(fname, "w");
-	if(fd == (grk_handle)-1)
-	{
-		Logger::logger_.error("Unable to open memory mapped file %s", fname);
-		return nullptr;
-	}
-
-	auto memStream = new MemStream();
-	memStream->fd = fd;
-	auto mapped_view = grk_map(fd, memStream->len, false);
-	if(!mapped_view)
-	{
-		Logger::logger_.error("Unable to map memory mapped file %s", fname);
-		mem_map_free(memStream);
-		return nullptr;
-	}
-	memStream->buf = (uint8_t*)mapped_view;
-	memStream->off = 0;
-
-	// now treat mapped file like any other memory stream
-	auto streamImpl = new BufferedStream(memStream->buf, memStream->len, true);
-	auto stream = streamImpl->getWrapper();
-	grk_stream_set_user_data(stream, memStream, (grk_stream_free_user_data_fn)mem_map_free);
-	set_up_mem_stream(stream, memStream->len, false);
-
-	return stream;
-}
-
 } // namespace grk
