@@ -33,15 +33,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     const uint32_t precision = 8;
     grk_image_comp* compParams = nullptr;
     grk_image *image = nullptr;
-    grk_stream_params out_buffer;
-    memset(&out_buffer,0,sizeof(out_buffer));
+    grk_stream_params streamParams;
+    memset(&streamParams,0,sizeof(streamParams));
 
     bool inputFromImage = true;
     bool outputToBuffer = true;
 
     if (outputToBuffer) {
-        out_buffer.len = (size_t)numComps * (precision/8) * dimX * dimY;
-        out_buffer.buf = new uint8_t[out_buffer.len];
+        streamParams.buf_len = (size_t)numComps * (precision/8) * dimX * dimY;
+        streamParams.buf = new uint8_t[streamParams.buf_len];
     }
 
     std::vector<std::string> argString;
@@ -129,12 +129,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 	// 3. decompress
 	rc =  grk_codec_compress((int)args.size(),&args[0], image,
-	                            outputToBuffer ? &out_buffer : nullptr);
+	                            outputToBuffer ? &streamParams : nullptr);
 	if (rc)
 	    fprintf(stderr, "Failed to compress\n");
 
 	if (outputToBuffer)
-	    printf("Compressed to memory : %ld bytes\n",out_buffer.buf_compressed_len);
+	    printf("Compressed to memory : %ld bytes\n",streamParams.buf_compressed_len);
 
     // write buffer to file
     if (outputToBuffer) {
@@ -145,10 +145,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         }
         else
         {
-            size_t written = fwrite(out_buffer.buf, 1, out_buffer.buf_compressed_len, fp);
-            if(written != out_buffer.buf_compressed_len)
+            size_t written = fwrite(streamParams.buf, 1, streamParams.buf_compressed_len, fp);
+            if(written != streamParams.buf_compressed_len)
             {
-                fprintf(stderr,"Buffer compress: only %ld bytes written out of %ld total", out_buffer.buf_compressed_len,
+                fprintf(stderr,"Buffer compress: only %ld bytes written out of %ld total", streamParams.buf_compressed_len,
                               written);
             }
             fclose(fp);
@@ -160,7 +160,7 @@ beach:
 	for (auto& s : args)
 	  delete[] s;
     delete[] compParams;
-    delete[] out_buffer.buf;
+    delete[] streamParams.buf;
     grk_object_unref(&image->obj);
 
 	return rc;

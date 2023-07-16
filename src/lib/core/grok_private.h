@@ -22,25 +22,6 @@
 /* opaque stream object */
 typedef grk_object grk_stream;
 
-/*
- * read callback
- *
- */
-typedef size_t (*grk_stream_read_fn)(uint8_t* buffer, size_t numBytes, void* user_data);
-
-/*
- * write callback
- */
-typedef size_t (*grk_stream_write_fn)(const uint8_t* buffer, size_t numBytes, void* user_data);
-/*
- * (absolute) seek callback
- */
-typedef bool (*grk_stream_seek_fn)(uint64_t numBytes, void* user_data);
-/*
- *  free user data callback
- */
-typedef void (*grk_stream_free_user_data_fn)(void* user_data);
-
 /**
  * Set read function
  *

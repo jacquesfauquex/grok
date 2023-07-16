@@ -138,7 +138,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     memset(&streamParams,0,sizeof(streamParams));
     if (fromBuffer) {
         streamParams.buf = img;
-        streamParams.len = sizeof(img);
+        streamParams.buf_len = sizeof(img);
     } else {
         streamParams.file = inputFileStr;
     }

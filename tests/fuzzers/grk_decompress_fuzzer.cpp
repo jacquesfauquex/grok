@@ -43,7 +43,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *buf, size_t len) {
   grk_stream_params stream_params;
   memset(&stream_params,0,sizeof(stream_params));
   stream_params.buf = const_cast<uint8_t*>(buf);
-  stream_params.len = len;
+  stream_params.buf_len = len;
   codec = grk_decompress_init(&stream_params, &parameters.core);
   if (!codec)
       goto cleanup;

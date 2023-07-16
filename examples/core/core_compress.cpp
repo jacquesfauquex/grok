@@ -65,8 +65,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	grk_stream_params streamParams;
 	memset(&streamParams,0,sizeof(streamParams));
 	if (outputToBuffer) {
-        streamParams.len = (size_t)numComps * (precision/8) * dimX * dimY;
-	    streamParams.buf = new uint8_t[streamParams.len];
+        streamParams.buf_len = (size_t)numComps * ((precision + 7)/8) * dimX * dimY;
+	    streamParams.buf = new uint8_t[streamParams.buf_len];
 	} else {
 	    streamParams.file = outFile;
 	}

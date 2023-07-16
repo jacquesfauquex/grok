@@ -455,21 +455,72 @@ typedef void (*grk_io_register_reclaim_callback)(grk_io_init io_init,
 												 void* io_user_data, void* reclaim_user_data);
 typedef bool (*grk_io_pixels_callback)(uint32_t threadId, grk_io_buf buffer, void* user_data);
 
+
+/**
+ * read callback
+ *
+ * @buffer buffer
+ * @numBytes number of written bytes
+ * @user_data user data
+ *
+ */
+typedef size_t (*grk_stream_read_fn)(uint8_t* buffer, size_t numBytes, void* user_data);
+
+/**
+ * write callback
+ *
+ * @buffer buffer
+ * @numBytes number of written bytes
+ * @user_data user data
+ *
+ */
+typedef size_t (*grk_stream_write_fn)(const uint8_t* buffer, size_t numBytes, void* user_data);
+
+/**
+ * seek (absolute) callback
+ *
+ * @buffer buffer
+ * @numBytes number of written bytes
+ * @user_data user data
+ *
+ */
+typedef bool (*grk_stream_seek_fn)(uint64_t numBytes, void* user_data);
+
+/**
+ * free user data callback
+ *
+ * @buffer buffer
+ * @numBytes number of written bytes
+ * @user_data user data
+ *
+ */
+typedef void (*grk_stream_free_user_data_fn)(void* user_data);
+
+
 /**
  * JPEG 2000 stream parameters - either file or buffer
  */
 typedef struct _grk_stream_params
 {
 	/* File */
-	// file name
+	/* file name */
 	const char* file;
 
 	/* Buffer */
-	// buffer and buffer length
+	/* buffer and buffer length */
 	uint8_t* buf;
-	size_t len;
-	// length of compressed stream (set by compressor, not client)
+	size_t buf_len;
+	/* length of compressed stream (set by compressor, not client) */
 	size_t buf_compressed_len;
+
+	/* Custom Callback */
+	grk_stream_read_fn read_fn;
+	grk_stream_write_fn write_fn;
+	grk_stream_seek_fn seek_fn;
+	grk_stream_free_user_data_fn free_user_data_fn;
+	void *user_data;
+	size_t stream_len;
+
 } grk_stream_params;
 
 typedef enum _GRK_TILE_CACHE_STRATEGY
