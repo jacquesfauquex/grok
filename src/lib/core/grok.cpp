@@ -283,7 +283,27 @@ static grk_codec* grk_decompress_create_from_buffer(uint8_t* buf, size_t len)
 	auto codec = grk_decompress_create(stream);
 	if(!codec)
 	{
-		Logger::logger_.error("Unable to codec.");
+		Logger::logger_.error("Unable to create codec");
+		grk_object_unref(stream);
+		return nullptr;
+	}
+
+	return codec;
+}
+
+static grk_codec* grk_decompress_create_from_callbacks(grk_stream_params* stream_params)
+{
+	auto stream = grk_stream_create_stream(stream_params);
+	if(!stream)
+	{
+		Logger::logger_.error("Unable to create callback stream.");
+		return nullptr;
+	}
+	auto codec = grk_decompress_create(stream);
+	if(!codec)
+	{
+		Logger::logger_.error("Unable to create codec");
+		grk_object_unref(stream);
 		return nullptr;
 	}
 
@@ -301,7 +321,7 @@ static grk_codec* grk_decompress_create_from_file(const char* file_name)
 	auto codec = grk_decompress_create(stream);
 	if(!codec)
 	{
-		Logger::logger_.error("Unable to codec for file %s.", file_name);
+		Logger::logger_.error("Unable to create codec for file %s", file_name);
 		grk_object_unref(stream);
 		return nullptr;
 	}
@@ -329,6 +349,9 @@ grk_codec* GRK_CALLCONV grk_decompress_init(grk_stream_params* stream_params,
 		codecWrapper = grk_decompress_create_from_file(stream_params->file);
 	else if(stream_params->buf)
 		codecWrapper = grk_decompress_create_from_buffer(stream_params->buf, stream_params->buf_len);
+	else if (stream_params->read_fn) {
+		codecWrapper = grk_decompress_create_from_callbacks(stream_params);
+	}
 	if(!codecWrapper)
 		return nullptr;
 
@@ -521,7 +544,7 @@ grk_codec* GRK_CALLCONV grk_compress_init(grk_stream_params* stream_params,
 	else if (stream_params->file)
 	{
 		stream = grk_stream_create_file_stream(stream_params->file, 1024 * 1024, false);
-	} else if (stream_params->read_fn || stream_params->write_fn) {
+	} else if (stream_params->write_fn) {
 		stream = grk_stream_create_stream(stream_params);
 	}
 	if(!stream)
@@ -586,9 +609,12 @@ static void grkFree_file(void* p_user_data)
 static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params)
 {
 	bool readStream = stream_params->read_fn;
+	size_t doubleBufferLen = stream_params->double_buffer_len ?
+								stream_params->double_buffer_len : 1024 * 1024;
+	if (stream_params->stream_len)
+		doubleBufferLen = std::min(doubleBufferLen, stream_params->stream_len);
 	auto stream =
-			grk_stream_new(stream_params->double_buffer_len ?
-					stream_params->double_buffer_len : 1024 * 1024, readStream);
+			grk_stream_new(doubleBufferLen, readStream);
 	if(!stream)
 		return nullptr;
 	// validate

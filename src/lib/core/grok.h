@@ -457,20 +457,20 @@ typedef bool (*grk_io_pixels_callback)(uint32_t threadId, grk_io_buf buffer, voi
 
 
 /**
- * read callback
+ * read stream callback
  *
- * @buffer buffer
- * @numBytes number of written bytes
+ * @buffer buffer to write stream to
+ * @numBytes number of bytes to write to buffer
  * @user_data user data
  *
  */
 typedef size_t (*grk_stream_read_fn)(uint8_t* buffer, size_t numBytes, void* user_data);
 
 /**
- * write callback
+ * write stream callback
  *
- * @buffer buffer
- * @numBytes number of written bytes
+ * @buffer buffer to read stream from
+ * @numBytes number of bytes to read from buffer
  * @user_data user data
  *
  */
@@ -479,12 +479,11 @@ typedef size_t (*grk_stream_write_fn)(const uint8_t* buffer, size_t numBytes, vo
 /**
  * seek (absolute) callback
  *
- * @buffer buffer
- * @numBytes number of written bytes
+ * @offset absolute stream offset
  * @user_data user data
  *
  */
-typedef bool (*grk_stream_seek_fn)(uint64_t numBytes, void* user_data);
+typedef bool (*grk_stream_seek_fn)(uint64_t offset, void* user_data);
 
 /**
  * free user data callback

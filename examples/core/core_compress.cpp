@@ -37,8 +37,8 @@ void infoCallback(const char* msg, [[maybe_unused]] void* client_data)
 	fprintf(stdout,t.c_str());
 }
 
-struct StreamInfo {
-	StreamInfo(grk_stream_params *streamParams) :
+struct WriteStreamInfo {
+	WriteStreamInfo(grk_stream_params *streamParams) :
 		streamParams_(streamParams), data_(nullptr), dataLen_(0), offset_(0){
 	}
 	grk_stream_params *streamParams_;
@@ -48,15 +48,18 @@ struct StreamInfo {
 };
 
 size_t stream_write_fn(const uint8_t* buffer, size_t numBytes, void* user_data){
-	auto sinfo = (StreamInfo*)user_data;
+	auto sinfo = (WriteStreamInfo*)user_data;
 	if (sinfo->offset_ + numBytes <= sinfo->dataLen_)
 		memcpy(sinfo->data_ + sinfo->offset_, buffer, numBytes);
 
 	return numBytes;
 }
 bool stream_seek_fn(uint64_t offset, void* user_data){
-	auto sinfo = (StreamInfo*)user_data;
-	sinfo->offset_ = offset;
+	auto sinfo = (WriteStreamInfo*)user_data;
+	if (offset <= sinfo->dataLen_)
+		sinfo->offset_ = offset;
+	else
+		sinfo->offset_ = sinfo->dataLen_;
 
 	return true;
 }
@@ -90,7 +93,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 	grk_stream_params streamParams;
 	memset(&streamParams,0,sizeof(streamParams));
-	StreamInfo sinfo(&streamParams);
+	WriteStreamInfo sinfo(&streamParams);
 
 	std::unique_ptr<uint8_t[]> data;
 	size_t bufLen = (size_t)numComps * ((precision + 7)/8) * dimX * dimY;

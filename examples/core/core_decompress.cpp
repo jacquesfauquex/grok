@@ -25,7 +25,7 @@
 #include "grk_examples_config.h"
 
 
-uint8_t img[] = {
+uint8_t img_buf[] = {
 0xff, 0x4f, 0xff, 0x51, 0x00, 0x2c, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0c,
 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0c,
 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x07, 0x04, 0x01, 0x07, 0x01, 0x01,
@@ -82,6 +82,36 @@ void infoCallback(const char* msg, [[maybe_unused]] void* client_data)
 	fprintf(stdout,t.c_str());
 }
 
+struct ReadStreamInfo {
+	ReadStreamInfo(grk_stream_params *streamParams) :
+		streamParams_(streamParams), data_(nullptr), dataLen_(0), offset_(0){
+	}
+	grk_stream_params *streamParams_;
+	uint8_t* data_;
+	size_t dataLen_;
+	size_t offset_;
+};
+
+size_t stream_read_fn(uint8_t* buffer, size_t numBytes, void* user_data){
+	auto sinfo = (ReadStreamInfo*)user_data;
+	size_t bytesAvailable = sinfo->dataLen_ - sinfo->offset_;
+	size_t readBytes = std::min(numBytes, bytesAvailable);
+	if (readBytes)
+		memcpy(buffer, sinfo->data_ + sinfo->offset_, readBytes);
+
+	return numBytes;
+}
+bool stream_seek_fn(uint64_t offset, void* user_data){
+	auto sinfo = (ReadStreamInfo*)user_data;
+	if (offset <= sinfo->dataLen_)
+		sinfo->offset_ = offset;
+	else
+		sinfo->offset_ = sinfo->dataLen_;
+
+	return true;
+}
+
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     int rc = EXIT_FAILURE;
@@ -109,7 +139,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	const char* inputFileStr = nullptr;
 
     // set to true to decompress from buffer
-    bool fromBuffer = false;
+    bool fromBuffer = true;
+    bool useCallbacks = true;
 
 	// if true, decompress a particular tile, otherwise decompress
 	// all tiles
@@ -127,7 +158,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 	// create j2k file stream
     inputFileStr = inputFilePath.c_str();
-    printf("Decompressing file %s\n", inputFilePath.c_str());
+    if (fromBuffer) {
+    	printf("Decompressing buffer\n");
+    }
+    else {
+    	printf("Decompressing file %s\n", inputFilePath.c_str());
+    }
 
 	// set message handlers for info,warning and error
 	grk_set_msg_handlers(infoCallback, nullptr, warningCallback, nullptr,
@@ -136,9 +172,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	// initialize decompressor
     grk_stream_params streamParams;
     memset(&streamParams,0,sizeof(streamParams));
-    if (fromBuffer) {
-        streamParams.buf = img;
-        streamParams.buf_len = sizeof(img);
+	ReadStreamInfo sinfo(&streamParams);
+
+    if (useCallbacks) {
+		streamParams.seek_fn = stream_seek_fn;
+		streamParams.read_fn = stream_read_fn;
+		streamParams.user_data = &sinfo;
+		streamParams.stream_len = sizeof(img_buf);
+		sinfo.data_ = img_buf;
+		sinfo.dataLen_ = sizeof(img_buf);
+    }
+    else if (fromBuffer) {
+        streamParams.buf = img_buf;
+        streamParams.buf_len = sizeof(img_buf);
     } else {
         streamParams.file = inputFileStr;
     }
