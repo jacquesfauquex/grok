@@ -108,6 +108,25 @@ typedef enum _GRK_ENUM_COLOUR_SPACE
 #define GRK_NUM_COMMENTS_SUPPORTED 256
 #define GRK_NUM_ASOC_BOXES_SUPPORTED 256
 #define GRK_MAX_COMMENT_LENGTH (UINT16_MAX - 2)
+#define GRK_MAX_SUPPORTED_IMAGE_PRECISION 16 /* Maximum supported precision in library */
+
+/* BIBO analysis - extra bits needed to avoid overflow:
+
+ Lossless:
+ without colour transform: 4 extra bits
+ with colour transform:    5 extra bits
+
+ Lossy:
+
+ Need 1 extra bit
+
+ So,  worst-case scenario is lossless with colour transform : need to add 5 more bits to prec to
+ avoid overflow
+ */
+#define BIBO_EXTRA_BITS 7
+
+#define GRK_MAX_PASSES (3 * (GRK_MAX_SUPPORTED_IMAGE_PRECISION + BIBO_EXTRA_BITS) - 2)
+
 
 /**
  * Logging callback
@@ -488,8 +507,6 @@ typedef bool (*grk_stream_seek_fn)(uint64_t offset, void* user_data);
 /**
  * free user data callback
  *
- * @buffer buffer
- * @numBytes number of written bytes
  * @user_data user data
  *
  */
@@ -497,30 +514,30 @@ typedef void (*grk_stream_free_user_data_fn)(void* user_data);
 
 
 /**
- * JPEG 2000 stream parameters - either file or buffer
+ * JPEG 2000 stream parameters. Client must populate one of the following options :
+ * 1. File
+ * 2. Buffer
+ * 3. Callback
  */
 typedef struct _grk_stream_params
 {
-	/* File */
-	/* file name */
+	/* 1. File */
 	const char* file;
 
-	/* Buffer */
-	/* buffer and buffer length */
+	/* 2. Buffer */
 	uint8_t* buf;
 	size_t buf_len;
 	/* length of compressed stream (set by compressor, not client) */
 	size_t buf_compressed_len;
 
-	/* Custom Callback */
+	/* 3. Callback */
 	grk_stream_read_fn read_fn;
 	grk_stream_write_fn write_fn;
 	grk_stream_seek_fn seek_fn;
-	grk_stream_free_user_data_fn free_user_data_fn;
+	grk_stream_free_user_data_fn free_user_data_fn; // optional
 	void *user_data;
-	size_t stream_len;
-	size_t double_buffer_len;
-
+	size_t stream_len; // must be set for read stream
+	size_t double_buffer_len; // optional - default value is 1024 * 1024
 } grk_stream_params;
 
 typedef enum _GRK_TILE_CACHE_STRATEGY
@@ -737,7 +754,7 @@ typedef struct _grk_plugin_code_block
 	uint32_t compressedDataLength;
 	uint8_t numBitPlanes;
 	size_t numPasses;
-	grk_plugin_pass passes[67];
+	grk_plugin_pass passes[GRK_MAX_PASSES];
 	unsigned int sortedIndex;
 } grk_plugin_code_block;
 
@@ -1155,8 +1172,6 @@ GRK_API void GRK_CALLCONV grk_dump_codec(grk_codec* codec, uint32_t info_flag, F
  */
 GRK_API bool GRK_CALLCONV grk_set_MCT(grk_cparameters* parameters, float* encodingMatrix,
 									  int32_t* dc_shift, uint32_t nbComp);
-
-#define GRK_MAX_SUPPORTED_IMAGE_PRECISION 16 /* Maximum supported precision in library */
 
 #define GRK_IMG_INFO 1 /* Basic image information provided to the user */
 #define GRK_J2K_MH_INFO 2 /* Codestream information based only on the main header */
