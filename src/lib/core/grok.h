@@ -520,6 +520,7 @@ typedef struct _grk_stream_params
 	grk_stream_free_user_data_fn free_user_data_fn;
 	void *user_data;
 	size_t stream_len;
+	size_t double_buffer_len;
 
 } grk_stream_params;
 

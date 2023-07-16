@@ -83,7 +83,7 @@ static bool grk_compress_start(grk_codec* codec);
 static grk_stream* grk_stream_create_file_stream(const char* fname, size_t buffer_size,
 												 bool is_read_stream);
 
-static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params, size_t buffer_size);
+static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params);
 
 static grk_stream* grk_stream_new(size_t buffer_size, bool is_input)
 {
@@ -522,7 +522,7 @@ grk_codec* GRK_CALLCONV grk_compress_init(grk_stream_params* stream_params,
 	{
 		stream = grk_stream_create_file_stream(stream_params->file, 1024 * 1024, false);
 	} else if (stream_params->read_fn || stream_params->write_fn) {
-		stream = grk_stream_create_stream(stream_params, 1024 * 1024);
+		stream = grk_stream_create_stream(stream_params);
 	}
 	if(!stream)
 	{
@@ -583,10 +583,12 @@ static void grkFree_file(void* p_user_data)
 		fclose((FILE*)p_user_data);
 }
 
-static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params, size_t buffer_size)
+static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params)
 {
 	bool readStream = stream_params->read_fn;
-	auto stream = grk_stream_new(buffer_size, readStream);
+	auto stream =
+			grk_stream_new(stream_params->double_buffer_len ?
+					stream_params->double_buffer_len : 1024 * 1024, readStream);
 	if(!stream)
 		return nullptr;
 	// validate
