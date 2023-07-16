@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <memory>
 
 #include "grok.h"
 
@@ -34,6 +35,30 @@ void infoCallback(const char* msg, [[maybe_unused]] void* client_data)
 {
 	auto t = std::string(msg) + "\n";
 	fprintf(stdout,t.c_str());
+}
+
+struct StreamInfo {
+	StreamInfo(grk_stream_params *streamParams) :
+		streamParams_(streamParams), data_(nullptr), dataLen_(0), offset_(0){
+	}
+	grk_stream_params *streamParams_;
+	uint8_t* data_;
+	size_t dataLen_;
+	size_t offset_;
+};
+
+size_t stream_write_fn(const uint8_t* buffer, size_t numBytes, void* user_data){
+	auto sinfo = (StreamInfo*)user_data;
+	if (sinfo->offset_ + numBytes <= sinfo->dataLen_)
+		memcpy(sinfo->data_ + sinfo->offset_, buffer, numBytes);
+
+	return numBytes;
+}
+bool stream_seek_fn(uint64_t offset, void* user_data){
+	auto sinfo = (StreamInfo*)user_data;
+	sinfo->offset_ = offset;
+
+	return true;
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
@@ -57,16 +82,31 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	grk_image_comp* components = nullptr;
 	int32_t rc = EXIT_FAILURE;
 
-	bool outputToBuffer = true;
+	bool outputToBuffer = false;
+	bool useCallbacks = true;
 
 	// initialize library
 	grk_initialize(nullptr, 0, false);
 
 	grk_stream_params streamParams;
 	memset(&streamParams,0,sizeof(streamParams));
-	if (outputToBuffer) {
-        streamParams.buf_len = (size_t)numComps * ((precision + 7)/8) * dimX * dimY;
-	    streamParams.buf = new uint8_t[streamParams.buf_len];
+	StreamInfo sinfo(&streamParams);
+
+	std::unique_ptr<uint8_t[]> data;
+	size_t bufLen = (size_t)numComps * ((precision + 7)/8) * dimX * dimY;
+	if (useCallbacks || outputToBuffer) {
+        data = std::make_unique<uint8_t[]>(bufLen);
+	}
+	if (useCallbacks) {
+		streamParams.seek_fn = stream_seek_fn;
+		streamParams.write_fn = stream_write_fn;
+		streamParams.user_data = &sinfo;
+		sinfo.data_ = data.get();
+		sinfo.dataLen_ = bufLen;
+	}
+	else if (outputToBuffer) {
+	    streamParams.buf = data.get();
+        streamParams.buf_len = bufLen;
 	} else {
 	    streamParams.file = outFile;
 	}
@@ -100,7 +140,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
             goto beach;
         }
         // fill in component data, taking component stride into account
+        // in this example, we just zero out each component
         auto srcData = new int32_t[compWidth * compHeight];
+        memset(srcData, 0, compWidth * compHeight * sizeof(int32_t));
         auto srcPtr = srcData;
         for (uint32_t j = 0; j < compHeight; ++j) {
            memcpy(compData, srcPtr, compWidth * sizeof(int32_t));
@@ -151,7 +193,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 beach:
     // cleanup
     delete[] components;
-    delete[] streamParams.buf;
 	grk_object_unref(codec);
 	grk_object_unref(&image->obj);
     grk_deinitialize();
