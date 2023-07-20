@@ -626,22 +626,22 @@ static grk_stream* grk_stream_create_stream(grk_stream_params* stream_params)
 	if(!stream)
 		return nullptr;
 	// validate
-	if(readStream && stream_params->codec_format == GRK_CODEC_UNK)
+	if(readStream)
 	{
-		uint8_t buf[12];
-		size_t bytesRead = stream_params->read_fn(buf, 12, stream_params->user_data);
-		if(bytesRead != 12)
-			return nullptr;
-		stream_params->seek_fn(0, stream_params->user_data);
 		auto bstream = BufferedStream::getImpl(stream);
-		GRK_CODEC_FORMAT fmt;
-		if(!grk_decompress_buffer_detect_format(buf, 12, &fmt))
-		{
-			Logger::logger_.error("Unable to detect codec format.");
-			return nullptr;
+		if (stream_params->codec_format == GRK_CODEC_UNK) {
+			uint8_t buf[12];
+			size_t bytesRead = stream_params->read_fn(buf, 12, stream_params->user_data);
+			if(bytesRead != 12)
+				return nullptr;
+			stream_params->seek_fn(0, stream_params->user_data);
+			if(!grk_decompress_buffer_detect_format(buf, 12, &stream_params->codec_format))
+			{
+				Logger::logger_.error("Unable to detect codec format.");
+				return nullptr;
+			}
 		}
-		if(readStream)
-			bstream->setFormat(fmt);
+		bstream->setFormat(stream_params->codec_format);
 	}
 
 	grk_stream_set_user_data(stream, stream_params->user_data, stream_params->free_user_data_fn);
