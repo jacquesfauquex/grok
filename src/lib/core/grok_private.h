@@ -63,7 +63,6 @@ void grk_stream_set_user_data(grk_stream* stream, void* data, grk_stream_free_us
  */
 void grk_stream_set_user_data_length(grk_stream* stream, uint64_t data_length);
 
-
 /**
  * Detect jpeg 2000 format from buffer
  * Format is either GRK_FMT_J2K or GRK_FMT_JP2
@@ -75,5 +74,4 @@ void grk_stream_set_user_data_length(grk_stream* stream, uint64_t data_length);
  * @return true if format was detected, otherwise false
  *
  */
-bool grk_decompress_buffer_detect_format(uint8_t* buffer, size_t len,
-															  GRK_CODEC_FORMAT* fmt);
+bool grk_decompress_buffer_detect_format(uint8_t* buffer, size_t len, GRK_CODEC_FORMAT* fmt);

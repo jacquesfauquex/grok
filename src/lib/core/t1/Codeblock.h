@@ -70,14 +70,14 @@ struct Codeblock : public grk_buf2d<int32_t, AllocatorAligned>, public ICacheabl
 		  ,
 		  included(false)
 #endif
-	{
-	}
+	{}
 	virtual ~Codeblock()
 	{
 		compressedStream.dealloc();
 		delete[] numPassesInPacket;
 	}
-	void init(void) {
+	void init(void)
+	{
 		assert(!numPassesInPacket);
 		numPassesInPacket = new uint8_t[numlayers_];
 		memset(numPassesInPacket, 0, numlayers_);
@@ -106,14 +106,14 @@ struct Codeblock : public grk_buf2d<int32_t, AllocatorAligned>, public ICacheabl
 	}
 
   protected:
-	uint8_t *numPassesInPacket;
+	uint8_t* numPassesInPacket;
 	uint16_t numlayers_;
 #ifdef DEBUG_LOSSLESS_T2
 	uint32_t included;
 	std::vector<PacketLengthInfo> packet_length_info;
 #endif
 
-private:
+  private:
 	explicit Codeblock(const Codeblock& rhs) = default;
 	Codeblock& operator=(const Codeblock& rhs) = default;
 };
@@ -139,7 +139,7 @@ struct CompressCodeblock : public Codeblock
 		if(!layers)
 			layers = new Layer[numlayers_];
 		if(!passes)
-			passes = new CodePass[3*32-2];
+			passes = new CodePass[3 * 32 - 2];
 	}
 	/**
 	 * Allocates data memory for an compressing code block.
@@ -182,8 +182,7 @@ struct DecompressCodeblock : public Codeblock
 		  included(0),
 #endif
 		  numSegmentsAllocated(0)
-	{
-	}
+	{}
 	virtual ~DecompressCodeblock()
 	{
 		release();

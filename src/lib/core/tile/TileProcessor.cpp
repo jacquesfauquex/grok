@@ -940,7 +940,7 @@ bool TileProcessor::preCompressTile()
 	if(!rc)
 		return false;
 	// don't need to allocate any buffers if this is from the plugin.
-	if (current_plugin_tile)
+	if(current_plugin_tile)
 		return true;
 	rc = createWindowBuffers(nullptr);
 	if(!rc)

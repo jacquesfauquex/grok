@@ -120,9 +120,11 @@ static void compress_help_display(void)
 			"grk_compress compresses various image formats into the JPEG 2000 format.\n"
 			"It has been compiled against libgrokj2k v%s.\n\n",
 			grk_version());
-	fprintf(stdout, "* Supported input formats:  `JPEG`, `BMP`, `PNM`, `PGX`, `PNG`, `RAW`, `RAWL`\n");
+	fprintf(stdout,
+			"* Supported input formats:  `JPEG`, `BMP`, `PNM`, `PGX`, `PNG`, `RAW`, `RAWL`\n");
 	fprintf(stdout, "and `TIFF`\n");
-	fprintf(stdout, "* Supported input image extensions:  `jpg`, `.jpeg`, `.bmp`, `.pgm`, `.pgx`,\n");
+	fprintf(stdout,
+			"* Supported input image extensions:  `jpg`, `.jpeg`, `.bmp`, `.pgm`, `.pgx`,\n");
 	fprintf(stdout, "`.pnm`, `.ppm`, `.pam`, `.png`, `.raw`, `.rawl`, `.tif` and `.tiff`\n");
 	fprintf(stdout, "* Supported output formats: `JP2` and `J2K`/`J2C`\n");
 	fprintf(stdout, "* Supported output image extensions: `.jp2` and `.j2k`/`.j2c`\n");
@@ -132,39 +134,48 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, " limitations\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "* `grk_compress` supports up to and including 16 bit sample precision for input\n");
+	fprintf(stdout,
+			"* `grk_compress` supports up to and including 16 bit sample precision for input\n");
 	fprintf(stdout, "images. This is a subset of the ISO standard, which allows up to 38 bit\n");
 	fprintf(stdout, "precision.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " stdin\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Input from `stdin` is supported for the following formats: `PNG`, `JPG`, `RAW`\n");
+	fprintf(stdout,
+			"Input from `stdin` is supported for the following formats: `PNG`, `JPG`, `RAW`\n");
 	fprintf(stdout, "and `RAWL`.  To read from `stdin`,\n");
-	fprintf(stdout, "make sure that the `-i` parameter is **not** present, and that the `-in_fmt`\n");
+	fprintf(stdout,
+			"make sure that the `-i` parameter is **not** present, and that the `-in_fmt`\n");
 	fprintf(stdout, "parameter is set to one of the supported formats listed above.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " Embedded ICC Profile (JP2 Only)\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "If there is an embedded ICC profile in the input file, then the profile will be\n");
+	fprintf(stdout,
+			"If there is an embedded ICC profile in the input file, then the profile will be\n");
 	fprintf(stdout, "stored in the compressed file.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " IPTC (JP2 Only)\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "If an input `TIF/TIFF` file contains `IPTC` metadata, this metadata will be\n");
+	fprintf(stdout,
+			"If an input `TIF/TIFF` file contains `IPTC` metadata, this metadata will be\n");
 	fprintf(stdout, "stored in the compressed file.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " XMP (JP2 Only)\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "If an input `TIF/TIFF` or `PNG` file contains `XMP` metadata, this metadata will\n");
+	fprintf(stdout,
+			"If an input `TIF/TIFF` or `PNG` file contains `XMP` metadata, this metadata will\n");
 	fprintf(stdout, "be stored in the compressed file.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " Exif (JP2 only)\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "To transfer Exif and all other meta-data tags, use the command line argument\n");
+	fprintf(stdout,
+			"To transfer Exif and all other meta-data tags, use the command line argument\n");
 	fprintf(stdout, "`-V` described below. To transfer the tags, Grok uses the wonderful\n");
-	fprintf(stdout, "[ExifTool](https://exiftool.org/) Perl module. ExifTool must be installed for\n");
+	fprintf(stdout,
+			"[ExifTool](https://exiftool.org/) Perl module. ExifTool must be installed for\n");
 	fprintf(stdout, "this command line argument to work properly.\n");
-	fprintf(stdout, "Note: transferring Exif tags may add a few hundred ms to the decompress time,\n");
+	fprintf(stdout,
+			"Note: transferring Exif tags may add a few hundred ms to the decompress time,\n");
 	fprintf(stdout, "depending on the system.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " When only the input and output files are specified, the following default\n");
@@ -185,7 +196,8 @@ static void compress_help_display(void)
 	fprintf(stdout, "* no image origin offset\n");
 	fprintf(stdout, "* no tile origin offset\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "**Important note on command line argument notation below**: the outer square\n");
+	fprintf(stdout,
+			"**Important note on command line argument notation below**: the outer square\n");
 	fprintf(stdout, "braces appear for clarity only,\n");
 	fprintf(stdout, "and **should not** be included in the actual command line argument. Square\n");
 	fprintf(stdout, "braces appearing\n");
@@ -204,37 +216,50 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-v, -verbose`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Output information and warnings about encoding to console (errors are always\n");
+	fprintf(stdout,
+			"Output information and warnings about encoding to console (errors are always\n");
 	fprintf(stdout, "output). Default is false i.e. console is silent by default.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-i, -in_file [file]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Input file. Either this argument or the `-in_dir` argument described below is\n");
+	fprintf(stdout,
+			"Input file. Either this argument or the `-in_dir` argument described below is\n");
 	fprintf(stdout, "required.  See above for supported input formats.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "* `PNG` requires `libpng` while `TIF/TIFF` requires `libtiff`\n");
-	fprintf(stdout, "* `JPG` requires `libjpeg` (or `libjpeg-turbo`), and only 8 bit precision is\n");
+	fprintf(stdout,
+			"* `JPG` requires `libjpeg` (or `libjpeg-turbo`), and only 8 bit precision is\n");
 	fprintf(stdout, "supported\n");
-	fprintf(stdout, "*  For `BMP` format, the coder accepts 24 bits color images and 8 bits (RLE or\n");
+	fprintf(stdout,
+			"*  For `BMP` format, the coder accepts 24 bits color images and 8 bits (RLE or\n");
 	fprintf(stdout, "no-RLE) images\n");
 	fprintf(stdout, "*  `TIF` files can have up to 16 bits per component.\n");
-	fprintf(stdout, "*  For `RAW` or `RAWL` (`RAW` `L`ittle endian) images, the `-F` parameter must\n");
-	fprintf(stdout, "be used (see below). In the case of raw images with a component depth value\n");
-	fprintf(stdout, "between 9 and 16 bits, each component's data must be stored on two bytes (`RAW`\n");
-	fprintf(stdout, "format assumes big endian-ness, `RAWL` assumes little endian-ness) When using\n");
+	fprintf(stdout,
+			"*  For `RAW` or `RAWL` (`RAW` `L`ittle endian) images, the `-F` parameter must\n");
+	fprintf(stdout,
+			"be used (see below). In the case of raw images with a component depth value\n");
+	fprintf(stdout,
+			"between 9 and 16 bits, each component's data must be stored on two bytes (`RAW`\n");
+	fprintf(stdout,
+			"format assumes big endian-ness, `RAWL` assumes little endian-ness) When using\n");
 	fprintf(stdout, "this option, the output file must be specified using `-o`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-o, -out_file [file]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Output file. Required when using `-i` option. Valid output image extensions are\n");
+	fprintf(stdout,
+			"Output file. Required when using `-i` option. Valid output image extensions are\n");
 	fprintf(stdout, "`J2K`, `JP2` and `J2C`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-y, -in_dir [input directory]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Path to the folder where the images to be compressed are stored. Either this\n");
-	fprintf(stdout, "argument or the `-i` argument described above is required. When image files are\n");
-	fprintf(stdout, "in the same directory as the executable, this can be indicated by a dot `.`\n");
-	fprintf(stdout, "argument. When using this option, output format must be specified using `-O`.\n");
+	fprintf(stdout,
+			"Path to the folder where the images to be compressed are stored. Either this\n");
+	fprintf(stdout,
+			"argument or the `-i` argument described above is required. When image files are\n");
+	fprintf(stdout,
+			"in the same directory as the executable, this can be indicated by a dot `.`\n");
+	fprintf(stdout,
+			"argument. When using this option, output format must be specified using `-O`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-a, -out_dir [output directory]`\n");
 	fprintf(stdout, "\n");
@@ -243,8 +268,10 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-O, -out_fmt [J2K|J2C|JP2]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Output format used to compress the images read from the directory specified with\n");
-	fprintf(stdout, "`-in_dir`. Required when `-in_dir` option is used. Supported formats are `J2K`,\n");
+	fprintf(stdout,
+			"Output format used to compress the images read from the directory specified with\n");
+	fprintf(stdout,
+			"`-in_dir`. Required when `-in_dir` option is used. Supported formats are `J2K`,\n");
 	fprintf(stdout, "`J2C`, and `JP2`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-K, -in_fmt [pbm|pgm|ppm|pnm|pam|pgx|png|bmp|tif|raw|rawl|jpg]`\n");
@@ -274,10 +301,14 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Note: not supported for Part 15 (HTJ2K) compression\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Compression ratio values (double precision, greater than or equal to one). Each\n");
-	fprintf(stdout, "value is a factor of compression, thus 20 means 20 times compressed. Each value\n");
-	fprintf(stdout, "represents a quality layer. The order used to define the different levels of\n");
-	fprintf(stdout, "compression is important and must be from left to right in descending order. A\n");
+	fprintf(stdout,
+			"Compression ratio values (double precision, greater than or equal to one). Each\n");
+	fprintf(stdout,
+			"value is a factor of compression, thus 20 means 20 times compressed. Each value\n");
+	fprintf(stdout,
+			"represents a quality layer. The order used to define the different levels of\n");
+	fprintf(stdout,
+			"compression is important and must be from left to right in descending order. A\n");
 	fprintf(stdout, "final lossless quality layer (including all remaining code passes) will be\n");
 	fprintf(stdout, "signified by the value 1. Default: 1 single lossless quality layer.\n");
 	fprintf(stdout, "\n");
@@ -285,32 +316,45 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Note: not supported for Part 15 (HTJ2K) compression\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Quality values (double precision, greater than or equal to zero). Each value is\n");
-	fprintf(stdout, "a PSNR measure, given in dB, representing a quality layer. The order used to\n");
-	fprintf(stdout, "define the different PSNR values is important and must be from left to right in\n");
+	fprintf(stdout,
+			"Quality values (double precision, greater than or equal to zero). Each value is\n");
+	fprintf(stdout,
+			"a PSNR measure, given in dB, representing a quality layer. The order used to\n");
+	fprintf(stdout,
+			"define the different PSNR values is important and must be from left to right in\n");
 	fprintf(stdout, "ascending order. A value of 0 signifies a final lossless quality layer\n");
-	fprintf(stdout, "(including all remaining code passes) Default: 1 single lossless quality layer.\n");
+	fprintf(stdout,
+			"(including all remaining code passes) Default: 1 single lossless quality layer.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-n, -num_resolutions [number of resolutions]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Number of resolutions. It corresponds to the `number of DWT decompositions +1`.\n");
+	fprintf(stdout,
+			"Number of resolutions. It corresponds to the `number of DWT decompositions +1`.\n");
 	fprintf(stdout, "Default: 6.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-b, -code_block_dims [code block width,code block height]`\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Code-block size. The dimension must respect the constraint defined in the\n");
-	fprintf(stdout, "JPEG-2000 standard (no dimension smaller than 4 or greater than 1024, no code-\n");
-	fprintf(stdout, "block with more than 4096 coefficients). The maximum value authorized is 64x64.\n");
+	fprintf(stdout,
+			"JPEG-2000 standard (no dimension smaller than 4 or greater than 1024, no code-\n");
+	fprintf(stdout,
+			"block with more than 4096 coefficients). The maximum value authorized is 64x64.\n");
 	fprintf(stdout, "Default: 64x64.\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, " `-c, -precinct_dims [  [prec width,prec height],[prec width,prec height],... ]`\n");
+	fprintf(stdout,
+			" `-c, -precinct_dims [  [prec width,prec height],[prec width,prec height],... ]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Precinct dimensions. Dimensions specified must be powers of 2. Multiple records\n");
+	fprintf(stdout,
+			"Precinct dimensions. Dimensions specified must be powers of 2. Multiple records\n");
 	fprintf(stdout, "may be specified, in which case the first record refers to the highest\n");
-	fprintf(stdout, "resolution level and subsequent records refer to lower resolution levels. The\n");
-	fprintf(stdout, "last specified record's dimensions are progressively right-shifted (halved in\n");
-	fprintf(stdout, "size) for each remaining lower resolution level. Default: `2^15x2^15` at each\n");
-	fprintf(stdout, "resolution i.e. precincts are not used. Note: the inner square brackets must\n");
+	fprintf(stdout,
+			"resolution level and subsequent records refer to lower resolution levels. The\n");
+	fprintf(stdout,
+			"last specified record's dimensions are progressively right-shifted (halved in\n");
+	fprintf(stdout,
+			"size) for each remaining lower resolution level. Default: `2^15x2^15` at each\n");
+	fprintf(stdout,
+			"resolution i.e. precincts are not used. Note: the inner square brackets must\n");
 	fprintf(stdout, "actually be present.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Example for image with 6 resolutions :\n");
@@ -331,18 +375,22 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-I, -irreversible`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Irreversible compression (ICT + DWT 9-7). This option enables the Irreversible\n");
-	fprintf(stdout, "Color Transformation (ICT) in place of the Reversible Color Transformation (RCT)\n");
+	fprintf(stdout,
+			"Irreversible compression (ICT + DWT 9-7). This option enables the Irreversible\n");
+	fprintf(stdout,
+			"Color Transformation (ICT) in place of the Reversible Color Transformation (RCT)\n");
 	fprintf(stdout, "and the irreversible DWT 9-7 in place of the 5-3 filter. Default: off.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-p, -progression_order` [progression order]\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Progression order. The five progression orders are : `LRCP`, `RLCP`, `RPCL`,\n");
+	fprintf(stdout,
+			"Progression order. The five progression orders are : `LRCP`, `RLCP`, `RPCL`,\n");
 	fprintf(stdout, "`PCRL` and `CPRL`. Default: `LRCP`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-Z, -rsiz [rsiz]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Profile, main level, sub level and version. Note: this flag will be ignored if\n");
+	fprintf(stdout,
+			"Profile, main level, sub level and version. Note: this flag will be ignored if\n");
 	fprintf(stdout, "cinema profile flags are used.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-N, -guard_bits [number of guard bits]`\n");
@@ -351,45 +399,59 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-w, -cinema2K [24|48]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "2K digital cinema profile. This option generates a codes stream compliant with\n");
-	fprintf(stdout, "the DCI specifications for 2K resolution content. The value given is the frame\n");
-	fprintf(stdout, "rate, which can be either 24 or 48 fps. The main specifications of the JPEG 2000\n");
+	fprintf(stdout,
+			"2K digital cinema profile. This option generates a codes stream compliant with\n");
+	fprintf(stdout,
+			"the DCI specifications for 2K resolution content. The value given is the frame\n");
+	fprintf(stdout,
+			"rate, which can be either 24 or 48 fps. The main specifications of the JPEG 2000\n");
 	fprintf(stdout, "Profile-3 (2K Digital Cinema Profile) are:\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "* Image size = 2048 x 1080 (at least one of the dimensions should match 2048 x\n");
+	fprintf(stdout,
+			"* Image size = 2048 x 1080 (at least one of the dimensions should match 2048 x\n");
 	fprintf(stdout, "1080)\n");
 	fprintf(stdout, "* Single tile\n");
 	fprintf(stdout, "* Wavelet transform levels = Maximum of 5\n");
 	fprintf(stdout, "* Wavelet filter = 9-7 filter\n");
 	fprintf(stdout, "* Codeblock size = 32 x 32\n");
-	fprintf(stdout, "* Precinct size = 128 x 128 (Lowest frequency sub-band), 256 x 256 (other sub-\n");
+	fprintf(stdout,
+			"* Precinct size = 128 x 128 (Lowest frequency sub-band), 256 x 256 (other sub-\n");
 	fprintf(stdout, "bands)\n");
-	fprintf(stdout, "* Maximum Bit rate for entire frame = 1302083 bytes for 24 fps, 651041 bytes for\n");
+	fprintf(stdout,
+			"* Maximum Bit rate for entire frame = 1302083 bytes for 24 fps, 651041 bytes for\n");
 	fprintf(stdout, "48fps\n");
-	fprintf(stdout, "* Maximum Bit rate for each color component= 1041666 bytes for 24 fps, 520833\n");
+	fprintf(stdout,
+			"* Maximum Bit rate for each color component= 1041666 bytes for 24 fps, 520833\n");
 	fprintf(stdout, "bytes for 48fps\n");
-	fprintf(stdout, "* Tile parts = 3; Each tile part contains data necessary to decompress one 2K\n");
+	fprintf(stdout,
+			"* Tile parts = 3; Each tile part contains data necessary to decompress one 2K\n");
 	fprintf(stdout, "color component\n");
 	fprintf(stdout, "* 12 bits per component.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-x, -cinema4k`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "4K digital cinema profile. This option generates a code stream compliant with\n");
-	fprintf(stdout, "the DCI specifications for 4K resolution content. The value given is the frame\n");
-	fprintf(stdout, "rate, which can be either 24 or 48 fps. The main specifications of the JPEG 2000\n");
+	fprintf(stdout,
+			"4K digital cinema profile. This option generates a code stream compliant with\n");
+	fprintf(stdout,
+			"the DCI specifications for 4K resolution content. The value given is the frame\n");
+	fprintf(stdout,
+			"rate, which can be either 24 or 48 fps. The main specifications of the JPEG 2000\n");
 	fprintf(stdout, "Profile-4 (4K Digital Cinema Profile) are:\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "* Image size = 4096 x 2160 (at least one of the dimensions must match 4096 x\n");
+	fprintf(stdout,
+			"* Image size = 4096 x 2160 (at least one of the dimensions must match 4096 x\n");
 	fprintf(stdout, "2160)\n");
 	fprintf(stdout, "* Single tile * Wavelet transform levels = Maximum of 6 and minimum of 1\n");
 	fprintf(stdout, "* Wavelet filter = 9-7 filter\n");
 	fprintf(stdout, "* Codeblock size = 32 x 32\n");
-	fprintf(stdout, "* Precinct size = 128 x 128 (Lowest frequency sub-band), 256 x 256 (other sub-\n");
+	fprintf(stdout,
+			"* Precinct size = 128 x 128 (Lowest frequency sub-band), 256 x 256 (other sub-\n");
 	fprintf(stdout, "bands)\n");
 	fprintf(stdout, "* Maximum Bit rate for entire frame = 1302083 bytes for 24 fps\n");
 	fprintf(stdout, "* Maximum Bit rate for each color component= 1041666 bytes for 24 fps\n");
 	fprintf(stdout, "* Tile parts = 6; Each of first 3 tile parts contains data necessary to\n");
-	fprintf(stdout, "decompress one 2K color component, and each of last 3 tile parts contains data\n");
+	fprintf(stdout,
+			"decompress one 2K color component, and each of last 3 tile parts contains data\n");
 	fprintf(stdout, "necessary to decompress one 4K color component.\n");
 	fprintf(stdout, "* 12 bits per component\n");
 	fprintf(stdout, "\n");
@@ -399,7 +461,8 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, "* `PROFILE` must be one of { `SINGLE`, `MULTI`, `MULTI_R`}\n");
 	fprintf(stdout, "* X must be between 0 and 11\n");
-	fprintf(stdout, "* frame rate may be specified to enhance checks and set maximum bit rate when Y\n");
+	fprintf(stdout,
+			"* frame rate may be specified to enhance checks and set maximum bit rate when Y\n");
 	fprintf(stdout, "> 0.\n");
 	fprintf(stdout, "If specified, it must be positive.\n");
 	fprintf(stdout, "\n");
@@ -410,14 +473,17 @@ static void compress_help_display(void)
 	fprintf(stdout, "* `PROFILE` must be one of { `2K`, `4K`, `8K`, `2K_R`, `4K_R`, `8K_R`}\n");
 	fprintf(stdout, "* X must be between 0 and 11\n");
 	fprintf(stdout, "* Y must be between 0 and 9\n");
-	fprintf(stdout, "* frame rate may be specified to enhance checks and set maximum bit rate when Y\n");
+	fprintf(stdout,
+			"* frame rate may be specified to enhance checks and set maximum bit rate when Y\n");
 	fprintf(stdout, "> 0. If specified, it must be positive.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-P, -POC [T<tile number 0>=resolution number start>,component number\n");
-	fprintf(stdout, "start,layer number end,resolution number end,component number end,progression\n");
+	fprintf(stdout,
+			"start,layer number end,resolution number end,component number end,progression\n");
 	fprintf(stdout, "order/T<tile number 1>= ...]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Progression order change. This specifies a list of progression orders and their\n");
+	fprintf(stdout,
+			"Progression order change. This specifies a list of progression orders and their\n");
 	fprintf(stdout, "bounds if a progression order change is desired.\n");
 	fprintf(stdout, "Note: there must be at least two progression orders specified.\n");
 	fprintf(stdout, "\n");
@@ -445,42 +511,56 @@ static void compress_help_display(void)
 	fprintf(stdout, "* SEGMARK(SEGSYM) [32]\n");
 	fprintf(stdout, "* HT [64]\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "and they can be combined together. If more than one mode is used, the values\n");
+	fprintf(stdout,
+			"and they can be combined together. If more than one mode is used, the values\n");
 	fprintf(stdout, "between the brackets `[]` must be added together. Default: no mode.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Example : RESTART(4) + RESET(2) + SEGMARK(32) => -M 38\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Mode HT [64], for High Throughput encoding, *cannot* be combined with any of the\n");
+	fprintf(stdout,
+			"Mode HT [64], for High Throughput encoding, *cannot* be combined with any of the\n");
 	fprintf(stdout, "other flags.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-u, -tile_parts [R|L|C]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Divide packets of every tile into tile-parts. The division is made by grouping\n");
-	fprintf(stdout, "Resolutions (R), Layers (L) or Components (C). The type of division is specified\n");
+	fprintf(stdout,
+			"Divide packets of every tile into tile-parts. The division is made by grouping\n");
+	fprintf(stdout,
+			"Resolutions (R), Layers (L) or Components (C). The type of division is specified\n");
 	fprintf(stdout, "by setting the single letter `R`, `L`, or `C` as the value for this flag.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-R, -ROI [c=component index,U=upshifting value]`\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Quantization indices upshifted for a component.\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Warning: This option does not implement the usual ROI (Region of Interest). It\n");
-	fprintf(stdout, "should be understood as a \"Component of Interest\". It offers the possibility\n");
-	fprintf(stdout, "to upshift the value of a component during quantization step. The value after\n");
-	fprintf(stdout, "`c=` is the component number `[0, 1, 2, ...]` and the value after `U=` is the\n");
+	fprintf(stdout,
+			"Warning: This option does not implement the usual ROI (Region of Interest). It\n");
+	fprintf(stdout,
+			"should be understood as a \"Component of Interest\". It offers the possibility\n");
+	fprintf(stdout,
+			"to upshift the value of a component during quantization step. The value after\n");
+	fprintf(stdout,
+			"`c=` is the component number `[0, 1, 2, ...]` and the value after `U=` is the\n");
 	fprintf(stdout, "value of upshifting. U must be in the range `[0, 37]`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-d, -image_offset [x offset,y offset]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Offset of the image origin. The division in tile could be modified as the anchor\n");
-	fprintf(stdout, "point for tiling will be different than the image origin. Keep in mind that the\n");
-	fprintf(stdout, "offset of the image can not be higher than the tile dimension if the tile option\n");
-	fprintf(stdout, "is used. The two values are respectively for `X` and `Y` axis offset. Default:\n");
+	fprintf(stdout,
+			"Offset of the image origin. The division in tile could be modified as the anchor\n");
+	fprintf(stdout,
+			"point for tiling will be different than the image origin. Keep in mind that the\n");
+	fprintf(stdout,
+			"offset of the image can not be higher than the tile dimension if the tile option\n");
+	fprintf(stdout,
+			"is used. The two values are respectively for `X` and `Y` axis offset. Default:\n");
 	fprintf(stdout, "no offset.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-T, -tile_offset [x offset,y offset]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Offset of the tile origin. The two values are respectively for X and Y axis\n");
-	fprintf(stdout, "offset. The tile anchor point can not be inside the image area. Default: no\n");
+	fprintf(stdout,
+			"Offset of the tile origin. The two values are respectively for X and Y axis\n");
+	fprintf(stdout,
+			"offset. The tile anchor point can not be inside the image area. Default: no\n");
 	fprintf(stdout, "offset.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-Y, -MCT [0|1|2]`\n");
@@ -491,14 +571,17 @@ static void compress_help_display(void)
 	fprintf(stdout, "* 1: RGB->YCC conversion\n");
 	fprintf(stdout, "* 2: custom MCT.\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "For custom MCT, `-m` option has to be used (see below). By default, `RGB`->`YCC`\n");
+	fprintf(stdout,
+			"For custom MCT, `-m` option has to be used (see below). By default, `RGB`->`YCC`\n");
 	fprintf(stdout, "conversion is used if there are three components or more, otherwise no\n");
 	fprintf(stdout, "conversion.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-m, -custom_mct [file]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Use custom array-based MCT of 32 bit signed values, comma separated, line-by-\n");
-	fprintf(stdout, "line no specific separators between lines, no space allowed between values. If\n");
+	fprintf(stdout,
+			"Use custom array-based MCT of 32 bit signed values, comma separated, line-by-\n");
+	fprintf(stdout,
+			"line no specific separators between lines, no space allowed between values. If\n");
 	fprintf(stdout, "this option is used, it automatically sets `[-Y|-mct]` option equal to 2.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-V, -transfer_exif_tags`\n");
@@ -507,10 +590,12 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Notes:\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "1. [ExifTool](https://exiftool.org/) must be installed for this command line\n");
+	fprintf(stdout,
+			"1. [ExifTool](https://exiftool.org/) must be installed for this command line\n");
 	fprintf(stdout, "argument\n");
 	fprintf(stdout, "to function correctly.\n");
-	fprintf(stdout, "2. Only supported on Linux. On other platforms, `exiftool` can be used directly\n");
+	fprintf(stdout,
+			"2. Only supported on Linux. On other platforms, `exiftool` can be used directly\n");
 	fprintf(stdout, "after compression to transfer\n");
 	fprintf(stdout, "tags:\n");
 	fprintf(stdout, "\n");
@@ -520,23 +605,28 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Capture resolution in pixels/metre, in double precision.\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "* If the input image has a resolution stored in its header, then this resolution\n");
+	fprintf(stdout,
+			"* If the input image has a resolution stored in its header, then this resolution\n");
 	fprintf(stdout, "will be set as the capture resolution, by default.\n");
 	fprintf(stdout, "* If the `-Q` command line parameter is set, then it will override the\n");
 	fprintf(stdout, "resolution stored in the input image, if present\n");
-	fprintf(stdout, "* The special values `[0,0]` for `-Q` will force the encoder to **not** store\n");
+	fprintf(stdout,
+			"* The special values `[0,0]` for `-Q` will force the encoder to **not** store\n");
 	fprintf(stdout, "capture resolution, even if present in input image.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-D, -display_res [display resolution X,display resolution Y]`\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Display resolution in pixels/metre, in double precision.\n");
-	fprintf(stdout, "The special values `[0,0]` for `-D` will force the encoder to set the display\n");
+	fprintf(stdout,
+			"The special values `[0,0]` for `-D` will force the encoder to set the display\n");
 	fprintf(stdout, "resolution equal to the capture resolution.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-C, -comment [comment]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Add `<comment>` in comment marker segment(s). Multiple comments (up to a total\n");
-	fprintf(stdout, "of 256) can be specified, separated by the `|` character. For example:   `-C\n");
+	fprintf(stdout,
+			"Add `<comment>` in comment marker segment(s). Multiple comments (up to a total\n");
+	fprintf(stdout,
+			"of 256) can be specified, separated by the `|` character. For example:   `-C\n");
 	fprintf(stdout, "\"This is my first comment|This is my second` will store `This is my first\n");
 	fprintf(stdout, "comment` in the first comment marker segment, and `This is my second` in a\n");
 	fprintf(stdout, "second comment marker.\n");
@@ -551,17 +641,20 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-H, -num_threads [number of threads]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Number of threads used for T1 compression. Default is total number of logical\n");
+	fprintf(stdout,
+			"Number of threads used for T1 compression. Default is total number of logical\n");
 	fprintf(stdout, "cores.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-J, -duration [duration]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Duration in seconds for a batch compress job. `grk_compress` will exit when\n");
+	fprintf(stdout,
+			"Duration in seconds for a batch compress job. `grk_compress` will exit when\n");
 	fprintf(stdout, "duration has been reached.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-e, -repetitions [number of repetitions]`\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "Number of repetitions, for either a single image, or a folder of images. Default\n");
+	fprintf(stdout,
+			"Number of repetitions, for either a single image, or a folder of images. Default\n");
 	fprintf(stdout, "value is `1`. Unlimited repetitions are specified by a value of `0`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-g, -plugin_path [plugin path]`\n");
@@ -573,7 +666,8 @@ static void compress_help_display(void)
 	fprintf(stdout, "\n");
 	fprintf(stdout, "For Grok plugin running on multi-GPU system. Specifies which single GPU\n");
 	fprintf(stdout, "accelerator to run codec on.\n");
-	fprintf(stdout, "If the flag is set to -1, all GPUs are used in round-robin scheduling. If set to\n");
+	fprintf(stdout,
+			"If the flag is set to -1, all GPUs are used in round-robin scheduling. If set to\n");
 	fprintf(stdout, "-2, then plugin is disabled and\n");
 	fprintf(stdout, "compression is done on the CPU. Default value: 0.\n");
 }
@@ -846,7 +940,7 @@ GrkRC GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initPar
 		255; /* This will be set later according to the input image or the provided option */
 	initParams->parameters.rateControlAlgorithm = GRK_RATE_CONTROL_PCRD_OPT;
 	GrkRC parseRc = parseCommandLine(argc, argv, initParams);
-	if (parseRc != GrkRCSuccess)
+	if(parseRc != GrkRCSuccess)
 		return parseRc;
 
 #ifdef GROK_HAVE_LIBTIFF
@@ -871,13 +965,16 @@ GrkRC GrkCompress::pluginMain(int argc, char** argv, CompressInitParams* initPar
 
 	// 1. batch encode
 	uint32_t state = grk_plugin_get_debug_state();
-	bool isBatch = initParams->inputFolder.imgdirpath && (initParams->outFolder.imgdirpath || initParams->parameters.sharedMemoryInterface);
+	bool isBatch =
+		initParams->inputFolder.imgdirpath &&
+		(initParams->outFolder.imgdirpath || initParams->parameters.sharedMemoryInterface);
 	if(isBatch && !((state & GRK_PLUGIN_STATE_DEBUG) || (state & GRK_PLUGIN_STATE_PRE_TR1)))
 		return pluginBatchCompress(initParams) ? GrkRCFail : GrkRCSuccess;
 
 	// 2. single image encode
 	if(!initParams->inputFolder.set_imgdir)
-		return grk_plugin_compress(&initParams->parameters, pluginCompressCallback) ? GrkRCSuccess : GrkRCFail;
+		return grk_plugin_compress(&initParams->parameters, pluginCompressCallback) ? GrkRCSuccess
+																					: GrkRCFail;
 
 	// 3. directory encode
 	//  cache certain settings
@@ -954,9 +1051,8 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 												  cmd);
 		TCLAP::SwitchArg irreversibleArg("I", "irreversible", "Irreversible", cmd);
 		TCLAP::ValueArg<std::string> licenseArg("j", "license", "License", false, "", "string",
-												  cmd);
-		TCLAP::ValueArg<std::string> serverArg("J", "server", "Server", false, "", "string",
-												  cmd);
+												cmd);
+		TCLAP::ValueArg<std::string> serverArg("J", "server", "Server", false, "", "string", cmd);
 		// Kernel build flags:
 		// 1 indicates build binary, otherwise load binary
 		// 2 indicates generate binaries
@@ -1010,7 +1106,7 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 												 false, "24", "string", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
 		TCLAP::ValueArg<std::string> batchSrcArg("y", "batch_src", "Image directory", false, "",
-											  "string", cmd);
+												 "string", cmd);
 		TCLAP::ValueArg<uint32_t> mctArg("Y", "MCT", "Multi component transform", false, 0,
 										 "unsigned integer", cmd);
 		TCLAP::ValueArg<std::string> IMFArg("z", "IMF", "IMF profile", false, "", "string", cmd);
@@ -1109,16 +1205,18 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 			// check for possible input from STDIN
 			if(!batchSrcArg.isSet() && !initParams->in_image)
 			{
-
 				bool fail = true;
-				bool unsupportedStdout = inForArg.isSet() &&
-						!grk::supportedStdioFormat((GRK_SUPPORTED_FILE_FMT)parameters->decod_format, false);
-				if (unsupportedStdout)
+				bool unsupportedStdout =
+					inForArg.isSet() &&
+					!grk::supportedStdioFormat((GRK_SUPPORTED_FILE_FMT)parameters->decod_format,
+											   false);
+				if(unsupportedStdout)
 					spdlog::error("Output format does not support decompress to stdout");
-				else if (!inForArg.isSet())
+				else if(!inForArg.isSet())
 					spdlog::error("Missing input file");
-				else fail = false;
-				if (fail)
+				else
+					fail = false;
+				if(fail)
 					return GrkRCFail;
 			}
 		}
@@ -1737,7 +1835,7 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 			}
 		}
 #else
-		if (!cinema2KArg.isSet() && !cinema4KArg.isSet())
+		if(!cinema2KArg.isSet() && !cinema4KArg.isSet())
 			return GrkRCFail;
 
 #endif
@@ -1758,10 +1856,13 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 				std::getline(ss, substr, ',');
 				count++;
 			}
-			if (count >= 6) {
+			if(count >= 6)
+			{
 				parameters->sharedMemoryInterface = true;
-			} else {
-				if (!validateDirectory(batchSrcArg.getValue()))
+			}
+			else
+			{
+				if(!validateDirectory(batchSrcArg.getValue()))
 					return GrkRCFail;
 			}
 			inputFolder->imgdirpath = (char*)malloc(strlen(batchSrcArg.getValue().c_str()) + 1);
@@ -1773,7 +1874,7 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 			outFolder->set_imgdir = false;
 			if(outDirArg.isSet())
 			{
-				if (!validateDirectory(outDirArg.getValue()))
+				if(!validateDirectory(outDirArg.getValue()))
 					return GrkRCFail;
 				outFolder->imgdirpath = (char*)malloc(strlen(outDirArg.getValue().c_str()) + 1);
 				strcpy(outFolder->imgdirpath, outDirArg.getValue().c_str());
@@ -1782,7 +1883,7 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 		}
 		if(kernelBuildOptionsArg.isSet())
 			parameters->kernelBuildOptions = kernelBuildOptionsArg.getValue();
-		if (!isHT && !qualityArg.isSet() && !compressionRatiosArg.isSet())
+		if(!isHT && !qualityArg.isSet() && !compressionRatiosArg.isSet())
 		{
 			/* if no rate was entered, then lossless by default */
 			parameters->layer_rate[0] = 0;
@@ -2021,7 +2122,8 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 					return GrkRCFail;
 			}
 		}
-		if (serverArg.isSet() && licenseArg.isSet()) {
+		if(serverArg.isSet() && licenseArg.isSet())
+		{
 			initParams->server_ = serverArg.getValue();
 			initParams->license_ = licenseArg.getValue();
 		}

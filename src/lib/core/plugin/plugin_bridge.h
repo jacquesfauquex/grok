@@ -17,7 +17,6 @@
 
 #pragma once
 
-
 namespace grk
 {
 void decompress_synch_plugin_with_host(TileProcessor* tcd);

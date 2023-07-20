@@ -127,7 +127,6 @@ typedef enum _GRK_ENUM_COLOUR_SPACE
 
 #define GRK_MAX_PASSES (3 * (GRK_MAX_SUPPORTED_IMAGE_PRECISION + BIBO_EXTRA_BITS) - 2)
 
-
 /**
  * Logging callback
  *
@@ -239,7 +238,6 @@ typedef enum _GRK_SUPPORTED_FILE_FMT
 	GRK_FMT_JPG
 } GRK_SUPPORTED_FILE_FMT;
 
-
 /**
  * Supported JPEG 2000 formats
  */
@@ -247,9 +245,8 @@ typedef enum _GRK_CODEC_FORMAT
 {
 	GRK_CODEC_UNK, /**< unknown format */
 	GRK_CODEC_J2K, /**< JPEG 2000 code stream format */
-	GRK_CODEC_JP2  /**< JP2 file format */
+	GRK_CODEC_JP2 /**< JP2 file format */
 } GRK_CODEC_FORMAT;
-
 
 #define GRK_PATH_LEN 4096 /* Maximum allowed filename size */
 #define GRK_MAX_LAYERS 100 /* Maximum number of quality layers */
@@ -486,7 +483,6 @@ typedef void (*grk_io_register_reclaim_callback)(grk_io_init io_init,
 												 void* io_user_data, void* reclaim_user_data);
 typedef bool (*grk_io_pixels_callback)(uint32_t threadId, grk_io_buf buffer, void* user_data);
 
-
 /**
  * read stream callback
  *
@@ -524,7 +520,6 @@ typedef bool (*grk_stream_seek_fn)(uint64_t offset, void* user_data);
  */
 typedef void (*grk_stream_free_user_data_fn)(void* user_data);
 
-
 /**
  * JPEG 2000 stream parameters. Client must populate one of the following options :
  * 1. File
@@ -549,7 +544,7 @@ typedef struct _grk_stream_params
 	grk_stream_write_fn write_fn;
 	grk_stream_seek_fn seek_fn;
 	grk_stream_free_user_data_fn free_user_data_fn; // optional
-	void *user_data;
+	void* user_data;
 	size_t stream_len; // must be set for read stream
 	size_t double_buffer_len; // optional - default value is 1024 * 1024
 } grk_stream_params;
@@ -883,7 +878,6 @@ GRK_API grk_image_meta* GRK_CALLCONV grk_image_meta_new(void);
  *
  */
 GRK_API bool GRK_CALLCONV grk_decompress_detect_format(const char* fileName, GRK_CODEC_FORMAT* fmt);
-
 
 /**
  * Initialize stream parameters with default values

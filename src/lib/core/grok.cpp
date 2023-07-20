@@ -83,7 +83,7 @@ static bool grk_compress_start(grk_codec* codec);
 static grk_stream* grk_stream_create_file_stream(const char* fname, size_t buffer_size,
 												 bool is_read_stream);
 
-static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params);
+static grk_stream* grk_stream_create_stream(grk_stream_params* stream_params);
 
 static grk_stream* grk_stream_new(size_t buffer_size, bool is_input)
 {
@@ -228,8 +228,7 @@ grk_image_meta* GRK_CALLCONV grk_image_meta_new(void)
 
 static const char* JP2_RFC3745_MAGIC = "\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a";
 static const char* J2K_CODESTREAM_MAGIC = "\xff\x4f\xff\x51";
-bool grk_decompress_buffer_detect_format(uint8_t* buffer, size_t len,
-													  GRK_CODEC_FORMAT* fmt)
+bool grk_decompress_buffer_detect_format(uint8_t* buffer, size_t len, GRK_CODEC_FORMAT* fmt)
 {
 	GRK_CODEC_FORMAT magic_format = GRK_CODEC_UNK;
 	if(len < 12)
@@ -272,7 +271,8 @@ bool GRK_CALLCONV grk_decompress_detect_format(const char* fileName, GRK_CODEC_F
 	return grk_decompress_buffer_detect_format(buf, 12, fmt);
 }
 
-void GRK_CALLCONV grk_set_default_stream_params(grk_stream_params* params){
+void GRK_CALLCONV grk_set_default_stream_params(grk_stream_params* params)
+{
 	memset(params, 0, sizeof(grk_stream_params));
 	params->codec_format = GRK_CODEC_UNK;
 }
@@ -353,8 +353,10 @@ grk_codec* GRK_CALLCONV grk_decompress_init(grk_stream_params* stream_params,
 	if(stream_params->file)
 		codecWrapper = grk_decompress_create_from_file(stream_params->file);
 	else if(stream_params->buf)
-		codecWrapper = grk_decompress_create_from_buffer(stream_params->buf, stream_params->buf_len);
-	else if (stream_params->read_fn) {
+		codecWrapper =
+			grk_decompress_create_from_buffer(stream_params->buf, stream_params->buf_len);
+	else if(stream_params->read_fn)
+	{
 		codecWrapper = grk_decompress_create_from_callbacks(stream_params);
 	}
 	if(!codecWrapper)
@@ -546,10 +548,12 @@ grk_codec* GRK_CALLCONV grk_compress_init(grk_stream_params* stream_params,
 		// let stream clean up compress buffer
 		stream = create_mem_stream(stream_params->buf, stream_params->buf_len, false, false);
 	}
-	else if (stream_params->file)
+	else if(stream_params->file)
 	{
 		stream = grk_stream_create_file_stream(stream_params->file, 1024 * 1024, false);
-	} else if (stream_params->write_fn) {
+	}
+	else if(stream_params->write_fn)
+	{
 		stream = grk_stream_create_stream(stream_params);
 	}
 	if(!stream)
@@ -611,15 +615,14 @@ static void grkFree_file(void* p_user_data)
 		fclose((FILE*)p_user_data);
 }
 
-static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params)
+static grk_stream* grk_stream_create_stream(grk_stream_params* stream_params)
 {
 	bool readStream = stream_params->read_fn;
-	size_t doubleBufferLen = stream_params->double_buffer_len ?
-								stream_params->double_buffer_len : 1024 * 1024;
-	if (stream_params->stream_len)
+	size_t doubleBufferLen =
+		stream_params->double_buffer_len ? stream_params->double_buffer_len : 1024 * 1024;
+	if(stream_params->stream_len)
 		doubleBufferLen = std::min(doubleBufferLen, stream_params->stream_len);
-	auto stream =
-			grk_stream_new(doubleBufferLen, readStream);
+	auto stream = grk_stream_new(doubleBufferLen, readStream);
 	if(!stream)
 		return nullptr;
 	// validate
