@@ -34,7 +34,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     grk_image_comp* compParams = nullptr;
     grk_image *image = nullptr;
     grk_stream_params streamParams;
-    memset(&streamParams,0,sizeof(streamParams));
+    grk_set_default_stream_params(&streamParams);
+
 
     bool inputFromImage = true;
     bool outputToBuffer = true;

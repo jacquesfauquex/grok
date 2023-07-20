@@ -228,7 +228,7 @@ grk_image_meta* GRK_CALLCONV grk_image_meta_new(void)
 
 static const char* JP2_RFC3745_MAGIC = "\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a";
 static const char* J2K_CODESTREAM_MAGIC = "\xff\x4f\xff\x51";
-bool GRK_CALLCONV grk_decompress_buffer_detect_format(uint8_t* buffer, size_t len,
+bool grk_decompress_buffer_detect_format(uint8_t* buffer, size_t len,
 													  GRK_CODEC_FORMAT* fmt)
 {
 	GRK_CODEC_FORMAT magic_format = GRK_CODEC_UNK;
@@ -270,6 +270,11 @@ bool GRK_CALLCONV grk_decompress_detect_format(const char* fileName, GRK_CODEC_F
 		return false;
 
 	return grk_decompress_buffer_detect_format(buf, 12, fmt);
+}
+
+void GRK_CALLCONV grk_set_default_stream_params(grk_stream_params* params){
+	memset(params, 0, sizeof(grk_stream_params));
+	params->codec_format = GRK_CODEC_UNK;
 }
 
 static grk_codec* grk_decompress_create_from_buffer(uint8_t* buf, size_t len)
@@ -618,7 +623,7 @@ static grk_stream* grk_stream_create_stream(grk_stream_params *stream_params)
 	if(!stream)
 		return nullptr;
 	// validate
-	if(readStream)
+	if(readStream && stream_params->codec_format == GRK_CODEC_UNK)
 	{
 		uint8_t buf[12];
 		size_t bytesRead = stream_params->read_fn(buf, 12, stream_params->user_data);

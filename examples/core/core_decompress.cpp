@@ -171,7 +171,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 	// initialize decompressor
     grk_stream_params streamParams;
-    memset(&streamParams,0,sizeof(streamParams));
+    grk_set_default_stream_params(&streamParams);
 	ReadStreamInfo sinfo(&streamParams);
 
     if (useCallbacks) {

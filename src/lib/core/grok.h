@@ -239,6 +239,18 @@ typedef enum _GRK_SUPPORTED_FILE_FMT
 	GRK_FMT_JPG
 } GRK_SUPPORTED_FILE_FMT;
 
+
+/**
+ * Supported JPEG 2000 formats
+ */
+typedef enum _GRK_CODEC_FORMAT
+{
+	GRK_CODEC_UNK, /**< unknown format */
+	GRK_CODEC_J2K, /**< JPEG 2000 code stream format */
+	GRK_CODEC_JP2  /**< JP2 file format */
+} GRK_CODEC_FORMAT;
+
+
 #define GRK_PATH_LEN 4096 /* Maximum allowed filename size */
 #define GRK_MAX_LAYERS 100 /* Maximum number of quality layers */
 
@@ -521,6 +533,8 @@ typedef void (*grk_stream_free_user_data_fn)(void* user_data);
  */
 typedef struct _grk_stream_params
 {
+	GRK_CODEC_FORMAT codec_format;
+
 	/* 1. File */
 	const char* file;
 
@@ -576,16 +590,6 @@ typedef struct _grk_decompress_core_params
 } grk_decompress_core_params;
 
 #define GRK_DECOMPRESS_COMPRESSION_LEVEL_DEFAULT (UINT_MAX)
-
-/**
- * Supported JPEG 2000 formats
- */
-typedef enum _GRK_CODEC_FORMAT
-{
-	GRK_CODEC_UNK = -1, /**< place-holder */
-	GRK_CODEC_J2K = 0, /**< JPEG 2000 code stream : read/write */
-	GRK_CODEC_JP2 = 2 /**< JP2 file format : read/write */
-} GRK_CODEC_FORMAT;
 
 /**
  * Decompression parameters
@@ -880,19 +884,14 @@ GRK_API grk_image_meta* GRK_CALLCONV grk_image_meta_new(void);
  */
 GRK_API bool GRK_CALLCONV grk_decompress_detect_format(const char* fileName, GRK_CODEC_FORMAT* fmt);
 
+
 /**
- * Detect jpeg 2000 format from buffer
- * Format is either GRK_FMT_J2K or GRK_FMT_JP2
+ * Initialize stream parameters with default values
  *
- * @param buffer buffer
- * @param len buffer length
- * @param fmt pointer to detected format
- *
- * @return true if format was detected, otherwise false
- *
+ * @param parameters stream parameters
  */
-GRK_API bool GRK_CALLCONV grk_decompress_buffer_detect_format(uint8_t* buffer, size_t len,
-															  GRK_CODEC_FORMAT* fmt);
+GRK_API void GRK_CALLCONV grk_set_default_stream_params(grk_stream_params* params);
+
 /**
  * Initialize decompress parameters with default values
  *

@@ -92,7 +92,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	grk_initialize(nullptr, 0, false);
 
 	grk_stream_params streamParams;
-	memset(&streamParams,0,sizeof(streamParams));
+    grk_set_default_stream_params(&streamParams);
 	WriteStreamInfo sinfo(&streamParams);
 
 	std::unique_ptr<uint8_t[]> data;
