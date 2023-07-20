@@ -84,22 +84,32 @@ void infoCallback(const char* msg, [[maybe_unused]] void* client_data)
 
 struct ReadStreamInfo {
 	ReadStreamInfo(grk_stream_params *streamParams) :
-		streamParams_(streamParams), data_(nullptr), dataLen_(0), offset_(0){
+		streamParams_(streamParams), data_(nullptr),
+		dataLen_(0), offset_(0), fp_(nullptr) {
 	}
 	grk_stream_params *streamParams_;
 	uint8_t* data_;
 	size_t dataLen_;
 	size_t offset_;
+	FILE *fp_;
 };
 
 size_t stream_read_fn(uint8_t* buffer, size_t numBytes, void* user_data){
 	auto sinfo = (ReadStreamInfo*)user_data;
-	size_t bytesAvailable = sinfo->dataLen_ - sinfo->offset_;
-	size_t readBytes = std::min(numBytes, bytesAvailable);
-	if (readBytes)
-		memcpy(buffer, sinfo->data_ + sinfo->offset_, readBytes);
+	size_t readBytes = numBytes;
+	if (sinfo->data_) {
+		size_t bytesAvailable = sinfo->dataLen_ - sinfo->offset_;
+		readBytes = std::min(numBytes, bytesAvailable);
+	}
+	if (readBytes) {
+		if (sinfo->data_)
+			memcpy(buffer, sinfo->data_ + sinfo->offset_, readBytes);
+		else if (sinfo->fp_){
+		    readBytes = fread(buffer, 1, readBytes, sinfo->fp_);
+		}
+	}
 
-	return numBytes;
+	return readBytes;
 }
 bool stream_seek_fn(uint64_t offset, void* user_data){
 	auto sinfo = (ReadStreamInfo*)user_data;
@@ -107,10 +117,12 @@ bool stream_seek_fn(uint64_t offset, void* user_data){
 		sinfo->offset_ = offset;
 	else
 		sinfo->offset_ = sinfo->dataLen_;
-
-	return true;
+	if (sinfo->fp_) {
+		return fseek(sinfo->fp_, (long int)offset, SEEK_SET) == 0;
+	} else {
+		return true;
+	}
 }
-
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
@@ -137,9 +149,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 	grk_image *image = nullptr;
 	const char* inputFileStr = nullptr;
-
-    // set to true to decompress from buffer
-    bool fromBuffer = true;
+    bool fromBuffer = (argc == 1);
     bool useCallbacks = true;
 
 	// if true, decompress a particular tile, otherwise decompress
@@ -152,6 +162,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	// if true, decompress window of dimension specified below,
 	// otherwise decompress entire image
 	bool decompressWindow = false;
+
+	grk_codec *codec = nullptr;
 
 	// initialize library
 	grk_initialize(nullptr, 0, false);
@@ -173,14 +185,31 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     grk_stream_params streamParams;
     grk_set_default_stream_params(&streamParams);
 	ReadStreamInfo sinfo(&streamParams);
+	if (!fromBuffer) {
+		sinfo.fp_ = fopen(inputFilePath.c_str(), "rb");
+		if (!sinfo.fp_){
+			fprintf(stderr, "Failed to open file %s for reading\n", inputFilePath.c_str());
+			goto beach;
+		}
+	}
 
     if (useCallbacks) {
 		streamParams.seek_fn = stream_seek_fn;
 		streamParams.read_fn = stream_read_fn;
 		streamParams.user_data = &sinfo;
-		streamParams.stream_len = sizeof(img_buf);
-		sinfo.data_ = img_buf;
-		sinfo.dataLen_ = sizeof(img_buf);
+		if (fromBuffer) {
+			streamParams.stream_len = sizeof(img_buf);
+			sinfo.data_ = img_buf;
+			sinfo.dataLen_ = sizeof(img_buf);
+		} else {
+		    // Move the file pointer to the end and get the file size
+		    fseek(sinfo.fp_, 0, SEEK_END);
+		    auto len = ftell(sinfo.fp_);
+		    if (len == -1)
+		    	goto beach;
+		    streamParams.stream_len = (size_t)len;
+		    rewind(sinfo.fp_);
+		}
     }
     else if (fromBuffer) {
         streamParams.buf = img_buf;
@@ -188,7 +217,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     } else {
         streamParams.file = inputFileStr;
     }
-    auto codec = grk_decompress_init(&streamParams, &decompressParams.core);
+    codec = grk_decompress_init(&streamParams, &decompressParams.core);
 	if(!codec)
 	{
 		fprintf(stderr, "Failed to set up decompressor\n");
