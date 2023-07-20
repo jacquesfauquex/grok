@@ -274,7 +274,6 @@ bool GRK_CALLCONV grk_decompress_detect_format(const char* fileName, GRK_CODEC_F
 void GRK_CALLCONV grk_set_default_stream_params(grk_stream_params* params)
 {
 	memset(params, 0, sizeof(grk_stream_params));
-	params->codec_format = GRK_CODEC_UNK;
 }
 
 static grk_codec* grk_decompress_create_from_buffer(uint8_t* buf, size_t len)
@@ -629,19 +628,18 @@ static grk_stream* grk_stream_create_stream(grk_stream_params* stream_params)
 	if(readStream)
 	{
 		auto bstream = BufferedStream::getImpl(stream);
-		if (stream_params->codec_format == GRK_CODEC_UNK) {
-			uint8_t buf[12];
-			size_t bytesRead = stream_params->read_fn(buf, 12, stream_params->user_data);
-			if(bytesRead != 12)
-				return nullptr;
-			stream_params->seek_fn(0, stream_params->user_data);
-			if(!grk_decompress_buffer_detect_format(buf, 12, &stream_params->codec_format))
-			{
-				Logger::logger_.error("Unable to detect codec format.");
-				return nullptr;
-			}
+		uint8_t buf[12];
+		size_t bytesRead = stream_params->read_fn(buf, 12, stream_params->user_data);
+		if(bytesRead != 12)
+			return nullptr;
+		stream_params->seek_fn(0, stream_params->user_data);
+		GRK_CODEC_FORMAT fmt;
+		if(!grk_decompress_buffer_detect_format(buf, 12, &fmt))
+		{
+			Logger::logger_.error("Unable to detect codec format.");
+			return nullptr;
 		}
-		bstream->setFormat(stream_params->codec_format);
+		bstream->setFormat(fmt);
 	}
 
 	grk_stream_set_user_data(stream, stream_params->user_data, stream_params->free_user_data_fn);

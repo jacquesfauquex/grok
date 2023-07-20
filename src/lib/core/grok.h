@@ -302,7 +302,6 @@ typedef struct _grk_palette_data
 /* channel type */
 typedef enum _GRK_CHANNEL_TYPE
 {
-
 	GRK_CHANNEL_TYPE_COLOUR = 0,
 	GRK_CHANNEL_TYPE_OPACITY = 1,
 	GRK_CHANNEL_TYPE_PREMULTIPLIED_OPACITY = 2,
@@ -528,8 +527,6 @@ typedef void (*grk_stream_free_user_data_fn)(void* user_data);
  */
 typedef struct _grk_stream_params
 {
-	GRK_CODEC_FORMAT codec_format;
-
 	/* 1. File */
 	const char* file;
 
