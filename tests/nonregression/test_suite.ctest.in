@@ -735,3 +735,5 @@ grk_decompress -i  @INPUT_NR_PATH@/mono_plt_tlm_tp.j2k -o @TEMP_PATH@/mono_plt_t
 grk_decompress -i  @INPUT_NR_PATH@/mono_plt_tlm_tp.j2k -o @TEMP_PATH@/mono_plt_tlm_tp_region.tif -d 15,15,64,64
 grk_decompress -i  @INPUT_NR_PATH@/mono_plt_tlm.j2k -o @TEMP_PATH@/mono_plt_tlm_tile.pgm
 grk_decompress -i  @INPUT_NR_PATH@/mono_plt_tlm.j2k -o @TEMP_PATH@/mono_plt_tlm_tile5.pgm -t 5
+
+grk_decompress -i @INPUT_CONF_PATH@/a1_mono.j2c -o @TEMP_PATH@/a1_mono_tif-r-1.tif -r 1

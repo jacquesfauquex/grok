@@ -325,12 +325,6 @@ bool GrkImage::supportsStripCache(CodingParams* cp)
 		if(((cp->t_width * numcomps * comps->prec) & 7) != 0)
 			return false;
 	}
-	else
-	{
-		// only mono supported
-		if(numcomps > 1)
-			return false;
-	}
 
 	// difference between image origin y coordinate and tile origin y coordinate
 	// must be multiple of the tile height, so that only the final strip may have

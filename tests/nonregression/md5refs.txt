@@ -376,6 +376,4 @@ a73ac19f0d62be1de1225b977e37c339  mono_plt_tlm_region.tif
 f6c1fe3bc48d15e93cbf9052043b5931  mono_plt_tlm_tile5.tif
 6b6674a5c134e3297103570507e6bad   mono_plt_region.tif
 f6b6674a5c134e3297103570507e6bad  mono_plt_region.tif
-
-
-
+1119cee36ed01399868a65b2978ad62a  a1_mono_tif-r-1.tif

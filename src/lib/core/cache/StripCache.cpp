@@ -13,6 +13,7 @@ static bool grkReclaimCallback(uint32_t threadId, grk_io_buf buffer, void* io_us
 	return true;
 }
 
+
 Strip::Strip(GrkImage* outputImage, uint16_t index, uint32_t nominalHeight, uint8_t reduce)
 	: stripImg(new GrkImage()), tileCounter(0), reduce_(reduce), allocatedInterleaved_(false)
 {
@@ -20,8 +21,12 @@ Strip::Strip(GrkImage* outputImage, uint16_t index, uint32_t nominalHeight, uint
 
 	stripImg->y0 = outputImage->y0 + index * nominalHeight;
 	stripImg->y1 = std::min<uint32_t>(outputImage->y1, stripImg->y0 + nominalHeight);
-	stripImg->comps->y0 = reduceDim(stripImg->y0);
-	stripImg->comps->h = reduceDim(stripImg->y1 - stripImg->y0);
+	stripImg->comps->y0 = stripImg->y0;
+	stripImg->comps->h = stripImg->y1  - stripImg->y0;
+	if (outputImage->hasMultipleTiles) {
+		stripImg->comps->y0 = reduceDim(stripImg->comps->y0);
+		stripImg->comps->h = reduceDim(stripImg->comps->h);
+	}
 }
 Strip::~Strip(void)
 {
