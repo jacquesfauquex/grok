@@ -479,7 +479,7 @@ bool CodeStreamDecompress::read_poc(uint8_t* headerData, uint16_t header_size)
 		current_prog->resE = std::min<uint8_t>(current_prog->resE, maxNumResLevels);
 		if(current_prog->resE <= current_prog->resS)
 		{
-			Logger::logger_.error("read_poc: invalid POC end resolution %u", current_prog->compS);
+			Logger::logger_.error("read_poc: invalid POC end resolution %u", current_prog->resE);
 			return false;
 		}
 		/* CEpoc_i */
@@ -488,7 +488,7 @@ bool CodeStreamDecompress::read_poc(uint8_t* headerData, uint16_t header_size)
 		current_prog->compE = std::min<uint16_t>(current_prog->compE, numComps);
 		if(current_prog->compE <= current_prog->compS)
 		{
-			Logger::logger_.error("read_poc: invalid POC end component %u", current_prog->compS);
+			Logger::logger_.error("read_poc: invalid POC end component (%u) : end component is less than or equal to POC start component (%u)", current_prog->compE , current_prog->compS);
 			return false;
 		}
 		/* Ppoc_i */
