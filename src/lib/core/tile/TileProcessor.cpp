@@ -28,7 +28,7 @@ TileProcessor::TileProcessor(uint16_t tileIndex, CodeStream* codeStream, Buffere
 	  current_plugin_tile(codeStream->getCurrentPluginTile()), cp_(codeStream->getCodingParams()),
 	  packetLengthCache(PLCache(cp_)), tile(new Tile(headerImage->numcomps)), scheduler_(nullptr),
 	  numProcessedPackets(0), numDecompressedPackets(0), tilePartDataLength(0),
-	  tileIndex_(tileIndex), stream_(stream),
+	  tileIndex_(tileIndex), stream_(stream), corrupt_packet_(false),
 	  newTilePartProgressionPosition(cp_->coding_params_.enc_.newTilePartProgressionPosition),
 	  tcp_(cp_->tcps + tileIndex_), truncated(false), image_(nullptr), isCompressor_(isCompressor),
 	  preCalculatedTileLen(0), mct_(new mct(tile, headerImage, tcp_, stripCache))
