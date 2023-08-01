@@ -452,7 +452,7 @@ bool CodeStreamDecompress::read_poc(uint8_t* headerData, uint16_t header_size)
 	{
 		auto current_prog = tcp->progressionOrderChange + i;
 		/* RSpoc_i */
-		grk_read<uint8_t>(headerData, &current_prog->resS);
+		grk_read(headerData, &current_prog->resS);
 		++headerData;
 		if(current_prog->resS >= maxNumResLevels)
 		{
@@ -469,12 +469,12 @@ bool CodeStreamDecompress::read_poc(uint8_t* headerData, uint16_t header_size)
 			return false;
 		}
 		/* LYEpoc_i */
-		grk_read<uint16_t>(headerData, &(current_prog->layE));
+		grk_read(headerData, &(current_prog->layE));
 		/* make sure layer end is in acceptable bounds */
 		current_prog->layE = std::min<uint16_t>(current_prog->layE, tcp->max_layers_);
 		headerData += 2;
 		/* REpoc_i */
-		grk_read<uint8_t>(headerData, &current_prog->resE);
+		grk_read(headerData, &current_prog->resE);
 		++headerData;
 		current_prog->resE = std::min<uint8_t>(current_prog->resE, maxNumResLevels);
 		if(current_prog->resE <= current_prog->resS)
@@ -493,7 +493,7 @@ bool CodeStreamDecompress::read_poc(uint8_t* headerData, uint16_t header_size)
 		}
 		/* Ppoc_i */
 		uint8_t tmp;
-		grk_read<uint8_t>(headerData++, &tmp);
+		grk_read(headerData++, &tmp);
 		if(tmp >= GRK_NUM_PROGRESSION_ORDERS)
 		{
 			Logger::logger_.error("read_poc: unknown POC progression order %u", tmp);
@@ -1391,7 +1391,7 @@ bool CodeStreamDecompress::read_mcc(uint8_t* headerData, uint16_t header_size)
 			Logger::logger_.warn("Collections other than array decorrelations not supported");
 			return true;
 		}
-		grk_read<uint16_t>(headerData, &nb_comps);
+		grk_read(headerData, &nb_comps);
 		headerData += sizeof(uint16_t);
 		header_size = (uint16_t)(header_size - 3);
 
@@ -1419,7 +1419,7 @@ bool CodeStreamDecompress::read_mcc(uint8_t* headerData, uint16_t header_size)
 			}
 		}
 
-		grk_read<uint16_t>(headerData, &nb_comps);
+		grk_read(headerData, &nb_comps);
 		headerData += sizeof(uint16_t);
 
 		nb_bytes_by_comp = 1 + (nb_comps >> 15);
@@ -1523,8 +1523,8 @@ bool CodeStreamDecompress::read_mcc(uint8_t* headerData, uint16_t header_size)
 bool CodeStreamDecompress::read_mct(uint8_t* headerData, uint16_t header_size)
 {
 	uint32_t i;
-	uint32_t tmp;
-	uint32_t indix;
+	uint16_t tmp;
+	uint16_t indix;
 	assert(headerData != nullptr);
 	auto tcp = get_current_decode_tcp();
 
@@ -1535,20 +1535,20 @@ bool CodeStreamDecompress::read_mct(uint8_t* headerData, uint16_t header_size)
 	}
 	/* first marker */
 	/* Zmct */
-	grk_read<uint32_t>(headerData, &tmp, 2);
+	grk_read(headerData, &tmp);
 	headerData += 2;
 	if(tmp != 0)
 	{
-		Logger::logger_.warn("Cannot take in charge mct data within multiple MCT records");
+		Logger::logger_.warn("mct data within multiple MCT records not supported.");
 		return true;
 	}
 
 	/* Imct -> no need for other values, take the first,
 	 * type is double with decorrelation x0000 1101 0000 0000*/
-	grk_read<uint32_t>(headerData, &tmp, 2); /* Imct */
+	grk_read(headerData, &tmp); /* Imct */
 	headerData += 2;
 
-	indix = tmp & 0xff;
+	indix = tmp;
 	auto mct_data = tcp->mct_records_;
 
 	for(i = 0; i < tcp->nb_mct_records_; ++i)
@@ -1619,16 +1619,16 @@ bool CodeStreamDecompress::read_mct(uint8_t* headerData, uint16_t header_size)
 	mct_data->array_type_ = (J2K_MCT_ARRAY_TYPE)((tmp >> 8) & 3);
 	mct_data->element_type_ = (J2K_MCT_ELEMENT_TYPE)((tmp >> 10) & 3);
 	/* Ymct */
-	grk_read<uint32_t>(headerData, &tmp, 2);
+	grk_read(headerData, &tmp);
 	headerData += 2;
 	if(tmp != 0)
 	{
-		Logger::logger_.warn("Cannot take in charge multiple MCT markers");
+		Logger::logger_.warn("multiple MCT markers not supported");
 		return true;
 	}
 	if(header_size <= 6)
 	{
-		Logger::logger_.error("Error reading MCT markers");
+		Logger::logger_.error("Error reading MCT marker");
 		return false;
 	}
 	header_size = (uint16_t)(header_size - 6);
