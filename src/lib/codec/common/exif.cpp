@@ -48,18 +48,6 @@ class PerlInterp
   public:
 	PerlInterp() : my_perl(nullptr)
 	{
-		std::string script{R"x(
-                use strict;
-				use warnings;
-				use Image::ExifTool;
-				sub transfer {
-					my $srcFile = $_[0];
-					my $outFile = $_[1];
-					my $exifTool = new Image::ExifTool;
-					my $info = $exifTool->SetNewValuesFromFile($srcFile, 'all:all');
-					my $result = $exifTool->WriteInfo($outFile);
-				}
-		    )x"};
 		constexpr int NUM_ARGS = 3;
 		PERL_SYS_INIT3(nullptr, nullptr, nullptr);
 		my_perl = perl_alloc();
@@ -78,6 +66,18 @@ class PerlInterp
 				throw std::runtime_error(
 					"Unable to run Perl interpreter used to extract exif tags");
 			}
+			std::string script{R"x(
+	                use strict;
+					use warnings;
+					use Image::ExifTool;
+					sub transfer {
+						my $srcFile = $_[0];
+						my $outFile = $_[1];
+						my $exifTool = new Image::ExifTool;
+						my $info = $exifTool->SetNewValuesFromFile($srcFile, 'all:all');
+						my $result = $exifTool->WriteInfo($outFile);
+					}
+			    )x"};
 			if(!eval_pv(script.c_str(), TRUE))
 			{
 				dealloc();

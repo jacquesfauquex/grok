@@ -690,8 +690,7 @@ static grk_stream* grk_stream_create_file_stream(const char* fname, size_t buffe
 			Logger::logger_.error("Unable to detect codec format.");
 			return nullptr;
 		}
-		if(is_read_stream)
-			bstream->setFormat(fmt);
+		bstream->setFormat(fmt);
 	}
 
 	grk_stream_set_user_data(stream, file, stdin_stdout ? nullptr : grkFree_file);

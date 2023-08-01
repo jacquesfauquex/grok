@@ -59,7 +59,7 @@ class GrkDecompress
 	int decompress(const std::string& fileName, DecompressInitParams* initParams);
 	GrkRC pluginMain(int argc, char** argv, DecompressInitParams* initParams);
 	bool parsePrecision(const char* option, grk_decompress_parameters* parameters);
-	char nextFile(const std::string file_name, grk_img_fol* inputFolder, grk_img_fol* outFolder,
+	char nextFile(const std::string &file_name, grk_img_fol* inputFolder, grk_img_fol* outFolder,
 				  grk_decompress_parameters* parameters);
 	GrkRC parseCommandLine(int argc, char** argv, DecompressInitParams* initParams);
 	uint32_t getCompressionCode(const std::string& compressionString);

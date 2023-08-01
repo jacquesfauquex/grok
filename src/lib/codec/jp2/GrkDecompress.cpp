@@ -538,7 +538,7 @@ bool GrkDecompress::parsePrecision(const char* option, grk_decompress_parameters
 	return result;
 }
 
-char GrkDecompress::nextFile(const std::string inputFile, grk_img_fol* inputFolder,
+char GrkDecompress::nextFile(const std::string &inputFile, grk_img_fol* inputFolder,
 							 grk_img_fol* outFolder, grk_decompress_parameters* parameters)
 {
 	spdlog::info("File: \"{}\"", inputFile.c_str());

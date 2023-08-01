@@ -38,7 +38,7 @@ void infoCallback(const char* msg, [[maybe_unused]] void* client_data)
 }
 
 struct WriteStreamInfo {
-	WriteStreamInfo(grk_stream_params *streamParams) :
+	explicit WriteStreamInfo(grk_stream_params *streamParams) :
 		streamParams_(streamParams), data_(nullptr), dataLen_(0), offset_(0){
 	}
 	grk_stream_params *streamParams_;

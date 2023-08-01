@@ -527,7 +527,7 @@ bool TileProcessor::decompressT2T1(GrkImage* outputImage)
 						auto res = tilec->resolutions_ + resno;
 						for(const auto& pp : res->parserMap_->precinctParsers_)
 						{
-							auto& ppair = pp;
+							const auto& ppair = pp;
 							auto decompressor = [ppair]() {
 								for(uint64_t j = 0; j < ppair.second->numParsers_; ++j)
 								{

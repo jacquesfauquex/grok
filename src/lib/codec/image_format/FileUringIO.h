@@ -37,7 +37,6 @@ class FileUringIO : public IFileIO
 {
   public:
 	FileUringIO();
-	virtual ~FileUringIO() override;
 	void registerGrkReclaimCallback(grk_io_callback reclaim_callback, void* user_data);
 	bool open(const std::string& fileName, const std::string& mode) override;
 	bool attach(std::string fileName, std::string mode, int fd);
