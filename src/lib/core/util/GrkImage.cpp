@@ -324,9 +324,11 @@ bool GrkImage::supportsStripCache(CodingParams* cp)
 		// packed tile width bits must be divisible by 8
 		if(((cp->t_width * numcomps * comps->prec) & 7) != 0)
 			return false;
-	} else {
+	}
+	else
+	{
 		// only mono supported (why is this restriction relaxed for multiple tiles ?)
-		if (numcomps > 1)
+		if(numcomps > 1)
 			return false;
 	}
 
