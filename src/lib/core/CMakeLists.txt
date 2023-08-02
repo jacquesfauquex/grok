@@ -34,6 +34,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1/impl
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/common
   ${CMAKE_CURRENT_SOURCE_DIR}/util
+  ${CMAKE_CURRENT_SOURCE_DIR}/canvas
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/markers
   ${CMAKE_CURRENT_SOURCE_DIR}/point_transform
@@ -54,157 +55,85 @@ set(GROK_EXECUTABLES_SRCS
 
 set(GROK_LIBRARY_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/util/BufferedStream.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/BufferedStream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/Logger.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/Logger.h  
   ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkMappedFile.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkMappedFile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/MemStream.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/MemStream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/grk_intmath.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/grk_intmath.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/geometry.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/SparseBuffer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/SparseBuffer.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/grk_exceptions.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/testing.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkImage.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkImage_Conversion.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkImage.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkObjectWrapper.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkObjectWrapper.h
   ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkMatrix.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/GrkMatrix.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/util/simd.h
   
   ${CMAKE_CURRENT_SOURCE_DIR}/plugin/minpf_dynamic_library.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/plugin/minpf_dynamic_library.h
   ${CMAKE_CURRENT_SOURCE_DIR}/plugin/minpf_plugin_manager.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/plugin/minpf_plugin_manager.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/plugin/minpf_common.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/plugin/minpf_plugin.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin_interface.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin_bridge.h
   ${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin_bridge.cpp
 
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/TileSet.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/TileSet.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/Profile.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/Profile.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodeStream.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodeStream.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodeStreamCompress.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodeStreamCompress.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodeStreamDecompress.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodeStreamDecompress_Markers.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodeStreamDecompress.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/FileFormat.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/FileFormat.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/FileFormatCompress.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/FileFormatCompress.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/FileFormatDecompress.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/FileFormatDecompress.h
+   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/FileFormatDecompress.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodingParams.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/CodingParams.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/markers/SIZMarker.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/markers/SIZMarker.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/markers/PPMMarker.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/markers/PPMMarker.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/codestream/markers/SOTMarker.h
   ${CMAKE_CURRENT_SOURCE_DIR}/codestream/markers/SOTMarker.cpp
 
   ${CMAKE_CURRENT_SOURCE_DIR}/cache/StripCache.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/cache/StripCache.h
   ${CMAKE_CURRENT_SOURCE_DIR}/cache/TileCache.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/cache/TileCache.h
   ${CMAKE_CURRENT_SOURCE_DIR}/cache/MemManager.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/cache/MemManager.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/cache/LengthCache.h
   ${CMAKE_CURRENT_SOURCE_DIR}/cache/LengthCache.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/cache/PLMarkerMgr.h
   ${CMAKE_CURRENT_SOURCE_DIR}/cache/PLMarkerMgr.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/cache/PLCache.h
   ${CMAKE_CURRENT_SOURCE_DIR}/cache/PLCache.cpp
 
   ${CMAKE_CURRENT_SOURCE_DIR}/point_transform/mct.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/point_transform/mct.h
   
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/PacketManager.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/PacketManager.h  
+
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/T2Compress.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/T2Compress.h  
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/T2Decompress.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/T2Decompress.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/RateControl.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/RateControl.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/RateInfo.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/RateInfo.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/PacketIter.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/PacketIter.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/PacketParser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/PacketParser.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/TagTree.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/BitIO.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/t2/BitIO.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t2/IBitIO.h
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/grok.h
   ${CMAKE_CURRENT_SOURCE_DIR}/grok.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/grk_includes.h  
-    
-  ${CMAKE_CURRENT_SOURCE_DIR}/tile/TileComponentWindow.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/tile/TileComponent.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/tile/TileComponent.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/tile/TileProcessor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/tile/TileProcessor.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/tile/SparseCanvas.h
-  
-  ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/ImageComponentFlow.h
+
   ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/ImageComponentFlow.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/Scheduler.h
   ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/Scheduler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/DecompressScheduler.h
   ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/DecompressScheduler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/CompressScheduler.h
   ${CMAKE_CURRENT_SOURCE_DIR}/scheduling/CompressScheduler.cpp
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/wavelet/WaveletFwd.h
   ${CMAKE_CURRENT_SOURCE_DIR}/wavelet/WaveletFwd.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/wavelet/WaveletReverse.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/wavelet/WaveletReverse.h
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/BlockExec.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/T1Factory.cpp  
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/T1Factory.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/T1Interface.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/Resolution.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/Precinct.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/Subband.cpp
+  
+  ${CMAKE_CURRENT_SOURCE_DIR}/canvas/Resolution.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/canvas/Precinct.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/canvas/Subband.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/canvas/TileComponent.cpp
+  
+  ${CMAKE_CURRENT_SOURCE_DIR}/tile/TileProcessor.cpp
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/T1OJPH.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/T1OJPH.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/QuantizerOJPH.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/QuantizerOJPH.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/coding/ojph_block_common.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/coding/ojph_block_decoder.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/coding/ojph_block_decoder.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/coding/ojph_block_encoder.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/coding/ojph_block_encoder.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/coding/table0.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/coding/table1.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/common/ojph_arch.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/common/ojph_defs.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/common/ojph_mem.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/OJPH/others/ojph_mem.cpp
 
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1/impl/T1.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1/impl/T1.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1/impl/mqc_enc.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1/impl/mqc_dec.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1/T1Part1.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1/T1Part1.h
   ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1//Quantizer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/t1/part1//Quantizer.h
 )
 
 add_definitions(-DSPDLOG_COMPILED_LIB)
