@@ -223,7 +223,7 @@ static void compress_help_display(void)
 	fprintf(stdout, " `-i, -in_file [file]`\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout,
-			"Input file. Either this argument or the `-in_dir` argument described below is\n");
+			"Input file. Either this argument or the `-batch_src` argument described below is\n");
 	fprintf(stdout, "required.  See above for supported input formats.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "* `PNG` requires `libpng` while `TIF/TIFF` requires `libtiff`\n");
@@ -250,7 +250,7 @@ static void compress_help_display(void)
 			"Output file. Required when using `-i` option. Valid output image extensions are\n");
 	fprintf(stdout, "`J2K`, `JP2` and `J2C`.\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, " `-y, -in_dir [input directory]`\n");
+	fprintf(stdout, " `-y, -batch_src [Source image directory OR comma separated list of compression settings for shared memory interface]`\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout,
 			"Path to the folder where the images to be compressed are stored. Either this\n");
@@ -264,14 +264,14 @@ static void compress_help_display(void)
 	fprintf(stdout, " `-a, -out_dir [output directory]`\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "Output directory where compressed files are stored. Only relevant when the\n");
-	fprintf(stdout, "`-in_dir` flag is set. Default: same directory as specified by `-y`.\n");
+	fprintf(stdout, "`-batch_src` flag is set. Default: same directory as specified by `-y`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-O, -out_fmt [J2K|J2C|JP2]`\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout,
 			"Output format used to compress the images read from the directory specified with\n");
 	fprintf(stdout,
-			"`-in_dir`. Required when `-in_dir` option is used. Supported formats are `J2K`,\n");
+			"`-batch_src`. Required when `-batch_src` option is used. Supported formats are `J2K`,\n");
 	fprintf(stdout, "`J2C`, and `JP2`.\n");
 	fprintf(stdout, "\n");
 	fprintf(stdout, " `-K, -in_fmt [pbm|pgm|ppm|pnm|pam|pgx|png|bmp|tif|raw|rawl|jpg]`\n");
@@ -1105,7 +1105,7 @@ GrkRC GrkCompress::parseCommandLine(int argc, char** argv, CompressInitParams* i
 		TCLAP::ValueArg<std::string> cinema4KArg("x", "cinema4K", "Digital cinema 4K profile",
 												 false, "24", "string", cmd);
 		TCLAP::SwitchArg tlmArg("X", "TLM", "TLM marker", cmd);
-		TCLAP::ValueArg<std::string> batchSrcArg("y", "batch_src", "Image directory", false, "",
+		TCLAP::ValueArg<std::string> batchSrcArg("y", "batch_src", "Source image directory OR comma separated list of compression settings for shared memory interface", false, "",
 												 "string", cmd);
 		TCLAP::ValueArg<uint32_t> mctArg("Y", "MCT", "Multi component transform", false, 0,
 										 "unsigned integer", cmd);
